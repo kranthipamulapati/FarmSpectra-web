@@ -1,6 +1,13 @@
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
 
-import { Link } from "react-router";
+import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router";
+
+import store from "@/store";
+
+import { supabase } from "@/services";
+
+import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +15,54 @@ import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
 
 const UserLogin = () => {
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> =
+        useCallback((e) => {
+            setEmail(e.target.value);
+        }, []);
+
+    const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> =
+        useCallback((e) => {
+            setPassword(e.target.value);
+        }, []);
+
+    const handleLogin: React.FormEventHandler<HTMLFormElement> = async (e) => {
+        e.preventDefault();
+
+        const { loading } = store.getState().global;
+
+        if (loading) {
+            return;
+        }
+
+        try {
+            store.dispatch(setLoading(true));
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            if (data) {
+                navigate("/home");
+            }
+        } catch (err: unknown) {
+            toast(err.message, {
+                type: "error",
+            });
+        } finally {
+            store.dispatch(setLoading(false));
+        }
+    };
+
     return (
         <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
             <div className="w-full max-w-sm">
@@ -18,7 +73,7 @@ const UserLogin = () => {
                         </CardHeader>
 
                         <CardContent>
-                            <form>
+                            <form onSubmit={handleLogin}>
                                 <div className="flex flex-col gap-6">
                                     <div className="grid gap-2">
                                         <Label htmlFor="email">Email</Label>
@@ -26,7 +81,11 @@ const UserLogin = () => {
                                         <Input
                                             id="email"
                                             type="email"
+                                            value={email}
                                             required={true}
+                                            minLength={3}
+                                            maxLength={320}
+                                            onChange={handleEmailChange}
                                         />
                                     </div>
 
@@ -48,6 +107,10 @@ const UserLogin = () => {
                                             id="password"
                                             type="password"
                                             required={true}
+                                            minLength={8}
+                                            maxLength={64}
+                                            value={password}
+                                            onChange={handlePasswordChange}
                                         />
                                     </div>
 
