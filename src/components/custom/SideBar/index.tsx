@@ -8,7 +8,6 @@ import {
     SidebarMenu,
     SidebarGroup,
     SidebarHeader,
-    SidebarFooter,
     SidebarContent,
     SidebarMenuItem,
     SidebarMenuButton,
@@ -38,7 +37,10 @@ const AppSidebar = ({ items }: Props) => {
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton asChild>
                                     <Link to={item.url}>
-                                        <item.icon />
+                                        <item.icon
+                                            fill="black"
+                                            fillOpacity={0.25}
+                                        />
                                         <span>{item.title}</span>
                                     </Link>
                                 </SidebarMenuButton>
@@ -47,8 +49,6 @@ const AppSidebar = ({ items }: Props) => {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
-
-            <SidebarFooter />
         </Sidebar>
     );
 };
