@@ -1,12 +1,14 @@
 import { memo } from "react";
 
-import { AppSidebar } from "@/components/custom/SiderBar";
+import { userSideBarItems } from "@/constants";
+
+import AppSidebar from "@/components/custom/SideBar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const UserHome = () => {
     return (
         <SidebarProvider defaultOpen={false}>
-            <AppSidebar />
+            <AppSidebar items={userSideBarItems} />
             <main>
                 <SidebarTrigger />
             </main>
