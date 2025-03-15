@@ -3,13 +3,12 @@ import { memo } from "react";
 import { AppSidebar } from "@/components/custom/SiderBar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-const UserHome = ({ children }: { children: React.ReactNode }) => {
+const UserHome = () => {
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
             <AppSidebar />
             <main>
                 <SidebarTrigger />
-                {children}
             </main>
         </SidebarProvider>
     );
