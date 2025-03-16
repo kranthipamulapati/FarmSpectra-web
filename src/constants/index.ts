@@ -5,15 +5,15 @@ const hyderabadGeoCenter = {
     lng: 78.4772,
 };
 
+const americanFarmsGeoCenter = {
+    lat: 33.03580236337875,
+    lng: -102.35213882988563,
+};
+
 const userSideBarItems = [
     {
         title: "Dashboard",
         url: "/home/dashboard",
-        icon: Home,
-    },
-    {
-        title: "Farms",
-        url: "/home/farms",
         icon: Home,
     },
     {
@@ -25,4 +25,9 @@ const userSideBarItems = [
 
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL;
 
-export { apiBaseURL, userSideBarItems, hyderabadGeoCenter };
+export {
+    apiBaseURL,
+    userSideBarItems,
+    hyderabadGeoCenter,
+    americanFarmsGeoCenter,
+};
