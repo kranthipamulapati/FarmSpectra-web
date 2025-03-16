@@ -82,9 +82,9 @@ const MapComponent = () => {
         <Map
             defaultZoom={13}
             mapTypeId={mapType}
-            gestureHandling="greedy"
             zoomControl={false}
             mapTypeControl={false}
+            gestureHandling="greedy"
             fullscreenControl={false}
             streetViewControl={false}
             defaultCenter={americanFarmsGeoCenter}
