@@ -5,7 +5,7 @@ import { Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { americanFarmsGeoCenter } from "@/constants";
 
 import Controls from "./Controls";
-import FarmFormModal from "@/components/custom/Farm";
+import FarmForm from "@/components/custom/Farm";
 
 const MapComponent = () => {
     const map = useMap();
@@ -85,7 +85,10 @@ const MapComponent = () => {
             streetViewControl={false}
             defaultCenter={americanFarmsGeoCenter}
         >
-            <FarmFormModal />
+            <div className="absolute top-4 right-20">
+                <FarmForm />
+            </div>
+
             <Controls
                 clearPolygon={clearPolygon}
                 startDrawing={startDrawing}
