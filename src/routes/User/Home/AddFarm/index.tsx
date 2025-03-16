@@ -2,7 +2,7 @@ import { memo } from "react";
 
 import Map from "./Map";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import SidebarTrigger from "@/components/custom/SideBar/Trigger";
 
 const AddFarm = () => {
     return (

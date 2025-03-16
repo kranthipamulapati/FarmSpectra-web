@@ -1,4 +1,4 @@
-import { Home, Trees, Settings } from "lucide-react";
+import { Trees, Settings, LayoutDashboard } from "lucide-react";
 
 const hyderabadGeoCenter = {
     lat: 17.4065,
@@ -14,7 +14,7 @@ const userSideBarItems = [
     {
         title: "Dashboard",
         url: "/home/dashboard",
-        icon: Home,
+        icon: LayoutDashboard,
     },
     {
         title: "AddFarm",
