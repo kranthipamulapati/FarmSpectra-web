@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Menu, ChevronRight, ChevronLeft } from "lucide-react";
+import { Menu, PanelLeftClose, PanelRightClose } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -20,9 +20,9 @@ const SideBarTrigger = () => {
             {isMobile ? (
                 <Menu className="h-5 w-5" />
             ) : state === "collapsed" ? (
-                <ChevronRight className="h-5 w-5" />
+                <PanelRightClose className="h-5 w-5" />
             ) : (
-                <ChevronLeft className="h-5 w-5" />
+                <PanelLeftClose className="h-5 w-5" />
             )}
         </Button>
     );

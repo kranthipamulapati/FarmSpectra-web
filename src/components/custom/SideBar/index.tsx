@@ -28,7 +28,9 @@ type Props = {
 const AppSidebar = ({ items }: Props) => {
     return (
         <Sidebar collapsible="icon">
-            <SidebarHeader>FS</SidebarHeader>
+            <SidebarHeader className="flex items-center justify-center">
+                FS
+            </SidebarHeader>
 
             <SidebarContent>
                 <SidebarGroup>
