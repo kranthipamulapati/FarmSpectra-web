@@ -5,7 +5,7 @@ import { Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { americanFarmsGeoCenter } from "@/constants";
 
 import Controls from "./Controls";
-import FarmForm from "@/components/custom/Farm";
+import FarmForm from "@/components/custom/Farm/Form";
 
 const MapComponent = () => {
     const map = useMap();

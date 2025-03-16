@@ -2,7 +2,7 @@ import { memo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { X, CalendarIcon } from "lucide-react";
 
 import {
     Select,
@@ -52,15 +52,19 @@ const FarmForm = () => {
     };
 
     return (
-        <Card className="w-full max-w-[600px] rounded-none">
+        <Card className="w-full max-w-[600px] rounded-none py-4">
             <form onSubmit={handleSubmit}>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>New Farm</CardTitle>
+
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <X className="h-4 w-4" />
+                    </Button>
                 </CardHeader>
 
-                <Separator className="my-4" />
+                <Separator className="my-2" />
 
-                <div className="grid gap-6 p-6">
+                <div className="grid gap-6 px-6 py-3">
                     {/* Farm Details Section */}
                     <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -81,16 +85,20 @@ const FarmForm = () => {
                                     id="area"
                                     type="number"
                                     min="0"
-                                    step="0.01"
                                     placeholder="Enter area"
                                     required
+                                    disabled
                                 />
                             </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="unit">Unit</Label>
+
                                 <Select>
-                                    <SelectTrigger id="unit_fk">
+                                    <SelectTrigger
+                                        id="unit_fk"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select unit" />
                                     </SelectTrigger>
 
@@ -113,7 +121,10 @@ const FarmForm = () => {
                                 <Label htmlFor="crop_fk">Crop</Label>
 
                                 <Select>
-                                    <SelectTrigger id="crop_fk">
+                                    <SelectTrigger
+                                        id="crop_fk"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select crop" />
                                     </SelectTrigger>
 
@@ -217,7 +228,10 @@ const FarmForm = () => {
                                 </Label>
 
                                 <Select>
-                                    <SelectTrigger id="growth_stage_fk">
+                                    <SelectTrigger
+                                        className="w-full"
+                                        id="growth_stage_fk"
+                                    >
                                         <SelectValue placeholder="Select stage" />
                                     </SelectTrigger>
 
@@ -237,7 +251,10 @@ const FarmForm = () => {
                                 </Label>
 
                                 <Select>
-                                    <SelectTrigger id="irrigation_type_fk">
+                                    <SelectTrigger
+                                        className="w-full"
+                                        id="irrigation_type_fk"
+                                    >
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
 
@@ -257,7 +274,10 @@ const FarmForm = () => {
                                 <Label htmlFor="tillage_type_fk">Tillage</Label>
 
                                 <Select>
-                                    <SelectTrigger id="tillage_type_fk">
+                                    <SelectTrigger
+                                        className="w-full"
+                                        id="tillage_type_fk"
+                                    >
                                         <SelectValue placeholder="Select tillage" />
                                     </SelectTrigger>
 
@@ -275,7 +295,10 @@ const FarmForm = () => {
                                 <Label htmlFor="season_fk">Season</Label>
 
                                 <Select>
-                                    <SelectTrigger id="season_fk">
+                                    <SelectTrigger
+                                        id="season_fk"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select season" />
                                     </SelectTrigger>
 
@@ -292,12 +315,12 @@ const FarmForm = () => {
                     </div>
                 </div>
 
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex justify-center py-4 gap-4">
                     <Button type="button" variant="outline">
                         Cancel
                     </Button>
 
-                    <Button type="submit">Save</Button>
+                    <Button type="submit">Add</Button>
                 </CardFooter>
             </form>
         </Card>
