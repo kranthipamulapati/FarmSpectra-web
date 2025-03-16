@@ -32,7 +32,11 @@ import type {
     IrrigationType,
 } from "@/services";
 
-const FarmForm = () => {
+type Props = {
+    clearPolygon: () => void;
+};
+
+const FarmForm = ({ clearPolygon }: Props) => {
     const [irrigationTypes, setIrrigationTypes] = useState<
         Array<IrrigationType>
     >([]);
@@ -57,7 +61,13 @@ const FarmForm = () => {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>New Farm</CardTitle>
 
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={clearPolygon}
+                    >
                         <X className="h-4 w-4" />
                     </Button>
                 </CardHeader>

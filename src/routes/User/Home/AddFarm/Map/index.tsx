@@ -11,6 +11,7 @@ const MapComponent = () => {
     const map = useMap();
     const drawing = useMapsLibrary("drawing");
 
+    const [showFarmForm, setShowFarmForm] = useState(false);
     const [polygon, setPolygon] = useState<google.maps.Polygon>();
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(
@@ -30,6 +31,7 @@ const MapComponent = () => {
     const clearPolygon = useCallback(() => {
         polygon?.setMap(null);
         setPolygon(undefined);
+        setShowFarmForm(false);
     }, [polygon]);
 
     // toggle map between road & satellite
@@ -65,6 +67,7 @@ const MapComponent = () => {
             "polygoncomplete",
             (Polygon: google.maps.Polygon) => {
                 setPolygon(Polygon);
+                setShowFarmForm(true);
                 newDrawingManager.setDrawingMode(null);
             }
         );
@@ -85,9 +88,11 @@ const MapComponent = () => {
             streetViewControl={false}
             defaultCenter={americanFarmsGeoCenter}
         >
-            <div className="absolute top-4 right-20">
-                <FarmForm />
-            </div>
+            {showFarmForm && (
+                <div className="absolute top-4 right-20">
+                    <FarmForm clearPolygon={clearPolygon} />
+                </div>
+            )}
 
             <Controls
                 clearPolygon={clearPolygon}
