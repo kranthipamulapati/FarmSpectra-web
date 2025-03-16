@@ -7,7 +7,7 @@ import {
     useMapsLibrary,
     ControlPosition,
 } from "@vis.gl/react-google-maps";
-import { Eraser, Expand, Layers, PencilRuler } from "lucide-react";
+import { X, Search, Expand, Layers, SquareDashed } from "lucide-react";
 
 import { americanFarmsGeoCenter } from "@/constants";
 
@@ -92,24 +92,31 @@ const MapComponent = () => {
             {/* Custom Map Controls */}
             <MapControl position={ControlPosition.TOP_RIGHT}>
                 <div className="bg-white p-2 rounded-md shadow-lg flex flex-col space-y-2 absolute right-4 top-4 z-[2]">
+                    <button className="p-2 bg-gray-100 rounded-md hover:bg-gray-200">
+                        <Search className="w-5 h-5" />
+                    </button>
+
                     <button
                         onClick={startDrawing}
                         className="p-2 bg-gray-100 rounded-md hover:bg-gray-200"
                     >
-                        <PencilRuler className="w-5 h-5" />
+                        <SquareDashed className="w-5 h-5" />
                     </button>
+
                     <button
                         onClick={clearPolygon}
                         className="p-2 bg-gray-100 rounded-md hover:bg-gray-200"
                     >
-                        <Eraser className="w-5 h-5" />
+                        <X className="w-5 h-5" />
                     </button>
+
                     <button
                         onClick={toggleMapType}
                         className="p-2 bg-gray-100 rounded-md hover:bg-gray-200"
                     >
                         <Layers className="w-5 h-5" />
                     </button>
+
                     <button
                         onClick={toggleFullScreen}
                         className="p-2 bg-gray-100 rounded-md hover:bg-gray-200"
