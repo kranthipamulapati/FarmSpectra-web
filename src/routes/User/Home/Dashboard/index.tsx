@@ -1,13 +1,7 @@
 import { memo } from "react";
 
-import Map from "./Map";
-
 const UserDashboard = () => {
-    return (
-        <>
-            <Map />
-        </>
-    );
+    return <></>;
 };
 
 export default memo(UserDashboard);

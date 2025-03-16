@@ -50,8 +50,8 @@ const MapComponent = () => {
             defaultZoom={13}
             clickableIcons={false}
             gestureHandling="greedy"
-            mapTypeId={google.maps.MapTypeId.SATELLITE}
             defaultCenter={americanFarmsGeoCenter}
+            mapTypeId={google.maps.MapTypeId.SATELLITE}
         ></Map>
     );
 };

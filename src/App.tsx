@@ -4,6 +4,7 @@ import { Route, Routes, BrowserRouter } from "react-router";
 import UserLogin from "@/routes/User/Login";
 
 const UserHome = lazy(() => import("@/routes/User/Home"));
+const AddFarm = lazy(() => import("@/routes/User/Home/AddFarm"));
 const UserDashboard = lazy(() => import("@/routes/User/Home/Dashboard"));
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
                                 path="/home/dashboard"
                                 element={<UserDashboard />}
                             />
+
+                            <Route path="/home/addFarm" element={<AddFarm />} />
                         </Route>
                     </Route>
                 </Routes>
