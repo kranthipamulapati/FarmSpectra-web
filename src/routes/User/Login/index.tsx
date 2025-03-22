@@ -1,144 +1,99 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, type MouseEvent } from "react";
 
+import { Link } from "react-router";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
-import store from "@/store";
+import { pocketbase } from "@/services";
 
-import { supabase } from "@/services";
-
-import { setLoading } from "@/store/reducers/GlobalSlice";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
+
+import store, { type RootState } from "@/store";
+import { setLoading } from "@/store/reducers/GlobalSlice";
 
 const UserLogin = () => {
     const navigate = useNavigate();
+    const { loading } = useSelector((state: RootState) => state.global);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const handleSocialSignIn = useCallback(
+        async (e: MouseEvent<HTMLButtonElement>) => {
+            const provider = (e.target as HTMLButtonElement).value;
 
-    const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> =
-        useCallback((e) => {
-            setEmail(e.target.value);
-        }, []);
+            const { loading } = store.getState().global;
 
-    const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> =
-        useCallback((e) => {
-            setPassword(e.target.value);
-        }, []);
+            if (loading) {
+                return;
+            }
 
-    const handleLogin: React.FormEventHandler<HTMLFormElement> = async (e) => {
-        e.preventDefault();
-
-        const { loading } = store.getState().global;
-
-        if (loading) {
-            return;
-        }
-
-        try {
             store.dispatch(setLoading(true));
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+            try {
+                const auth = await pocketbase
+                    .collection("users")
+                    .authWithOAuth2({
+                        provider,
+                        createData: {
+                            provider,
+                            active: true,
+                        },
+                    });
 
-            if (error) {
-                throw error;
+                if (auth) {
+                    navigate("/home/plots");
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    toast(error.message, { type: "error" });
+                } else {
+                    toast("An unexpected error occurred", { type: "error" });
+                }
+            } finally {
+                store.dispatch(setLoading(false));
             }
-
-            if (data) {
-                navigate("/home");
-            }
-        } catch (err: unknown) {
-            toast(err.message, {
-                type: "error",
-            });
-        } finally {
-            store.dispatch(setLoading(false));
-        }
-    };
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [] // navigate not needed
+    );
 
     return (
-        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-2xl">Login</CardTitle>
-                        </CardHeader>
-
-                        <CardContent>
-                            <form onSubmit={handleLogin}>
-                                <div className="flex flex-col gap-6">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="email">Email</Label>
-
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={email}
-                                            required={true}
-                                            minLength={3}
-                                            maxLength={320}
-                                            onChange={handleEmailChange}
-                                        />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <div className="flex items-center">
-                                            <Label htmlFor="password">
-                                                Password
-                                            </Label>
-
-                                            <Link
-                                                to="#"
-                                                className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                            >
-                                                Forgot your password?
-                                            </Link>
-                                        </div>
-
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            required={true}
-                                            minLength={8}
-                                            maxLength={64}
-                                            value={password}
-                                            onChange={handlePasswordChange}
-                                        />
-                                    </div>
-
-                                    <Button type="submit" className="w-full">
-                                        Login
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        className="w-full"
-                                    >
-                                        Login with Google
-                                    </Button>
-                                </div>
-
-                                <div className="mt-4 text-center text-sm">
-                                    Don&apos;t have an account?{" "}
-                                    <a
-                                        href="#"
-                                        className="underline underline-offset-4"
-                                    >
-                                        Sign up
-                                    </a>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+            {/* Main Content */}
+            <div className="w-full max-w-[400px] space-y-8">
+                <div className="text-center space-y-4">
+                    <h1 className="text-4xl font-bold tracking-tight">
+                        FarmSpectra
+                    </h1>
                 </div>
+
+                <div className="space-y-3">
+                    <Button
+                        value="google"
+                        variant="outline"
+                        disabled={loading}
+                        onClick={handleSocialSignIn}
+                        className="w-full h-12 text-base font-normal"
+                    >
+                        <img
+                            width={20}
+                            height={20}
+                            alt="Google"
+                            className="mr-3"
+                            src="/placeholder.svg"
+                        />
+                        {loading ? "Logging in..." : "Sign In With Google"}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div className="fixed bottom-0 w-full p-4 flex justify-center items-center gap-4 text-sm text-gray-600">
+                <Link to="#" className="hover:underline">
+                    Privacy & Terms
+                </Link>
+                <Link to="#" className="hover:underline">
+                    Contact Us
+                </Link>
             </div>
         </div>
     );

@@ -2,6 +2,7 @@ import { memo, lazy, Suspense } from "react";
 import { Route, Routes, BrowserRouter } from "react-router";
 
 import UserLogin from "@/routes/User/Login";
+import AuthCheck from "@/components/custom/AuthCheck";
 
 const UserHome = lazy(() => import("@/routes/User/Home"));
 const UserFarms = lazy(() => import("@/routes/User/Home/Farms"));
@@ -18,7 +19,7 @@ function App() {
 
                     <Route path="/login" element={<UserLogin />} />
 
-                    <Route path="/">
+                    <Route path="/" element={<AuthCheck role="user" />}>
                         <Route path="/home" element={<UserHome />}>
                             <Route
                                 path="/home/dashboard"

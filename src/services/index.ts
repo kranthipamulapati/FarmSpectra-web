@@ -1,10 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import PocketBase from "pocketbase";
 
-// Create a single supabase client for interacting with your database
-const supabase = createClient(
-    import.meta.env.VITE_API_BASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import { apiBaseURL } from "@/constants";
+
+const pocketbase = new PocketBase(apiBaseURL);
+pocketbase.autoCancellation(false);
 
 type Unit = {
     id: string;
@@ -60,5 +59,22 @@ type GrowthStage = {
     active: 0 | 1;
 };
 
-export { supabase };
-export type { Unit, Crop, Season, GrowthStage, TillageType, IrrigationType };
+type User = {
+    id: string;
+    name: string;
+    email: string;
+    verified: 0 | 1;
+    created: Date;
+    updated: Date;
+};
+
+export { pocketbase };
+export type {
+    User,
+    Unit,
+    Crop,
+    Season,
+    GrowthStage,
+    TillageType,
+    IrrigationType,
+};
