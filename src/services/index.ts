@@ -9,9 +9,12 @@ type Unit = {
     id: string;
     code: string;
     name: string;
+    dimension: "1" | "2" | "3";
+    factor_to_base: number;
+    is_base: boolean;
+    active: boolean;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
 };
 
 type Crop = {
@@ -19,8 +22,8 @@ type Crop = {
     code: string;
     name: string;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
+    active: boolean;
 };
 
 type Season = {
@@ -28,26 +31,26 @@ type Season = {
     code: string;
     name: string;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
+    active: boolean;
 };
 
-type TillageType = {
+type Tillage = {
     id: string;
     code: string;
     description: string;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
+    active: boolean;
 };
 
-type IrrigationType = {
+type IrrigationMethod = {
     id: string;
     code: string;
     description: string;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
+    active: boolean;
 };
 
 type GrowthStage = {
@@ -55,17 +58,35 @@ type GrowthStage = {
     code: string;
     description: string;
     created: Date;
-    created_by: string;
-    active: 0 | 1;
+    updated: Date;
+    active: boolean;
 };
 
 type User = {
     id: string;
     name: string;
     email: string;
-    verified: 0 | 1;
+    verified: boolean;
     created: Date;
     updated: Date;
+};
+
+type State = {
+    id: string;
+    code: string;
+    name: string;
+    created: Date;
+    updated: Date;
+    active: boolean;
+};
+
+type Country = {
+    id: string;
+    code: string;
+    name: string;
+    created: Date;
+    updated: Date;
+    active: boolean;
 };
 
 export { pocketbase };
@@ -73,8 +94,10 @@ export type {
     User,
     Unit,
     Crop,
+    State,
     Season,
+    Country,
+    Tillage,
     GrowthStage,
-    TillageType,
-    IrrigationType,
+    IrrigationMethod,
 };
