@@ -1,8 +1,33 @@
 import { memo, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 import { X, CalendarIcon } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+
+import type {
+    Unit,
+    Crop,
+    Season,
+    GrowthStage,
+    TillageType,
+    IrrigationMethod,
+} from "@/services";
+import {
+    getUnits,
+    getCrops,
+    getSeasons,
+    getGrowthStages,
+    getTillageTypes,
+    getIrrigationMethods,
+} from "@/services/masters";
+
+import { cn } from "@/lib/utils";
+
+import useAsyncEffect from "@/hooks/useAsyncEffect";
+
+import type { RootState } from "@/store";
+import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
     Select,
@@ -23,25 +48,19 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
-import type {
-    Unit,
-    Crop,
-    Season,
-    GrowthStage,
-    TillageType,
-    IrrigationType,
-} from "@/services";
-
 type Props = {
     clearPolygon: () => void;
 };
 
 const FarmForm = ({ clearPolygon }: Props) => {
-    const [irrigationTypes, setIrrigationTypes] = useState<
-        Array<IrrigationType>
+    const dispatch = useDispatch();
+    const { loading } = useSelector((state: RootState) => state.global);
+
+    const [irrigationMethods, setIrrigationMethods] = useState<
+        Array<IrrigationMethod>
     >([]);
-    const [units, setUnit] = useState<Array<Unit>>([]);
-    const [crops, setCrop] = useState<Array<Crop>>([]);
+    const [units, setUnits] = useState<Array<Unit>>([]);
+    const [crops, setCrops] = useState<Array<Crop>>([]);
     const [seasons, setSeasons] = useState<Array<Season>>([]);
     const [growthStages, setGrowthStages] = useState<Array<GrowthStage>>([]);
     const [tillageTypes, setTillageTypes] = useState<Array<TillageType>>([]);
@@ -54,6 +73,51 @@ const FarmForm = ({ clearPolygon }: Props) => {
         e.preventDefault();
         // Form submission logic would go here
     };
+
+    useAsyncEffect(
+        async (signal) => {
+            if (loading) {
+                return;
+            }
+
+            dispatch(setLoading(true));
+
+            const [
+                Units,
+                Crops,
+                Seasons,
+                TillageTypes,
+                GrowthStages,
+                IrrigationMethods,
+            ] = await Promise.all([
+                getUnits(signal),
+                getCrops(signal),
+                getSeasons(signal),
+                getTillageTypes(signal),
+                getGrowthStages(signal),
+                getIrrigationMethods(signal),
+            ]);
+
+            setUnits(Units);
+            setCrops(Crops);
+            setSeasons(Seasons);
+            setGrowthStages(GrowthStages);
+            setTillageTypes(TillageTypes);
+            setIrrigationMethods(IrrigationMethods);
+
+            dispatch(setLoading(false));
+        },
+        [],
+        (error) => {
+            dispatch(setLoading(false));
+
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
+    );
 
     return (
         <Card className="w-full max-w-[600px] rounded-none py-4">
@@ -269,7 +333,7 @@ const FarmForm = ({ clearPolygon }: Props) => {
                                     </SelectTrigger>
 
                                     <SelectContent>
-                                        {irrigationTypes.map((item) => (
+                                        {irrigationMethods.map((item) => (
                                             <SelectItem value={item.code}>
                                                 {item.description}
                                             </SelectItem>

@@ -35,7 +35,7 @@ type Season = {
     active: boolean;
 };
 
-type Tillage = {
+type TillageType = {
     id: string;
     code: string;
     description: string;
@@ -97,7 +97,7 @@ export type {
     State,
     Season,
     Country,
-    Tillage,
+    TillageType,
     GrowthStage,
     IrrigationMethod,
 };

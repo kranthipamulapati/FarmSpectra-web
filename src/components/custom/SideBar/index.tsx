@@ -28,22 +28,21 @@ type Props = {
 const AppSidebar = ({ items }: Props) => {
     return (
         <Sidebar collapsible="icon">
-            <SidebarHeader className="flex items-center justify-center">
+            {/* <SidebarHeader className="flex items-center justify-center bg-green-600">
                 FS
-            </SidebarHeader>
+            </SidebarHeader> */}
 
             <SidebarContent>
-                <SidebarGroup>
+                <SidebarGroup className="bg-green-600">
                     <SidebarMenu>
                         {items.map((item) => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton asChild>
                                     <Link to={item.url}>
-                                        <item.icon
-                                            fill="black"
-                                            fillOpacity={0.25}
-                                        />
-                                        <span>{item.title}</span>
+                                        <item.icon fill="white" color="white" />
+                                        <span className="text-white">
+                                            {item.title}
+                                        </span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
