@@ -40,7 +40,7 @@ const UserLogin = () => {
                     });
 
                 if (auth) {
-                    navigate("/home/plots");
+                    navigate("/home/dashboard");
                 }
             } catch (error: unknown) {
                 if (error instanceof Error) {
