@@ -69,8 +69,11 @@ const FarmForm = ({ clearPolygon }: Props) => {
         undefined
     );
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        //const data = parsePlotFormData(formData);
         // Form submission logic would go here
     };
 
@@ -142,10 +145,10 @@ const FarmForm = ({ clearPolygon }: Props) => {
                     {/* Farm Details Section */}
                     <div className="grid gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="farm-name">Name</Label>
+                            <Label htmlFor="name">Name</Label>
 
                             <Input
-                                id="farm-name"
+                                id="name"
                                 required={true}
                                 placeholder="Enter farm name"
                             />
@@ -166,7 +169,7 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="unit">Unit</Label>
+                                <Label htmlFor="unit_fk">Unit</Label>
 
                                 <Select>
                                     <SelectTrigger
@@ -213,12 +216,12 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="target-yield">
+                                <Label htmlFor="target_yield">
                                     Target Yield
                                 </Label>
 
                                 <Input
-                                    id="target-yield"
+                                    id="target_yield"
                                     type="number"
                                     min="0"
                                     step="0.01"
@@ -229,12 +232,12 @@ const FarmForm = ({ clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="sowing-date">Sowing Date</Label>
+                                <Label htmlFor="sowing_date">Sowing Date</Label>
 
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            id="sowing-date"
+                                            id="sowing_date"
                                             variant="outline"
                                             className={cn(
                                                 "w-full justify-start text-left font-normal",
@@ -261,14 +264,14 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="harvesting-date">
+                                <Label htmlFor="harvesting_date">
                                     Harvesting Date
                                 </Label>
 
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            id="harvesting-date"
+                                            id="harvesting_date"
                                             variant="outline"
                                             className={cn(
                                                 "w-full justify-start text-left font-normal",
@@ -320,14 +323,14 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="irrigation_type_fk">
+                                <Label htmlFor="irrigation_method_fk">
                                     Irrigation
                                 </Label>
 
                                 <Select>
                                     <SelectTrigger
                                         className="w-full"
-                                        id="irrigation_type_fk"
+                                        id="irrigation_method_fk"
                                     >
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
