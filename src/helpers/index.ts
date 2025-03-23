@@ -1,4 +1,7 @@
-import { convertArea, getAreaOfPolygon } from "geolib";
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
 
 import type { FarmForm, FarmCalenderForm } from "@/services/farms";
 
@@ -112,4 +115,5 @@ const checkFarmFormData = (data: {
     return status;
 };
 
+export type { Coordinate };
 export { checkFarmFormData, parseFarmFormData };

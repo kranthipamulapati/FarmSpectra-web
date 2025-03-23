@@ -2,6 +2,8 @@ import { memo, useRef, useState, useEffect, useCallback } from "react";
 
 import { Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
+import type { Coordinate } from "@/helpers";
+
 import { americanFarmsGeoCenter } from "@/constants";
 
 import Controls from "./Controls";
@@ -13,6 +15,7 @@ const MapComponent = () => {
 
     const [showFarmForm, setShowFarmForm] = useState(false);
     const [polygon, setPolygon] = useState<google.maps.Polygon>();
+    const [coordinates, setCoordinates] = useState<Array<Coordinate>>([]);
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(
         null
@@ -66,8 +69,17 @@ const MapComponent = () => {
         newDrawingManager.addListener(
             "polygoncomplete",
             (Polygon: google.maps.Polygon) => {
+                const path = Polygon.getPath();
+                const Coordinates: Array<Coordinate> = [];
+
+                for (let i = 0; i < path.getLength(); i++) {
+                    const point = path.getAt(i);
+                    Coordinates.push({ lat: point.lat(), lng: point.lng() });
+                }
+
                 setPolygon(Polygon);
                 setShowFarmForm(true);
+                setCoordinates(Coordinates);
                 newDrawingManager.setDrawingMode(null);
             }
         );
@@ -90,7 +102,10 @@ const MapComponent = () => {
         >
             {showFarmForm && (
                 <div className="absolute top-4 right-20">
-                    <FarmForm polygon={polygon} clearPolygon={clearPolygon} />
+                    <FarmForm
+                        coordinates={coordinates}
+                        clearPolygon={clearPolygon}
+                    />
                 </div>
             )}
 

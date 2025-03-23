@@ -2,6 +2,7 @@ import { memo, useState } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import { getAreaOfPolygon } from "geolib";
 import { X, CalendarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -50,12 +51,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
+import type { Coordinate } from "@/helpers";
+
 type Props = {
     clearPolygon: () => void;
-    polygon: google.maps.Polygon | undefined;
+    coordinates: Array<Coordinate>;
 };
 
-const FarmForm = ({ polygon, clearPolygon }: Props) => {
+const FarmForm = ({ coordinates, clearPolygon }: Props) => {
     const dispatch = useDispatch();
     const { loading } = useSelector((state: RootState) => state.global);
 
@@ -163,7 +166,8 @@ const FarmForm = ({ polygon, clearPolygon }: Props) => {
                                     name="farm[area]"
                                     required={true}
                                     disabled={true}
-                                    placeholder="auto filled"
+                                    placeholder="Auto filled"
+                                    value={getAreaOfPolygon(coordinates)}
                                 />
                             </div>
 
