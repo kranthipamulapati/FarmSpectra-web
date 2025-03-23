@@ -26,7 +26,9 @@ import { cn } from "@/lib/utils";
 
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
-import type { RootState } from "@/store";
+import { handleFarmFormSubmit } from "@/services/farms";
+
+import { type RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
@@ -48,13 +50,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
-import { parseFarmFormData } from "@/helpers";
-
 type Props = {
     clearPolygon: () => void;
+    polygon: google.maps.Polygon | undefined;
 };
 
-const FarmForm = ({ clearPolygon }: Props) => {
+const FarmForm = ({ polygon, clearPolygon }: Props) => {
     const dispatch = useDispatch();
     const { loading } = useSelector((state: RootState) => state.global);
 
@@ -70,15 +71,6 @@ const FarmForm = ({ clearPolygon }: Props) => {
     const [harvestingDate, setHarvestingDate] = useState<Date | undefined>(
         undefined
     );
-
-    const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(e.currentTarget);
-        const data = parseFarmFormData(formData);
-        //const data = parsePlotFormData(formData);
-        // Form submission logic would go here
-    };
 
     useAsyncEffect(
         async (signal) => {
@@ -127,7 +119,7 @@ const FarmForm = ({ clearPolygon }: Props) => {
 
     return (
         <Card className="w-full max-w-[600px] rounded-none py-4">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleFarmFormSubmit}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>New Farm</CardTitle>
 
@@ -249,7 +241,6 @@ const FarmForm = ({ clearPolygon }: Props) => {
                                         <Button
                                             variant="outline"
                                             id="calender[sowing_date]"
-                                            name="calender[sowing_date]"
                                             className={cn(
                                                 "w-full justify-start text-left font-normal",
                                                 !sowingDate &&
@@ -272,6 +263,18 @@ const FarmForm = ({ clearPolygon }: Props) => {
                                         />
                                     </PopoverContent>
                                 </Popover>
+
+                                <input
+                                    type="hidden"
+                                    name="calender[sowing_date]"
+                                    value={
+                                        sowingDate
+                                            ? sowingDate
+                                                  .toISOString()
+                                                  .split("T")[0]
+                                            : ""
+                                    }
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -307,6 +310,18 @@ const FarmForm = ({ clearPolygon }: Props) => {
                                         />
                                     </PopoverContent>
                                 </Popover>
+
+                                <input
+                                    type="hidden"
+                                    name="calender[harvesting_date]"
+                                    value={
+                                        harvestingDate
+                                            ? harvestingDate
+                                                  .toISOString()
+                                                  .split("T")[0]
+                                            : ""
+                                    }
+                                />
                             </div>
                         </div>
 

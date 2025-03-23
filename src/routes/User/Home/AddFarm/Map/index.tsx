@@ -90,7 +90,7 @@ const MapComponent = () => {
         >
             {showFarmForm && (
                 <div className="absolute top-4 right-20">
-                    <FarmForm clearPolygon={clearPolygon} />
+                    <FarmForm polygon={polygon} clearPolygon={clearPolygon} />
                 </div>
             )}
 

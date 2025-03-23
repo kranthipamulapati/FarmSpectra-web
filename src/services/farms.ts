@@ -1,3 +1,11 @@
+import { toast } from "react-toastify";
+import { ClientResponseError } from "pocketbase";
+
+import store from "@/store";
+import { setLoading } from "@/store/reducers/GlobalSlice";
+
+import { checkFarmFormData, parseFarmFormData } from "@/helpers";
+
 type Farm = {
     id: string;
     name: string;
@@ -44,4 +52,53 @@ type FarmCalenderForm = Pick<
     | "estimated_yield"
 >;
 
+const handleFarmFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
+    e
+) => {
+    e.preventDefault();
+
+    const { loading } = store.getState().global;
+
+    if (loading) {
+        return;
+    }
+
+    store.dispatch(setLoading(true));
+
+    try {
+        const formData = new FormData(e.currentTarget);
+
+        const data = parseFarmFormData({
+            formData,
+        });
+
+        const status = checkFarmFormData(data);
+
+        if (status.farm && status.calendar) {
+            // add farm, calendar
+        }
+
+        toast("Farm details added successfully.", { type: "success" });
+    } catch (error: unknown) {
+        if (error instanceof ClientResponseError) {
+            const { data, message } = error.response;
+
+            const errorMessages = Object.entries(data || {})
+                .map(
+                    ([field, err]: [string, any]) => `${field}: ${err.message}`
+                )
+                .join("\n");
+
+            toast(`${message}\n${errorMessages}`, { type: "error" });
+        } else if (error instanceof Error) {
+            toast(error.message, { type: "error" });
+        } else {
+            toast("An unknown error occurred", { type: "error" });
+        }
+    } finally {
+        store.dispatch(setLoading(false));
+    }
+};
+
+export { handleFarmFormSubmit };
 export type { Farm, FarmCalender, FarmForm, FarmCalenderForm };
