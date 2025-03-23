@@ -48,6 +48,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
+import { parseFarmFormData } from "@/helpers";
+
 type Props = {
     clearPolygon: () => void;
 };
@@ -73,6 +75,7 @@ const FarmForm = ({ clearPolygon }: Props) => {
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
+        const data = parseFarmFormData(formData);
         //const data = parsePlotFormData(formData);
         // Form submission logic would go here
     };
@@ -145,43 +148,47 @@ const FarmForm = ({ clearPolygon }: Props) => {
                     {/* Farm Details Section */}
                     <div className="grid gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="farm[name]">Name</Label>
 
                             <Input
-                                id="name"
+                                minLength={1}
+                                maxLength={50}
                                 required={true}
+                                id="farm[name]"
+                                name="farm[name]"
                                 placeholder="Enter farm name"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="area">Area</Label>
+                                <Label htmlFor="farm[area]">Area</Label>
 
                                 <Input
-                                    id="area"
+                                    min="1"
                                     type="number"
-                                    min="0"
-                                    placeholder="Enter area"
-                                    required
-                                    disabled
+                                    id="farm[area]"
+                                    name="farm[area]"
+                                    required={true}
+                                    disabled={true}
+                                    placeholder="auto filled"
                                 />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="unit_fk">Unit</Label>
+                                <Label htmlFor="farm[unit_fk]">Unit</Label>
 
-                                <Select>
+                                <Select required={true} name="farm[unit_fk]">
                                     <SelectTrigger
-                                        id="unit_fk"
                                         className="w-full"
+                                        id="farm[unit_fk]"
                                     >
                                         <SelectValue placeholder="Select unit" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {units.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.name}
                                             </SelectItem>
                                         ))}
@@ -195,19 +202,19 @@ const FarmForm = ({ clearPolygon }: Props) => {
                     <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="crop_fk">Crop</Label>
+                                <Label htmlFor="calender[crop_fk]">Crop</Label>
 
-                                <Select>
+                                <Select name="calender[crop_fk]">
                                     <SelectTrigger
-                                        id="crop_fk"
                                         className="w-full"
+                                        id="calender[crop_fk]"
                                     >
                                         <SelectValue placeholder="Select crop" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {crops.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.name}
                                             </SelectItem>
                                         ))}
@@ -216,15 +223,16 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="target_yield">
+                                <Label htmlFor="calender[target_yield]">
                                     Target Yield
                                 </Label>
 
                                 <Input
-                                    id="target_yield"
-                                    type="number"
                                     min="0"
                                     step="0.01"
+                                    type="number"
+                                    id="calender[target_yield]"
+                                    name="calender[target_yield]"
                                     placeholder="Enter target yield"
                                 />
                             </div>
@@ -232,13 +240,16 @@ const FarmForm = ({ clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="sowing_date">Sowing Date</Label>
+                                <Label htmlFor="calender[sowing_date]">
+                                    Sowing Date
+                                </Label>
 
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            id="sowing_date"
                                             variant="outline"
+                                            id="calender[sowing_date]"
+                                            name="calender[sowing_date]"
                                             className={cn(
                                                 "w-full justify-start text-left font-normal",
                                                 !sowingDate &&
@@ -264,15 +275,16 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="harvesting_date">
+                                <Label htmlFor="calender[harvesting_date]">
                                     Harvesting Date
                                 </Label>
 
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            id="harvesting_date"
                                             variant="outline"
+                                            id="calender[harvesting_date]"
+                                            name="calender[harvesting_date]"
                                             className={cn(
                                                 "w-full justify-start text-left font-normal",
                                                 !harvestingDate &&
@@ -300,21 +312,21 @@ const FarmForm = ({ clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="growth_stage_fk">
+                                <Label htmlFor="calender[growth_stage_fk]">
                                     Growth Stage
                                 </Label>
 
-                                <Select>
+                                <Select name="calender[growth_stage_fk]">
                                     <SelectTrigger
                                         className="w-full"
-                                        id="growth_stage_fk"
+                                        id="calender[growth_stage_fk]"
                                     >
                                         <SelectValue placeholder="Select stage" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {growthStages.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.description}
                                             </SelectItem>
                                         ))}
@@ -323,21 +335,21 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="irrigation_method_fk">
+                                <Label htmlFor="calender[irrigation_method_fk]">
                                     Irrigation
                                 </Label>
 
-                                <Select>
+                                <Select name="calender[irrigation_method_fk]">
                                     <SelectTrigger
                                         className="w-full"
-                                        id="irrigation_method_fk"
+                                        id="calender[irrigation_method_fk]"
                                     >
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {irrigationMethods.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.description}
                                             </SelectItem>
                                         ))}
@@ -348,19 +360,21 @@ const FarmForm = ({ clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="tillage_type_fk">Tillage</Label>
+                                <Label htmlFor="calender[tillage_type_fk]">
+                                    Tillage
+                                </Label>
 
-                                <Select>
+                                <Select name="calender[tillage_type_fk]">
                                     <SelectTrigger
                                         className="w-full"
-                                        id="tillage_type_fk"
+                                        id="calender[tillage_type_fk]"
                                     >
                                         <SelectValue placeholder="Select tillage" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {tillageTypes.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.description}
                                             </SelectItem>
                                         ))}
@@ -369,19 +383,21 @@ const FarmForm = ({ clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="season_fk">Season</Label>
+                                <Label htmlFor="calender[season_fk]">
+                                    Season
+                                </Label>
 
-                                <Select>
+                                <Select name="calender[season_fk]">
                                     <SelectTrigger
-                                        id="season_fk"
                                         className="w-full"
+                                        id="calender[season_fk]"
                                     >
                                         <SelectValue placeholder="Select season" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {seasons.map((item) => (
-                                            <SelectItem value={item.code}>
+                                            <SelectItem value={item.id}>
                                                 {item.name}
                                             </SelectItem>
                                         ))}

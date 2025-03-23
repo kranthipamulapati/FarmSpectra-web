@@ -1,17 +1,17 @@
 import type { FarmForm, FarmCalenderForm } from "@/services/farms";
 
-const parseFarmFormData = (farmFormData: any) => {
+const parseFarmFormData = (formData: any) => {
     const data: {
-        farmForm: FarmForm;
-        FarmCalenderForm: FarmCalenderForm;
+        farm: FarmForm;
+        calender: FarmCalenderForm;
     } = {
-        farmForm: {
+        farm: {
             area: 0,
             name: "",
             unit_fk: "",
             user_fk: "",
         },
-        FarmCalenderForm: {
+        calender: {
             farm_fk: "",
             crop_fk: "",
             sowing_date: new Date(),
@@ -26,7 +26,7 @@ const parseFarmFormData = (farmFormData: any) => {
         },
     };
 
-    farmFormData.forEach((value: string, key: string) => {
+    formData.forEach((value: string, key: string) => {
         const [section, field] = key.split(/\[|\]/).filter(Boolean);
 
         let newValue: string | number | Date = "";
@@ -42,7 +42,7 @@ const parseFarmFormData = (farmFormData: any) => {
             }
         }
 
-        // farm calender section
+        // calender section
 
         if (section === "calender") {
             if (
@@ -52,6 +52,8 @@ const parseFarmFormData = (farmFormData: any) => {
             ) {
                 newValue = Number(value);
                 newValue = isNaN(newValue) ? 0 : newValue;
+            } else if (key === "sowing_date" || key === "harvesting_date") {
+                newValue = value as unknown as Date;
             } else {
                 newValue = value.trim() as string;
             }
