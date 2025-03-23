@@ -1,5 +1,7 @@
 import { toast } from "react-toastify";
-import { ClientResponseError } from "pocketbase";
+import { ClientResponseError, type RecordModel } from "pocketbase";
+
+import { pocketbase } from ".";
 
 import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
@@ -35,11 +37,10 @@ type FarmCalender = {
     active: boolean;
 };
 
-type FarmForm = Pick<Farm, "name" | "area" | "unit_fk" | "user_fk">;
+type FarmForm = Pick<Farm, "name" | "area" | "unit_fk">;
 
 type FarmCalenderForm = Pick<
     FarmCalender,
-    | "farm_fk"
     | "crop_fk"
     | "sowing_date"
     | "harvesting_date"
@@ -47,10 +48,50 @@ type FarmCalenderForm = Pick<
     | "irrigation_method_fk"
     | "tillage_type_fk"
     | "season_fk"
-    | "yield"
     | "target_yield"
-    | "estimated_yield"
 >;
+
+const addFarm = async ({
+    name,
+    area,
+    unit_fk,
+}: FarmForm): Promise<RecordModel> => {
+    const data = await pocketbase.collection("farms").create({
+        name,
+        area,
+        unit_fk,
+        user_fk: pocketbase.authStore.record?.id,
+        active: true,
+    });
+
+    return data;
+};
+
+const addFarmCalendar = async ({
+    farm_fk,
+    crop_fk,
+    sowing_date,
+    harvesting_date,
+    season_fk,
+    growth_stage_fk,
+    tillage_type_fk,
+    irrigation_method_fk,
+    target_yield,
+}: FarmCalenderForm & { farm_fk: string }): Promise<RecordModel> => {
+    const data = await pocketbase.collection("farms_calendar").create({
+        farm_fk,
+        crop_fk,
+        sowing_date,
+        harvesting_date,
+        season_fk,
+        growth_stage_fk,
+        tillage_type_fk,
+        irrigation_method_fk,
+        target_yield,
+    });
+
+    return data;
+};
 
 const handleFarmFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
     e
@@ -75,7 +116,14 @@ const handleFarmFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
         const status = checkFarmFormData(data);
 
         if (status.farm && status.calendar) {
-            // add farm, calendar
+            const response = await addFarm(data.farm);
+
+            if (response.id) {
+                await addFarmCalendar({
+                    ...data.calender,
+                    farm_fk: response.id,
+                });
+            }
         }
 
         toast("Farm details added successfully.", { type: "success" });

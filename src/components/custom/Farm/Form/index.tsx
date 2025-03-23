@@ -165,9 +165,10 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                                     id="farm[area]"
                                     name="farm[area]"
                                     required={true}
-                                    disabled={true}
                                     placeholder="Auto filled"
-                                    value={getAreaOfPolygon(coordinates)}
+                                    value={Math.round(
+                                        getAreaOfPolygon(coordinates) || 0
+                                    )}
                                 />
                             </div>
 
