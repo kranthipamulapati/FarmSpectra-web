@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 import { X } from "lucide-react";
 import { toast } from "react-toastify";
@@ -41,20 +41,26 @@ type Props = {
     coordinates: Array<Coordinate>;
 };
 
+let crops: Array<Crop> = [];
+let seasons: Array<Season> = [];
+let growthStages: Array<GrowthStage> = [];
+let tillageTypes: Array<TillageType> = [];
+let irrigationMethods: Array<IrrigationMethod> = [];
+
 const FarmForm = ({ coordinates, clearPolygon }: Props) => {
     const dispatch = useDispatch();
     const { loading } = useSelector((state: RootState) => state.global);
 
-    const [irrigationMethods, setIrrigationMethods] = useState<
-        Array<IrrigationMethod>
-    >([]);
-    const [crops, setCrops] = useState<Array<Crop>>([]);
-    const [seasons, setSeasons] = useState<Array<Season>>([]);
-    const [growthStages, setGrowthStages] = useState<Array<GrowthStage>>([]);
-    const [tillageTypes, setTillageTypes] = useState<Array<TillageType>>([]);
     const [sowingDate, setSowingDate] = useState<Date | undefined>(undefined);
     const [harvestingDate, setHarvestingDate] = useState<Date | undefined>(
         undefined
+    );
+
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
+        (e) => {
+            handleFarmFormSubmit({ e, coordinates });
+        },
+        [coordinates]
     );
 
     useAsyncEffect(
@@ -65,25 +71,14 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
             dispatch(setLoading(true));
 
-            const [
-                Crops,
-                Seasons,
-                TillageTypes,
-                GrowthStages,
-                IrrigationMethods,
-            ] = await Promise.all([
-                getCrops(signal),
-                getSeasons(signal),
-                getTillageTypes(signal),
-                getGrowthStages(signal),
-                getIrrigationMethods(signal),
-            ]);
-
-            setCrops(Crops);
-            setSeasons(Seasons);
-            setGrowthStages(GrowthStages);
-            setTillageTypes(TillageTypes);
-            setIrrigationMethods(IrrigationMethods);
+            [crops, seasons, tillageTypes, growthStages, irrigationMethods] =
+                await Promise.all([
+                    getCrops(signal),
+                    getSeasons(signal),
+                    getTillageTypes(signal),
+                    getGrowthStages(signal),
+                    getIrrigationMethods(signal),
+                ]);
 
             dispatch(setLoading(false));
         },
@@ -101,7 +96,7 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
     return (
         <Card className="w-full max-w-[600px] rounded-none py-4">
-            <form onSubmit={handleFarmFormSubmit}>
+            <form onSubmit={handleSubmit}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>New Farm</CardTitle>
 

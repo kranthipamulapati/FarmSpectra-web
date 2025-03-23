@@ -6,7 +6,11 @@ import { pocketbase } from ".";
 import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
-import { checkFarmFormData, parseFarmFormData } from "@/helpers";
+import {
+    type Coordinate,
+    parseFarmFormData,
+    checkFarmFormData,
+} from "@/helpers";
 
 type Farm = {
     id: string;
@@ -14,6 +18,7 @@ type Farm = {
     area: number;
     unit_fk: string;
     user_fk: string;
+    coordinates: Array<Coordinate>;
     created: Date;
     update: Date;
     active: boolean;
@@ -37,7 +42,7 @@ type FarmCalender = {
     active: boolean;
 };
 
-type FarmForm = Pick<Farm, "name" | "area" | "unit_fk">;
+type FarmForm = Pick<Farm, "name" | "area" | "coordinates">;
 
 type FarmCalenderForm = Pick<
     FarmCalender,
@@ -54,14 +59,14 @@ type FarmCalenderForm = Pick<
 const addFarm = async ({
     name,
     area,
-    unit_fk,
+    coordinates,
 }: FarmForm): Promise<RecordModel> => {
     const data = await pocketbase.collection("farms").create({
         name,
         area,
-        unit_fk,
-        user_fk: pocketbase.authStore.record?.id,
+        coordinates,
         active: true,
+        user_fk: pocketbase.authStore.record?.id,
     });
 
     return data;
@@ -93,9 +98,13 @@ const addFarmCalendar = async ({
     return data;
 };
 
-const handleFarmFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
-    e
-) => {
+const handleFarmFormSubmit = async ({
+    e,
+    coordinates,
+}: {
+    coordinates: Array<Coordinate>;
+    e: React.FormEvent<HTMLFormElement>;
+}) => {
     e.preventDefault();
 
     const { loading } = store.getState().global;
@@ -111,6 +120,7 @@ const handleFarmFormSubmit: React.FormEventHandler<HTMLFormElement> = async (
 
         const data = parseFarmFormData({
             formData,
+            coordinates,
         });
 
         const status = checkFarmFormData(data);

@@ -5,7 +5,13 @@ type Coordinate = {
 
 import type { FarmForm, FarmCalenderForm } from "@/services/farms";
 
-const parseFarmFormData = ({ formData }: any) => {
+const parseFarmFormData = ({
+    formData,
+    coordinates,
+}: {
+    formData: any;
+    coordinates: Array<Coordinate>;
+}) => {
     const data: {
         farm: FarmForm;
         calender: FarmCalenderForm;
@@ -13,7 +19,7 @@ const parseFarmFormData = ({ formData }: any) => {
         farm: {
             area: 0,
             name: "",
-            unit_fk: "",
+            coordinates: [],
         },
         calender: {
             crop_fk: "",
@@ -62,6 +68,8 @@ const parseFarmFormData = ({ formData }: any) => {
         data[section][field] = newValue;
     });
 
+    data.farm.coordinates = coordinates;
+
     return data;
 };
 
@@ -76,9 +84,9 @@ const checkFarmFormData = (data: {
 
     // farm check
 
-    const { name, area, unit_fk } = data.farm;
+    const { name, area, coordinates } = data.farm;
 
-    const isFarmFilled = !!(name && area && unit_fk);
+    const isFarmFilled = !!(name && area && coordinates.length);
 
     if (isFarmFilled === false) {
         throw new Error("Please fill all required fields for farm.");
