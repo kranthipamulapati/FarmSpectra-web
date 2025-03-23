@@ -1,13 +1,18 @@
 import { memo, useState } from "react";
 
-import { format } from "date-fns";
+import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import { getAreaOfPolygon } from "geolib";
-import { X, CalendarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
+import type { Coordinate } from "@/helpers";
+
+import useAsyncEffect from "@/hooks/useAsyncEffect";
+
+import { type RootState } from "@/store";
+import { setLoading } from "@/store/reducers/GlobalSlice";
+
 import type {
-    Unit,
     Crop,
     Season,
     GrowthStage,
@@ -15,43 +20,21 @@ import type {
     IrrigationMethod,
 } from "@/services";
 import {
-    getUnits,
     getCrops,
     getSeasons,
     getGrowthStages,
     getTillageTypes,
     getIrrigationMethods,
 } from "@/services/masters";
-
-import { cn } from "@/lib/utils";
-
-import useAsyncEffect from "@/hooks/useAsyncEffect";
-
 import { handleFarmFormSubmit } from "@/services/farms";
 
-import { type RootState } from "@/store";
-import { setLoading } from "@/store/reducers/GlobalSlice";
-
-import {
-    Select,
-    SelectItem,
-    SelectValue,
-    SelectTrigger,
-    SelectContent,
-} from "@/components/ui/select";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import Date from "@/components/custom/Base/Date";
+import Select from "@/components/custom/Base/Select";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
-
-import type { Coordinate } from "@/helpers";
 
 type Props = {
     clearPolygon: () => void;
@@ -65,7 +48,6 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
     const [irrigationMethods, setIrrigationMethods] = useState<
         Array<IrrigationMethod>
     >([]);
-    const [units, setUnits] = useState<Array<Unit>>([]);
     const [crops, setCrops] = useState<Array<Crop>>([]);
     const [seasons, setSeasons] = useState<Array<Season>>([]);
     const [growthStages, setGrowthStages] = useState<Array<GrowthStage>>([]);
@@ -84,14 +66,12 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
             dispatch(setLoading(true));
 
             const [
-                Units,
                 Crops,
                 Seasons,
                 TillageTypes,
                 GrowthStages,
                 IrrigationMethods,
             ] = await Promise.all([
-                getUnits(signal),
                 getCrops(signal),
                 getSeasons(signal),
                 getTillageTypes(signal),
@@ -99,7 +79,6 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                 getIrrigationMethods(signal),
             ]);
 
-            setUnits(Units);
             setCrops(Crops);
             setSeasons(Seasons);
             setGrowthStages(GrowthStages);
@@ -171,27 +150,6 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                                     )}
                                 />
                             </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="farm[unit_fk]">Unit</Label>
-
-                                <Select required={true} name="farm[unit_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="farm[unit_fk]"
-                                    >
-                                        <SelectValue placeholder="Select unit" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {units.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
                     </div>
 
@@ -199,24 +157,14 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                     <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[crop_fk]">Crop</Label>
-
-                                <Select name="calender[crop_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="calender[crop_fk]"
-                                    >
-                                        <SelectValue placeholder="Select crop" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {crops.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Select
+                                    label="Crop"
+                                    options={crops}
+                                    optionKey="name"
+                                    optionValue="id"
+                                    id="calender[crop_fk]"
+                                    name="calender[crop_fk]"
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -237,192 +185,71 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[sowing_date]">
-                                    Sowing Date
-                                </Label>
-
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            id="calender[sowing_date]"
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !sowingDate &&
-                                                    "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-
-                                            {sowingDate
-                                                ? format(sowingDate, "PPP")
-                                                : "Select date"}
-                                        </Button>
-                                    </PopoverTrigger>
-
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={sowingDate}
-                                            onSelect={setSowingDate}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-
-                                <input
-                                    type="hidden"
+                                <Date
+                                    label="Sowing Date"
+                                    value={sowingDate}
+                                    onSelect={setSowingDate}
+                                    id="calender[sowing_date]"
                                     name="calender[sowing_date]"
-                                    value={
-                                        sowingDate
-                                            ? sowingDate
-                                                  .toISOString()
-                                                  .split("T")[0]
-                                            : ""
-                                    }
                                 />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[harvesting_date]">
-                                    Harvesting Date
-                                </Label>
-
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            id="calender[harvesting_date]"
-                                            name="calender[harvesting_date]"
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !harvestingDate &&
-                                                    "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-
-                                            {harvestingDate
-                                                ? format(harvestingDate, "PPP")
-                                                : "Select date"}
-                                        </Button>
-                                    </PopoverTrigger>
-
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={harvestingDate}
-                                            onSelect={setHarvestingDate}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-
-                                <input
-                                    type="hidden"
+                                <Date
+                                    label="Harvesting Date"
+                                    value={harvestingDate}
+                                    onSelect={setHarvestingDate}
+                                    id="calender[harvesting_date]"
                                     name="calender[harvesting_date]"
-                                    value={
-                                        harvestingDate
-                                            ? harvestingDate
-                                                  .toISOString()
-                                                  .split("T")[0]
-                                            : ""
-                                    }
                                 />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[growth_stage_fk]">
-                                    Growth Stage
-                                </Label>
-
-                                <Select name="calender[growth_stage_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="calender[growth_stage_fk]"
-                                    >
-                                        <SelectValue placeholder="Select stage" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {growthStages.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.description}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Select
+                                    label="Growth Stage"
+                                    options={growthStages}
+                                    optionKey="description"
+                                    optionValue="id"
+                                    id="calender[growth_stage_fk]"
+                                    name="calender[growth_stage_fk]"
+                                />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[irrigation_method_fk]">
-                                    Irrigation
-                                </Label>
-
-                                <Select name="calender[irrigation_method_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="calender[irrigation_method_fk]"
-                                    >
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {irrigationMethods.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.description}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Select
+                                    label="Irrigation Method"
+                                    options={irrigationMethods}
+                                    optionKey="description"
+                                    optionValue="id"
+                                    id="calender[irrigation_method_fk]"
+                                    name="calender[irrigation_method_fk]"
+                                />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[tillage_type_fk]">
-                                    Tillage
-                                </Label>
-
-                                <Select name="calender[tillage_type_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="calender[tillage_type_fk]"
-                                    >
-                                        <SelectValue placeholder="Select tillage" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {tillageTypes.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.description}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Select
+                                    label="Tillage Type"
+                                    options={tillageTypes}
+                                    optionKey="description"
+                                    optionValue="id"
+                                    id="calender[tillage_type_fk]"
+                                    name="calender[tillage_type_fk]"
+                                />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[season_fk]">
-                                    Season
-                                </Label>
-
-                                <Select name="calender[season_fk]">
-                                    <SelectTrigger
-                                        className="w-full"
-                                        id="calender[season_fk]"
-                                    >
-                                        <SelectValue placeholder="Select season" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {seasons.map((item) => (
-                                            <SelectItem value={item.id}>
-                                                {item.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Select
+                                    label="Season"
+                                    options={seasons}
+                                    optionKey="name"
+                                    optionValue="id"
+                                    id="calender[season_fk]"
+                                    name="calender[season_fk]"
+                                />
                             </div>
                         </div>
                     </div>
