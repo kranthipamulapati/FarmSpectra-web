@@ -4,7 +4,7 @@ import { Outlet } from "react-router";
 
 import { adminSideBarItems } from "@/constants";
 
-import AppSidebar from "@/components/custom/SideBar";
+import AppSidebar from "@/components/custom/base/SideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const AdminHome = () => {

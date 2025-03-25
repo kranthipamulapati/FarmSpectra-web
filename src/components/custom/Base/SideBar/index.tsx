@@ -7,7 +7,6 @@ import {
     Sidebar,
     SidebarMenu,
     SidebarGroup,
-    SidebarHeader,
     SidebarContent,
     SidebarMenuItem,
     SidebarMenuButton,
@@ -28,10 +27,6 @@ type Props = {
 const AppSidebar = ({ items }: Props) => {
     return (
         <Sidebar collapsible="icon">
-            {/* <SidebarHeader className="flex items-center justify-center bg-green-600">
-                FS
-            </SidebarHeader> */}
-
             <SidebarContent>
                 <SidebarGroup className="bg-green-600">
                     <SidebarMenu>

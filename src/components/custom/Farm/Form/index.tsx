@@ -31,8 +31,8 @@ import { handleFarmFormSubmit } from "@/services/farms";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import Date from "@/components/custom/Base/Date";
-import Select from "@/components/custom/Base/Select";
+import Date from "@/components/custom/base/Date";
+import Select from "@/components/custom/base/Select";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
@@ -41,11 +41,11 @@ type Props = {
     coordinates: Array<Coordinate>;
 };
 
-let crops: Array<Crop> = [];
-let seasons: Array<Season> = [];
-let growthStages: Array<GrowthStage> = [];
-let tillageTypes: Array<TillageType> = [];
-let irrigationMethods: Array<IrrigationMethod> = [];
+let crops: Array<Pick<Crop, "id" | "name">> = [];
+let seasons: Array<Pick<Season, "id" | "name">> = [];
+let growthStages: Array<Pick<GrowthStage, "id" | "description">> = [];
+let tillageTypes: Array<Pick<TillageType, "id" | "description">> = [];
+let irrigationMethods: Array<Pick<IrrigationMethod, "id" | "description">> = [];
 
 const FarmForm = ({ coordinates, clearPolygon }: Props) => {
     const dispatch = useDispatch();

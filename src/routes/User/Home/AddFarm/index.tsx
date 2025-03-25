@@ -1,7 +1,7 @@
 import { memo } from "react";
 
 import Map from "./Map";
-import Header from "@/components/custom/Header";
+import Header from "@/components/custom/base/Header";
 
 const AddFarm = () => {
     return (

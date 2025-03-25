@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-import Header from "@/components/custom/Header";
+import Header from "@/components/custom/base/Header";
 
 const AdminDashboard = () => {
     return (
