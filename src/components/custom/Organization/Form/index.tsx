@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Select from "@/components/custom/base/Select";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardTitle, CardHeader } from "@/components/ui/card";
+import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
 import type { Unit, State, Country } from "@/services";
 import { getUnits, getCountries, getStatesByCountry } from "@/services/masters";
@@ -31,7 +31,15 @@ const OrganizationForm = () => {
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
         (e) => {
-            console.log(e);
+            e.preventDefault();
+
+            const formData = new FormData(e.currentTarget);
+
+            const data: { [key: string]: FormDataEntryValue } = {};
+
+            formData.forEach((value: FormDataEntryValue, key: string) => {
+                data[key] = value;
+            });
         },
         []
     );
@@ -258,6 +266,14 @@ const OrganizationForm = () => {
                         <div className="grid gap-2"></div>
                     </div>
                 </div>
+
+                <CardFooter className="flex justify-center py-4 gap-4">
+                    <Button type="button" variant="outline">
+                        Cancel
+                    </Button>
+
+                    <Button type="submit">Add</Button>
+                </CardFooter>
             </form>
         </Card>
     );
