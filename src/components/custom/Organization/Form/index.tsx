@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
 import type { Unit, State, Country } from "@/services";
+import { handleOrganizationFormSubmit } from "@/services/organizations";
 import { getUnits, getCountries, getStatesByCountry } from "@/services/masters";
 
 let units: Array<Pick<Unit, "id" | "name">> = [];
@@ -32,14 +33,7 @@ const OrganizationForm = () => {
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
         (e) => {
             e.preventDefault();
-
-            const formData = new FormData(e.currentTarget);
-
-            const data: { [key: string]: FormDataEntryValue } = {};
-
-            formData.forEach((value: FormDataEntryValue, key: string) => {
-                data[key] = value;
-            });
+            handleOrganizationFormSubmit({ e });
         },
         []
     );
@@ -245,8 +239,8 @@ const OrganizationForm = () => {
                                 options={states}
                                 optionKey="name"
                                 optionValue="id"
-                                id="country_fk"
-                                name="country_fk"
+                                id="state_fk"
+                                name="state_fk"
                             />
                         </div>
                     </div>
