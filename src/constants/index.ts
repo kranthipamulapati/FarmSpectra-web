@@ -33,11 +33,35 @@ const userSideBarItems = [
     },
 ];
 
+const adminSideBarItems = [
+    {
+        title: "Dashboard",
+        url: "/admin/home/dashboard",
+        icon: LayoutDashboard,
+    },
+    {
+        title: "Farms",
+        url: "/admin/home/farms",
+        icon: Trees,
+    },
+    {
+        title: "AddFarm",
+        url: "/admin/home/addfarm",
+        icon: Plus,
+    },
+    {
+        title: "Settings",
+        url: "/admin/home/settings",
+        icon: Settings,
+    },
+];
+
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL;
 
 export {
     apiBaseURL,
     userSideBarItems,
+    adminSideBarItems,
     hyderabadGeoCenter,
     americanFarmsGeoCenter,
 };

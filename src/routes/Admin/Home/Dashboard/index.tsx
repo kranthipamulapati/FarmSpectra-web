@@ -2,7 +2,7 @@ import { memo } from "react";
 
 import Header from "@/components/custom/Header";
 
-const UserDashboard = () => {
+const AdminDashboard = () => {
     return (
         <>
             <Header />
@@ -10,4 +10,4 @@ const UserDashboard = () => {
     );
 };
 
-export default memo(UserDashboard);
+export default memo(AdminDashboard);
