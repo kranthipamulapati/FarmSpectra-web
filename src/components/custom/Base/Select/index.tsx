@@ -13,24 +13,28 @@ const SelectComponent = ({
     id,
     name,
     label,
+    value,
     options,
     optionKey,
     optionValue,
+    onValueChange,
 }: {
     id?: string;
     name?: string;
     label?: string;
+    value?: string;
     optionKey: string;
     optionValue: string;
     options: Array<{
         [key: string]: number | string;
     }>;
+    onValueChange?: (value: string) => void;
 }) => {
     return (
         <>
             <Label htmlFor={id}>{label}</Label>
 
-            <Select name={name}>
+            <Select name={name} value={value} onValueChange={onValueChange}>
                 <SelectTrigger id={id} className="w-full">
                     <SelectValue placeholder={`Select ${label}`} />
                 </SelectTrigger>

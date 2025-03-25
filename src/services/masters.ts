@@ -1,7 +1,9 @@
 import {
     type Unit,
     type Crop,
+    type State,
     type Season,
+    type Country,
     type GrowthStage,
     type TillageType,
     type IrrigationMethod,
@@ -70,11 +72,41 @@ const getIrrigationMethods = async (signal?: AbortSignal) => {
     return data;
 };
 
+const getCountries = async (signal?: AbortSignal) => {
+    const data = await pocketbase
+        .collection("master_countries")
+        .getFullList<Country>({
+            signal,
+            filter: "active = true",
+        });
+
+    return data;
+};
+
+const getStatesByCountry = async ({
+    country_fk,
+    signal,
+}: {
+    country_fk: string;
+    signal?: AbortSignal;
+}) => {
+    const data = await pocketbase
+        .collection("master_states")
+        .getFullList<State>({
+            signal,
+            filter: `country_fk = '${country_fk}' && active = true`,
+        });
+
+    return data;
+};
+
 export {
     getUnits,
     getCrops,
     getSeasons,
+    getCountries,
     getGrowthStages,
     getTillageTypes,
+    getStatesByCountry,
     getIrrigationMethods,
 };
