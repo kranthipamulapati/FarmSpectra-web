@@ -13,6 +13,8 @@ const AdminLogin = lazy(() => import("@/routes/Admin/Login"));
 const AdminHome = lazy(() => import("@/routes/Admin/Home"));
 const AdminDashboard = lazy(() => import("@/routes/Admin/Home/Dashboard"));
 
+const OrganizationLogin = lazy(() => import("@/routes/Organization/Login"));
+
 function App() {
     return (
         <BrowserRouter>
@@ -29,9 +31,7 @@ function App() {
                                 path="/home/dashboard"
                                 element={<UserDashboard />}
                             />
-
                             <Route path="/home/farms" element={<UserFarms />} />
-
                             <Route
                                 path="/home/addFarm"
                                 element={<UserAddFarm />}
@@ -52,6 +52,19 @@ function App() {
                             />
                         </Route>
                     </Route>
+
+                    {/* organization user login */}
+                    <Route path="/:orgCode" element={<OrganizationLogin />} />
+                    <Route
+                        path="/:orgCode/login"
+                        element={<OrganizationLogin />}
+                    />
+
+                    {/* organization routes */}
+                    <Route
+                        path="/:orgCode"
+                        element={<AuthCheck role="user" />}
+                    ></Route>
                 </Routes>
             </Suspense>
         </BrowserRouter>
