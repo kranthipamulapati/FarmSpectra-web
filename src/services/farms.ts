@@ -83,7 +83,7 @@ const addFarmCalendar = async ({
     irrigation_method_fk,
     target_yield,
 }: FarmCalenderForm & { farm_fk: string }): Promise<RecordModel> => {
-    const data = await pocketbase.collection("farms_calendar").create({
+    const data = await pocketbase.collection("farm_calendar").create({
         farm_fk,
         crop_fk,
         sowing_date,
