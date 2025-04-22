@@ -1,8 +1,9 @@
-import { memo, useMemo, useState, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { toast } from "react-toastify";
-import { Map } from "@vis.gl/react-google-maps";
 import { useDispatch, useSelector } from "react-redux";
+import { Map, useMap } from "@vis.gl/react-google-maps";
+import { GoogleMapsOverlay } from "@deck.gl/google-maps";
 
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
@@ -28,7 +29,12 @@ import {
     getVisitDatesByFarm,
 } from "@/services/farms";
 
+import { getBitmapLayer, getBboxForPolygon } from "@/helpers/maps";
+
 const Farms = () => {
+    const map = useMap();
+    const overlayRef = useRef<GoogleMapsOverlay | null>(null);
+
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
 
@@ -81,6 +87,37 @@ const Farms = () => {
             ),
         [highlightedDates]
     );
+
+    useEffect(() => {
+        if (!map || !farm || !image) {
+            return;
+        }
+
+        overlayRef.current?.setMap(null);
+
+        const bbox = getBboxForPolygon(farm.coordinates);
+
+        map.panTo({
+            lat: (bbox[0].lat + bbox[1].lat) / 2,
+            lng: (bbox[0].lng + bbox[1].lng) / 2,
+        });
+
+        const imageLayer = getBitmapLayer({
+            id: "1",
+            opacity: 1,
+            link: image.image_url,
+            bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
+        });
+
+        overlayRef.current = new GoogleMapsOverlay({
+            layers: [imageLayer],
+        });
+        overlayRef.current.setMap(map);
+
+        return () => {
+            overlayRef.current?.setMap(null);
+        };
+    }, [map, farm, image]);
 
     useAsyncEffect(
         async (signal) => {
