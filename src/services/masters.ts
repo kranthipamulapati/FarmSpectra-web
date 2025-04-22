@@ -9,6 +9,7 @@ import {
     type IrrigationMethod,
     pocketbase,
 } from ".";
+import { Index } from "./farms";
 
 const getUnits = async (signal?: AbortSignal) => {
     const data = await pocketbase.collection("master_units").getFullList<Unit>({
@@ -100,9 +101,20 @@ const getStatesByCountry = async ({
     return data;
 };
 
+const getIndices = async ({ signal }: { signal?: AbortSignal }) => {
+    const data = await pocketbase
+        .collection("master_indices")
+        .getFullList<Index>({
+            signal,
+        });
+
+    return data;
+};
+
 export {
     getUnits,
     getCrops,
+    getIndices,
     getSeasons,
     getCountries,
     getGrowthStages,

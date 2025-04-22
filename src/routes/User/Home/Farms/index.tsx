@@ -11,15 +11,21 @@ import { americanFarmsGeoCenter } from "@/constants";
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
+import {
+    Select,
+    SelectItem,
+    SelectValue,
+    SelectTrigger,
+    SelectContent,
+} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 
-import { getVisitDatesByMonth } from "@/services/farms";
+import { getIndices } from "@/services/masters";
+import { type Index, getVisitDatesByFarm } from "@/services/farms";
 
 const modifiersClassNames = {
-    disabled: "opacity-30 bg-muted text-muted-foreground cursor-not-allowed",
     highlight:
         "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
 };
@@ -28,29 +34,56 @@ const Farms = () => {
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
 
-    const [dates, setDates] = useState<Array<Date>>([]);
-    const [month, setMonth] = useState<Date>(new Date());
-    const [mapType] = useState(google.maps.MapTypeId.SATELLITE);
+    const [index, setIndex] = useState<Index>();
+    const [indices, setIndices] = useState<Array<Index>>([]);
+    const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
+    const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
+    const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
+
+    const modifiers = useMemo(
+        () => ({
+            highlight: highlightedDates,
+        }),
+        [highlightedDates]
+    );
+
+    const onSelectIndex = useCallback(
+        (value: string) => {
+            const item = indices.find((a) => a.code === value);
+            setIndex(item);
+        },
+        [indices]
+    );
+
+    const onSelectDates = useCallback(
+        (_: Array<Date> | undefined, day: Date) => {
+            setSelectedDates([day]);
+        },
+        []
+    );
+
+    const disabledMatcher = useCallback(
+        (date: Date) =>
+            !highlightedDates.some(
+                (d) =>
+                    d.getFullYear() === date.getFullYear() &&
+                    d.getMonth() === date.getMonth() &&
+                    d.getDate() === date.getDate()
+            ),
+        [highlightedDates]
+    );
 
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || loading || !month) {
-                return;
-            }
-
             dispatch(setLoading(true));
 
-            const Dates = await getVisitDatesByMonth({
-                id: farm.id,
-                month,
-                signal,
-            });
+            const indices = await getIndices({ signal });
 
-            setDates(Dates);
+            setIndices(indices);
 
             dispatch(setLoading(false));
         },
-        [farm?.id, month],
+        [],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -60,22 +93,32 @@ const Farms = () => {
         }
     );
 
-    const modifiers = useMemo(
-        () => ({
-            highlight: dates,
-        }),
-        [dates]
-    );
+    useAsyncEffect(
+        async (signal) => {
+            if (!farm?.id || loading) {
+                return;
+            }
 
-    const disabledMatcher = useCallback(
-        (date: Date) =>
-            !dates.some(
-                (d) =>
-                    d.getFullYear() === date.getFullYear() &&
-                    d.getMonth() === date.getMonth() &&
-                    d.getDate() === date.getDate()
-            ),
-        [dates]
+            dispatch(setLoading(true));
+
+            const data = await getVisitDatesByFarm({ id: farm.id, signal });
+            const Dates = data.map((item) => new Date(item.date));
+
+            setHighlightedDates(Dates);
+            setSelectedDates([Dates[Dates.length - 1]]);
+
+            dispatch(setLoading(false));
+        },
+        [farm?.id],
+        (error) => {
+            setHighlightedDates([]);
+
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
     );
 
     return (
@@ -93,15 +136,32 @@ const Farms = () => {
                 <Card className="w-full max-w-[400px] rounded-sm p-4">
                     <div className="flex flex-row">
                         <FarmSelect />
+
+                        <Select
+                            value={index?.code}
+                            onValueChange={onSelectIndex}
+                        >
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Index" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {indices.map((item) => (
+                                    <SelectItem value={item.code}>
+                                        {item.code}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="flex justify-center border">
                         <Calendar
-                            month={month}
                             mode="multiple"
                             numberOfMonths={1}
                             modifiers={modifiers}
-                            onMonthChange={setMonth}
+                            selected={selectedDates}
+                            onSelect={onSelectDates}
                             disabled={disabledMatcher}
                             modifiersClassNames={modifiersClassNames}
                         />

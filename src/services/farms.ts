@@ -10,8 +10,13 @@ import {
     type Coordinate,
     parseFarmFormData,
     checkFarmFormData,
-    getMonthBounds,
 } from "@/helpers";
+
+type FarmVisitDate = {
+    id: string;
+    farm_fk: string;
+    date: string;
+};
 
 type Farm = {
     id: string;
@@ -56,6 +61,15 @@ type FarmCalenderForm = Pick<
     | "season_fk"
     | "target_yield"
 >;
+
+type Index = {
+    id: string;
+    code: string;
+    name: string;
+    active: true;
+    created: string;
+    updated: string;
+};
 
 type IndexImage = {
     id: string;
@@ -169,40 +183,29 @@ const handleFarmFormSubmit = async ({
     }
 };
 
-const getVisitDatesByMonth = async ({
+const getVisitDatesByFarm = async ({
     id,
-    month,
     signal,
 }: {
     id: string;
-    month: Date;
     signal: AbortSignal;
 }) => {
-    const { firstDay, lastDay } = getMonthBounds(month);
-
-    const data = await pocketbase
-        .collection("farm_satellite_data_index_images_view")
-        .getFullList<{ visit_date: Date }>({
+    const dates = await pocketbase
+        .collection("farm_satellite_visit_dates")
+        .getFullList<FarmVisitDate>({
             signal,
-            fields: "visit_date",
-            filter: `farm_fk = '${id}' && visit_date >= '${firstDay.toISOString()}' && visit_date <= '${lastDay.toISOString()}'`,
+            filter: `farm_fk = '${id}'`,
         });
 
-    const uniqueDates = Array.from(
-        new Set(
-            data.map((item) => {
-                const d = new Date(item.visit_date);
-                return new Date(
-                    d.getFullYear(),
-                    d.getMonth(),
-                    d.getDate()
-                ).getTime();
-            })
-        )
-    ).map((timestamp) => new Date(timestamp));
-
-    return uniqueDates;
+    return dates;
 };
 
-export { handleFarmFormSubmit, getVisitDatesByMonth };
-export type { Farm, FarmForm, FarmCalender, IndexImage, FarmCalenderForm };
+export type {
+    Farm,
+    Index,
+    FarmForm,
+    IndexImage,
+    FarmCalender,
+    FarmCalenderForm,
+};
+export { handleFarmFormSubmit, getVisitDatesByFarm };
