@@ -1,16 +1,12 @@
 import { toast } from "react-toastify";
 import { ClientResponseError, type RecordModel } from "pocketbase";
 
-import { pocketbase } from ".";
+import { pocketbase, type Coordinate } from ".";
 
 import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
-import {
-    type Coordinate,
-    parseFarmFormData,
-    checkFarmFormData,
-} from "@/helpers";
+import { parseFarmFormData, checkFarmFormData } from "@/helpers/farms";
 
 type FarmVisitDate = {
     id: string;
@@ -61,15 +57,6 @@ type FarmCalenderForm = Pick<
     | "season_fk"
     | "target_yield"
 >;
-
-type Index = {
-    id: string;
-    code: string;
-    name: string;
-    active: true;
-    created: string;
-    updated: string;
-};
 
 type IndexImage = {
     id: string;
@@ -200,12 +187,26 @@ const getVisitDatesByFarm = async ({
     return dates;
 };
 
-export type {
-    Farm,
-    Index,
-    FarmForm,
-    IndexImage,
-    FarmCalender,
-    FarmCalenderForm,
+const getSatelliteImages = async ({
+    id,
+    date,
+    signal,
+}: {
+    id: string;
+    date: Date;
+    signal: AbortSignal;
+}) => {
+    console.log(date);
+
+    const dates = await pocketbase
+        .collection("farm_satellite_data_index_images_view")
+        .getFullList<IndexImage>({
+            signal,
+            filter: `farm_fk = '${id}' && visit_date >= '2025-04-17 00:00:00.000Z'`,
+        });
+
+    return dates;
 };
-export { handleFarmFormSubmit, getVisitDatesByFarm };
+
+export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
+export { handleFarmFormSubmit, getVisitDatesByFarm, getSatelliteImages };

@@ -1,15 +1,16 @@
 import {
+    pocketbase,
     type Unit,
     type Crop,
     type State,
+    type Index,
     type Season,
     type Country,
+    type Satellite,
     type GrowthStage,
     type TillageType,
     type IrrigationMethod,
-    pocketbase,
 } from ".";
-import { Index } from "./farms";
 
 const getUnits = async (signal?: AbortSignal) => {
     const data = await pocketbase.collection("master_units").getFullList<Unit>({
@@ -111,12 +112,23 @@ const getIndices = async ({ signal }: { signal?: AbortSignal }) => {
     return data;
 };
 
+const getSatellites = async ({ signal }: { signal?: AbortSignal }) => {
+    const data = await pocketbase
+        .collection("master_satellites")
+        .getFullList<Satellite>({
+            signal,
+        });
+
+    return data;
+};
+
 export {
     getUnits,
     getCrops,
     getIndices,
     getSeasons,
     getCountries,
+    getSatellites,
     getGrowthStages,
     getTillageTypes,
     getStatesByCountry,

@@ -89,14 +89,39 @@ type Country = {
     active: boolean;
 };
 
+type Index = {
+    id: string;
+    code: string;
+    name: string;
+    active: true;
+    created: string;
+    updated: string;
+};
+
+type Satellite = {
+    id: string;
+    code: string;
+    active: true;
+    created: string;
+    updated: string;
+};
+
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
+
 export { pocketbase };
 export type {
     User,
     Unit,
     Crop,
+    Index,
     State,
     Season,
     Country,
+    Satellite,
+    Coordinate,
     TillageType,
     GrowthStage,
     IrrigationMethod,

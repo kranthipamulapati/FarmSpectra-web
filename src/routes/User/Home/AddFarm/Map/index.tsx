@@ -2,7 +2,7 @@ import { memo, useRef, useState, useEffect, useCallback } from "react";
 
 import { Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
-import type { Coordinate } from "@/helpers";
+import type { Coordinate } from "@/services";
 
 import { americanFarmsGeoCenter } from "@/constants";
 

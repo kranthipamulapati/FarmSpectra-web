@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { Map } from "@vis.gl/react-google-maps";
 import { useDispatch, useSelector } from "react-redux";
 
+import type { Index } from "@/services";
+
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
 import { americanFarmsGeoCenter } from "@/constants";
@@ -21,14 +23,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
-
-import { getIndices } from "@/services/masters";
-import { type Index, getVisitDatesByFarm } from "@/services/farms";
-
-const modifiersClassNames = {
-    highlight:
-        "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
-};
+import { getSatelliteImages, getVisitDatesByFarm } from "@/services/farms";
 
 const Farms = () => {
     const dispatch = useDispatch();
@@ -40,14 +35,7 @@ const Farms = () => {
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
 
-    const modifiers = useMemo(
-        () => ({
-            highlight: highlightedDates,
-        }),
-        [highlightedDates]
-    );
-
-    const onSelectIndex = useCallback(
+    const onIndexSelect = useCallback(
         (value: string) => {
             const item = indices.find((a) => a.code === value);
             setIndex(item);
@@ -55,12 +43,25 @@ const Farms = () => {
         [indices]
     );
 
+    // Calendar highlight dates
+
+    const modifiers = useMemo(
+        () => ({
+            highlight: highlightedDates,
+        }),
+        [highlightedDates]
+    );
+
+    // Calendar on select date
+
     const onSelectDates = useCallback(
         (_: Array<Date> | undefined, day: Date) => {
             setSelectedDates([day]);
         },
         []
     );
+
+    // Calendar disable other dates that do not have satellite visits
 
     const disabledMatcher = useCallback(
         (date: Date) =>
@@ -75,15 +76,21 @@ const Farms = () => {
 
     useAsyncEffect(
         async (signal) => {
+            if (!farm?.id || selectedDates.length === 0) {
+                return;
+            }
+
             dispatch(setLoading(true));
 
-            const indices = await getIndices({ signal });
-
-            setIndices(indices);
+            await getSatelliteImages({
+                id: farm.id,
+                date: selectedDates[0],
+                signal,
+            });
 
             dispatch(setLoading(false));
         },
-        [],
+        [selectedDates],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -95,7 +102,9 @@ const Farms = () => {
 
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || loading) {
+            if (!farm?.id) {
+                setSelectedDates([]);
+                setHighlightedDates([]);
                 return;
             }
 
@@ -111,6 +120,7 @@ const Farms = () => {
         },
         [farm?.id],
         (error) => {
+            setSelectedDates([]);
             setHighlightedDates([]);
 
             if (error instanceof Error && error.name !== "AbortError") {
@@ -139,7 +149,7 @@ const Farms = () => {
 
                         <Select
                             value={index?.code}
-                            onValueChange={onSelectIndex}
+                            onValueChange={onIndexSelect}
                         >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Index" />
@@ -170,6 +180,11 @@ const Farms = () => {
             </div>
         </Map>
     );
+};
+
+const modifiersClassNames = {
+    highlight:
+        "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
 };
 
 export default memo(Farms);
