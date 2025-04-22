@@ -6,6 +6,7 @@ import { pocketbase, type Coordinate } from ".";
 import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
+import { getUTCDate } from "@/helpers";
 import { parseFarmFormData, checkFarmFormData } from "@/helpers/farms";
 
 type FarmVisitDate = {
@@ -196,13 +197,13 @@ const getSatelliteImages = async ({
     date: Date;
     signal: AbortSignal;
 }) => {
-    console.log(date);
+    const utcDate = getUTCDate(date);
 
     const dates = await pocketbase
         .collection("farm_satellite_data_index_images_view")
         .getFullList<IndexImage>({
             signal,
-            filter: `farm_fk = '${id}' && visit_date >= '2025-04-17 00:00:00.000Z'`,
+            filter: `farm_fk = '${id}' && visit_date = '${utcDate}'`,
         });
 
     return dates;
