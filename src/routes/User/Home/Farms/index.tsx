@@ -4,8 +4,6 @@ import { toast } from "react-toastify";
 import { Map } from "@vis.gl/react-google-maps";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { Index } from "@/services";
-
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
 import { americanFarmsGeoCenter } from "@/constants";
