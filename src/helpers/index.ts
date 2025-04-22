@@ -115,5 +115,12 @@ const checkFarmFormData = (data: {
     return status;
 };
 
+function getMonthBounds(date: Date) {
+    const firstDay = new Date(date.getUTCFullYear(), date.getUTCMonth(), 1);
+    const lastDay = new Date(date.getUTCFullYear(), date.getUTCMonth() + 1, 0);
+
+    return { firstDay, lastDay };
+}
+
 export type { Coordinate };
-export { checkFarmFormData, parseFarmFormData };
+export { getMonthBounds, checkFarmFormData, parseFarmFormData };

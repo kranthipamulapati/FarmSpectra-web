@@ -7,6 +7,7 @@ import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
+    getMonthBounds,
     type Coordinate,
     parseFarmFormData,
     checkFarmFormData,
@@ -168,19 +169,31 @@ const handleFarmFormSubmit = async ({
     }
 };
 
-const getIndexImagesData = async ({
+const getVisitDatesByMonth = async ({
     id,
+    month,
     signal,
 }: {
     id: string;
+    month: Date;
     signal: AbortSignal;
 }) => {
+    const { firstDay, lastDay } = getMonthBounds(month);
+
     const data = await pocketbase
         .collection("farm_satellite_data_index_images_view")
-        .getFullList<IndexImage>({ signal, filter: `farm_fk = '${id}'` });
+        .getFullList<{ visit_date: Date }>({
+            signal,
+            fields: "visit_date",
+            filter: `farm_fk = '${id}' && visit_date >= '${firstDay.toISOString()}' && visit_date <= '${lastDay.toISOString()}'`,
+        });
 
-    return data;
+    const uniqueDates = Array.from(
+        new Set(data.map((item) => new Date(item.visit_date)))
+    );
+
+    return uniqueDates;
 };
 
-export { handleFarmFormSubmit, getIndexImagesData };
+export { handleFarmFormSubmit, getVisitDatesByMonth };
 export type { Farm, FarmForm, FarmCalender, IndexImage, FarmCalenderForm };
