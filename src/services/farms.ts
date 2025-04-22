@@ -7,10 +7,10 @@ import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
-    getMonthBounds,
     type Coordinate,
     parseFarmFormData,
     checkFarmFormData,
+    getMonthBounds,
 } from "@/helpers";
 
 type Farm = {
@@ -189,8 +189,17 @@ const getVisitDatesByMonth = async ({
         });
 
     const uniqueDates = Array.from(
-        new Set(data.map((item) => new Date(item.visit_date)))
-    );
+        new Set(
+            data.map((item) => {
+                const d = new Date(item.visit_date);
+                return new Date(
+                    d.getFullYear(),
+                    d.getMonth(),
+                    d.getDate()
+                ).getTime();
+            })
+        )
+    ).map((timestamp) => new Date(timestamp));
 
     return uniqueDates;
 };
