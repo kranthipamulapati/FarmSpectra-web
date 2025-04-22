@@ -34,13 +34,13 @@ const Farms = () => {
 
             dispatch(setLoading(true));
 
-            const dates = await getVisitDatesByMonth({
+            const Dates = await getVisitDatesByMonth({
                 id: farm.id,
                 month,
                 signal,
             });
 
-            setDates(dates);
+            setDates(Dates);
 
             dispatch(setLoading(false));
         },
@@ -75,9 +75,26 @@ const Farms = () => {
                         <Calendar
                             month={month}
                             mode="multiple"
-                            selected={dates}
                             numberOfMonths={1}
                             onMonthChange={setMonth}
+                            disabled={(date) =>
+                                !dates.some(
+                                    (d) =>
+                                        d.getFullYear() ===
+                                            date.getFullYear() &&
+                                        d.getMonth() === date.getMonth() &&
+                                        d.getDate() === date.getDate()
+                                )
+                            }
+                            modifiers={{
+                                highlight: dates,
+                            }}
+                            modifiersClassNames={{
+                                disabled:
+                                    "opacity-30 bg-muted text-muted-foreground cursor-not-allowed",
+                                highlight:
+                                    "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
+                            }}
                         />
                     </div>
                 </Card>
