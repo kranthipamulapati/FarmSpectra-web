@@ -56,6 +56,16 @@ type FarmCalenderForm = Pick<
     | "target_yield"
 >;
 
+type IndexImage = {
+    id: string;
+    index_code: string;
+    satellite_code: string;
+    farm_fk: string;
+    visit_date: string;
+    cloud_cover: number;
+    image_url: string;
+};
+
 const addFarm = async ({
     name,
     area,
@@ -158,5 +168,19 @@ const handleFarmFormSubmit = async ({
     }
 };
 
-export { handleFarmFormSubmit };
-export type { Farm, FarmCalender, FarmForm, FarmCalenderForm };
+const getIndexImagesData = async ({
+    id,
+    signal,
+}: {
+    id: string;
+    signal: AbortSignal;
+}) => {
+    const data = await pocketbase
+        .collection("farm_satellite_data_index_images_view")
+        .getFullList<IndexImage>({ signal, filter: `farm_fk = '${id}'` });
+
+    return data;
+};
+
+export { handleFarmFormSubmit, getIndexImagesData };
+export type { Farm, FarmForm, FarmCalender, IndexImage, FarmCalenderForm };
