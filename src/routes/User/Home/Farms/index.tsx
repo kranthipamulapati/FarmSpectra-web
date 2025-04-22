@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState, useCallback } from "react";
 
 import { toast } from "react-toastify";
 import { Map } from "@vis.gl/react-google-maps";
@@ -17,6 +17,12 @@ import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 
 import { getVisitDatesByMonth } from "@/services/farms";
+
+const modifiersClassNames = {
+    disabled: "opacity-30 bg-muted text-muted-foreground cursor-not-allowed",
+    highlight:
+        "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
+};
 
 const Farms = () => {
     const dispatch = useDispatch();
@@ -54,6 +60,24 @@ const Farms = () => {
         }
     );
 
+    const modifiers = useMemo(
+        () => ({
+            highlight: dates,
+        }),
+        [dates]
+    );
+
+    const disabledMatcher = useCallback(
+        (date: Date) =>
+            !dates.some(
+                (d) =>
+                    d.getFullYear() === date.getFullYear() &&
+                    d.getMonth() === date.getMonth() &&
+                    d.getDate() === date.getDate()
+            ),
+        [dates]
+    );
+
     return (
         <Map
             defaultZoom={13}
@@ -76,25 +100,10 @@ const Farms = () => {
                             month={month}
                             mode="multiple"
                             numberOfMonths={1}
+                            modifiers={modifiers}
                             onMonthChange={setMonth}
-                            disabled={(date) =>
-                                !dates.some(
-                                    (d) =>
-                                        d.getFullYear() ===
-                                            date.getFullYear() &&
-                                        d.getMonth() === date.getMonth() &&
-                                        d.getDate() === date.getDate()
-                                )
-                            }
-                            modifiers={{
-                                highlight: dates,
-                            }}
-                            modifiersClassNames={{
-                                disabled:
-                                    "opacity-30 bg-muted text-muted-foreground cursor-not-allowed",
-                                highlight:
-                                    "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
-                            }}
+                            disabled={disabledMatcher}
+                            modifiersClassNames={modifiersClassNames}
                         />
                     </div>
                 </Card>
