@@ -23,22 +23,32 @@ import {
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
-import { getSatelliteImages, getVisitDatesByFarm } from "@/services/farms";
+
+import {
+    type IndexImage,
+    getSatelliteImages,
+    getVisitDatesByFarm,
+} from "@/services/farms";
 
 const Farms = () => {
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
 
-    const [index, setIndex] = useState<Index>();
-    const [indices, setIndices] = useState<Array<Index>>([]);
+    const [index, setIndex] = useState("");
+    const [indices, setIndices] = useState<Array<string>>([]);
+
+    const [image, setImage] = useState<IndexImage>();
+    const [images, setImages] = useState<Array<IndexImage>>([]);
+
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
+
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
 
     const onIndexSelect = useCallback(
         (value: string) => {
-            const item = indices.find((a) => a.code === value);
-            setIndex(item);
+            const item = indices.find((a) => a === value);
+            setIndex(item || "");
         },
         [indices]
     );
@@ -82,11 +92,19 @@ const Farms = () => {
 
             dispatch(setLoading(true));
 
-            await getSatelliteImages({
+            const Images = await getSatelliteImages({
                 id: farm.id,
                 date: selectedDates[0],
                 signal,
             });
+
+            const Indices = Images.map((item) => item.index_code);
+
+            setImages(Images);
+            setIndices(Indices);
+
+            setImage(Images[0]);
+            setIndex(Indices[0] || "");
 
             dispatch(setLoading(false));
         },
@@ -147,19 +165,14 @@ const Farms = () => {
                     <div className="flex flex-row">
                         <FarmSelect />
 
-                        <Select
-                            value={index?.code}
-                            onValueChange={onIndexSelect}
-                        >
+                        <Select value={index} onValueChange={onIndexSelect}>
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Index" />
                             </SelectTrigger>
 
                             <SelectContent>
                                 {indices.map((item) => (
-                                    <SelectItem value={item.code}>
-                                        {item.code}
-                                    </SelectItem>
+                                    <SelectItem value={item}>{item}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
