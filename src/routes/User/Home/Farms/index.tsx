@@ -29,7 +29,11 @@ import {
     getVisitDatesByFarm,
 } from "@/services/farms";
 
-import { getBitmapLayer, getBboxForPolygon } from "@/helpers/maps";
+import {
+    getBitmapLayer,
+    getPolygonLayer,
+    getBboxForPolygon,
+} from "@/helpers/maps";
 
 const Farms = () => {
     const map = useMap();
@@ -114,8 +118,10 @@ const Farms = () => {
                 bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
             });
 
+            const polygonLayer = getPolygonLayer(farm.coordinates);
+
             overlayRef.current = new GoogleMapsOverlay({
-                layers: [imageLayer],
+                layers: [imageLayer, polygonLayer],
             });
 
             overlayRef.current.setMap(map);

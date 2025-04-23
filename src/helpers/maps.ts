@@ -46,27 +46,25 @@ const getBitmapLayer = ({
     return surveyMapLayer;
 };
 
-const getBboxPolygonLayer = (bbox: [Coordinate, Coordinate]): PolygonLayer => {
-    const bboxPolygon = new PolygonLayer({
-        id: "bbox-layer",
+const getPolygonLayer = (coordinates: Array<Coordinate>): PolygonLayer => {
+    const polygonCoords = coordinates.map((point) => [point.lng, point.lat]);
+
+    const polygonLayer = new PolygonLayer({
+        id: "user-polygon-layer",
         data: [
             {
-                polygon: [
-                    [bbox[0].lng, bbox[0].lat], // Bottom-left corner
-                    [bbox[1].lng, bbox[0].lat], // Bottom-right corner
-                    [bbox[1].lng, bbox[1].lat], // Top-right corner
-                    [bbox[0].lng, bbox[1].lat], // Top-left corner
-                    [bbox[0].lng, bbox[0].lat], // Closing the loop
-                ],
+                contour: polygonCoords,
+                color: [0, 200, 100, 150],
             },
         ],
-        stroked: true,
         filled: false,
+        stroked: true,
         getLineWidth: 5,
-        getLineColor: [255, 0, 0, 255], // Red
+        getLineColor: [0, 255, 0, 255],
+        getPolygon: (d) => d.contour,
     });
 
-    return bboxPolygon;
+    return polygonLayer;
 };
 
-export { getBitmapLayer, getBboxForPolygon, getBboxPolygonLayer };
+export { getBitmapLayer, getPolygonLayer, getBboxForPolygon };
