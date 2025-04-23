@@ -118,12 +118,7 @@ const Farms = () => {
                 id: "1",
                 opacity: 1,
                 link: Image.image_url,
-                bounds: [
-                    [coordinates[3].lng, coordinates[3].lat],
-                    [coordinates[0].lng, coordinates[0].lat],
-                    [coordinates[1].lng, coordinates[1].lat],
-                    [coordinates[2].lng, coordinates[2].lat],
-                ],
+                bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
             });
 
             const polygonLayer = getPolygonLayer(farm.coordinates);
