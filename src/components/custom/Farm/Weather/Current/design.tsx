@@ -3,6 +3,7 @@
  * @see https://v0.dev/t/PHKPslpckhU
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
+
 export default function Weather() {
     return (
         <div className="max-w-xl rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 p-6 text-white shadow-lg">

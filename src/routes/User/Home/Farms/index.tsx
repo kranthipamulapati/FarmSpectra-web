@@ -35,6 +35,7 @@ import {
     getBboxForPolygon,
 } from "@/helpers/maps";
 //import Weather from "@/components/custom/Farm/Weather";
+import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
 const Farms = () => {
     const map = useMap();
@@ -245,7 +246,11 @@ const Farms = () => {
                 </Card>
             </div>
 
-            <div className="absolute bottom-5 left-5">{/* <Weather /> */}</div>
+            <div className="absolute bottom-5 w-full max-w-[800px] left-5">
+                <Card className="w-full max-w-[800px] rounded-sm p-4">
+                    <WeatherForecast />
+                </Card>
+            </div>
         </Map>
     );
 };
