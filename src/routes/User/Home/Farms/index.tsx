@@ -88,8 +88,10 @@ const Farms = () => {
         [highlightedDates]
     );
 
+    // pan the map to farm location
+    // add bitmap layer to show image
     useEffect(() => {
-        if (!map || !farm || !image) {
+        if (!map || !farm || !index) {
             return;
         }
 
@@ -102,23 +104,29 @@ const Farms = () => {
             lng: (bbox[0].lng + bbox[1].lng) / 2,
         });
 
-        const imageLayer = getBitmapLayer({
-            id: "1",
-            opacity: 1,
-            link: image.image_url,
-            bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
-        });
+        const Image = images.find((item) => item.index_code === index);
 
-        overlayRef.current = new GoogleMapsOverlay({
-            layers: [imageLayer],
-        });
-        overlayRef.current.setMap(map);
+        if (Image) {
+            const imageLayer = getBitmapLayer({
+                id: "1",
+                opacity: 1,
+                link: Image.image_url,
+                bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
+            });
+
+            overlayRef.current = new GoogleMapsOverlay({
+                layers: [imageLayer],
+            });
+
+            overlayRef.current.setMap(map);
+        }
 
         return () => {
             overlayRef.current?.setMap(null);
         };
-    }, [map, farm, image]);
+    }, [map, farm, index, images]);
 
+    // get satellite images when a date is selected
     useAsyncEffect(
         async (signal) => {
             if (!farm?.id || selectedDates.length === 0) {
@@ -137,8 +145,6 @@ const Farms = () => {
 
             setImages(Images);
             setIndices(Indices);
-
-            setImage(Images[0]);
             setIndex(Indices[0] || "");
 
             dispatch(setLoading(false));
@@ -153,6 +159,7 @@ const Farms = () => {
         }
     );
 
+    // get visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
             if (!farm?.id) {
