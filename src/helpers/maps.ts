@@ -1,4 +1,8 @@
-import { BitmapLayer, PolygonLayer } from "@deck.gl/layers";
+import {
+    BitmapLayer,
+    PolygonLayer,
+    type BitmapBoundingBox,
+} from "@deck.gl/layers";
 
 import type { Coordinate } from "@/services";
 
@@ -33,7 +37,7 @@ const getBitmapLayer = ({
     id: string;
     link: string;
     opacity: number;
-    bounds: [number, number, number, number];
+    bounds: BitmapBoundingBox;
 }): BitmapLayer => {
     const surveyMapLayer = new BitmapLayer({
         id,
