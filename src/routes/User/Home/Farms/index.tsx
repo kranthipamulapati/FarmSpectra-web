@@ -110,6 +110,7 @@ const Farms = () => {
             lat: (bbox[0].lat + bbox[1].lat) / 2,
             lng: (bbox[0].lng + bbox[1].lng) / 2,
         });
+        map.setZoom(16);
 
         const Image = images.find((item) => item.index_code === index);
 
