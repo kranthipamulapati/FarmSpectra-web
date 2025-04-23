@@ -19,7 +19,6 @@ import {
     SelectTrigger,
     SelectContent,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 
@@ -34,7 +33,7 @@ import {
     getPolygonLayer,
     getBboxForPolygon,
 } from "@/helpers/maps";
-//import Weather from "@/components/custom/Farm/Weather";
+import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
 const Farms = () => {
@@ -47,7 +46,6 @@ const Farms = () => {
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
 
-    const [image, setImage] = useState<IndexImage>();
     const [images, setImages] = useState<Array<IndexImage>>([]);
 
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
@@ -202,58 +200,60 @@ const Farms = () => {
     );
 
     return (
-        <Map
-            defaultZoom={13}
-            mapTypeId={mapType}
-            zoomControl={false}
-            mapTypeControl={false}
-            gestureHandling="greedy"
-            fullscreenControl={false}
-            streetViewControl={false}
-            defaultCenter={americanFarmsGeoCenter}
-        >
-            <div className="absolute top-5 right-5">
-                <Card className="w-full max-w-[600px] rounded-sm p-4">
-                    <div className="flex flex-row">
-                        <FarmSelect />
-
-                        <div className="pl-2">
-                            <Select value={index} onValueChange={onIndexSelect}>
-                                <SelectTrigger className="w-full sm:w-[180px]">
-                                    <SelectValue placeholder="Select Index" />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    {indices.map((item) => (
-                                        <SelectItem value={item}>
-                                            {item}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center border">
-                        <Calendar
-                            mode="multiple"
-                            numberOfMonths={1}
-                            modifiers={modifiers}
-                            selected={selectedDates}
-                            onSelect={onSelectDates}
-                            disabled={disabledMatcher}
-                            modifiersClassNames={modifiersClassNames}
-                        />
-                    </div>
-                </Card>
+        <div className="min-h-screen w-full grid grid-cols-3 grid-rows-3">
+            <div className="col-span-2 row-span-2">
+                <Map
+                    defaultZoom={13}
+                    mapTypeId={mapType}
+                    zoomControl={false}
+                    mapTypeControl={false}
+                    gestureHandling="greedy"
+                    fullscreenControl={true}
+                    streetViewControl={false}
+                    defaultCenter={americanFarmsGeoCenter}
+                ></Map>
             </div>
 
-            <div className="absolute bottom-5 w-full max-w-[800px] left-5">
-                <Card className="w-full max-w-[800px] rounded-sm p-4">
-                    <WeatherForecast />
-                </Card>
+            <div className="col-span-1 row-span-3">
+                <div className="flex flex-row justify-center mt-5">
+                    <FarmSelect />
+
+                    <div className="pl-2">
+                        <Select value={index} onValueChange={onIndexSelect}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Select Index" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {indices.map((item) => (
+                                    <SelectItem value={item}>{item}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="flex justify-center border m-5">
+                    <Calendar
+                        mode="multiple"
+                        numberOfMonths={2}
+                        modifiers={modifiers}
+                        selected={selectedDates}
+                        onSelect={onSelectDates}
+                        disabled={disabledMatcher}
+                        modifiersClassNames={modifiersClassNames}
+                    />
+                </div>
             </div>
-        </Map>
+
+            <div className="col-span-1 row-span-1 m-5">
+                <WeatherForecast />
+            </div>
+
+            <div className="col-span-1 row-span-1 flex items-center justify-center">
+                <CurrentWeather />
+            </div>
+        </div>
     );
 };
 
