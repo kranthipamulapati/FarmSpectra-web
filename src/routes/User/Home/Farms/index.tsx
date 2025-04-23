@@ -34,6 +34,7 @@ import {
     getPolygonLayer,
     getBboxForPolygon,
 } from "@/helpers/maps";
+//import Weather from "@/components/custom/Farm/Weather";
 
 const Farms = () => {
     const map = useMap();
@@ -208,22 +209,26 @@ const Farms = () => {
             streetViewControl={false}
             defaultCenter={americanFarmsGeoCenter}
         >
-            <div className="absolute top-4 right-20">
-                <Card className="w-full max-w-[400px] rounded-sm p-4">
+            <div className="absolute top-5 right-5">
+                <Card className="w-full max-w-[600px] rounded-sm p-4">
                     <div className="flex flex-row">
                         <FarmSelect />
 
-                        <Select value={index} onValueChange={onIndexSelect}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Index" />
-                            </SelectTrigger>
+                        <div className="pl-2">
+                            <Select value={index} onValueChange={onIndexSelect}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Select Index" />
+                                </SelectTrigger>
 
-                            <SelectContent>
-                                {indices.map((item) => (
-                                    <SelectItem value={item}>{item}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                <SelectContent>
+                                    {indices.map((item) => (
+                                        <SelectItem value={item}>
+                                            {item}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     <div className="flex justify-center border">
@@ -239,6 +244,8 @@ const Farms = () => {
                     </div>
                 </Card>
             </div>
+
+            <div className="absolute bottom-5 left-5">{/* <Weather /> */}</div>
         </Map>
     );
 };

@@ -31,7 +31,7 @@ const FarmSelect = () => {
             disabled={loading}
             onValueChange={handleFarmSelect}
         >
-            <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Select Farm" />
             </SelectTrigger>
 
