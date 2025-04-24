@@ -36,6 +36,10 @@ import {
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
+const controlsPosition = {
+    position: google.maps.ControlPosition.BOTTOM_RIGHT,
+};
+
 const Farms = () => {
     const map = useMap();
     const overlayRef = useRef<GoogleMapsOverlay | null>(null);
@@ -206,11 +210,13 @@ const Farms = () => {
                     defaultZoom={13}
                     mapTypeId={mapType}
                     zoomControl={false}
+                    cameraControl={false}
                     mapTypeControl={false}
-                    gestureHandling="greedy"
                     fullscreenControl={true}
-                    streetViewControl={false}
+                    streetViewControl={true}
+                    gestureHandling="greedy"
                     defaultCenter={americanFarmsGeoCenter}
+                    fullscreenControlOptions={controlsPosition}
                 ></Map>
             </div>
 
