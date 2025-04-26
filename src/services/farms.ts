@@ -18,7 +18,7 @@ type FarmVisitDate = {
 type Farm = {
     id: string;
     name: string;
-    area: number;
+    area_in_sqm: number;
     unit_fk: string;
     user_fk: string;
     coordinates: Array<Coordinate>;
@@ -45,7 +45,7 @@ type FarmCalender = {
     active: boolean;
 };
 
-type FarmForm = Pick<Farm, "name" | "area" | "coordinates">;
+type FarmForm = Pick<Farm, "name" | "area_in_sqm" | "coordinates">;
 
 type FarmCalenderForm = Pick<
     FarmCalender,
@@ -71,12 +71,12 @@ type IndexImage = {
 
 const addFarm = async ({
     name,
-    area,
+    area_in_sqm,
     coordinates,
 }: FarmForm): Promise<RecordModel> => {
     const data = await pocketbase.collection("farms").create({
         name,
-        area,
+        area_in_sqm,
         coordinates,
         active: true,
         user_fk: pocketbase.authStore.record?.id,

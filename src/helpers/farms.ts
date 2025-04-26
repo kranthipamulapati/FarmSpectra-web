@@ -13,8 +13,8 @@ const parseFarmFormData = ({
         calender: FarmCalenderForm;
     } = {
         farm: {
-            area: 0,
             name: "",
+            area_in_sqm: 0,
             coordinates: [],
         },
         calender: {
@@ -37,7 +37,7 @@ const parseFarmFormData = ({
         // farm section
 
         if (section === "farm") {
-            if (key === "farm[area]") {
+            if (key === "farm[area_in_sqm]") {
                 newValue = Number(value);
                 newValue = isNaN(newValue) ? 0 : newValue;
             } else {
@@ -80,9 +80,9 @@ const checkFarmFormData = (data: {
 
     // farm check
 
-    const { name, area, coordinates } = data.farm;
+    const { name, area_in_sqm, coordinates } = data.farm;
 
-    const isFarmFilled = !!(name && area && coordinates.length);
+    const isFarmFilled = !!(name && area_in_sqm && coordinates.length);
 
     if (isFarmFilled === false) {
         throw new Error("Please fill all required fields for farm.");

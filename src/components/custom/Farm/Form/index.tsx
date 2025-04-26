@@ -58,6 +58,7 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
         (e) => {
+            coordinates.push(coordinates[0]);
             handleFarmFormSubmit({ e, coordinates });
         },
         [coordinates]
@@ -131,13 +132,13 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="farm[area]">Area</Label>
+                                <Label htmlFor="farm[area_in_sqm]">Area</Label>
 
                                 <Input
                                     min="1"
                                     type="number"
-                                    id="farm[area]"
-                                    name="farm[area]"
+                                    id="farm[area_in_sqm]"
+                                    name="farm[area_in_sqm]"
                                     required={true}
                                     placeholder="Auto filled"
                                     value={Math.round(
