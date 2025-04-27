@@ -25,7 +25,7 @@ const parseFarmFormData = ({
             irrigation_method_fk: "",
             tillage_type_fk: "",
             season_fk: "",
-            target_yield: 0,
+            target_yield_in_kgha: 0,
         },
     };
 
@@ -48,7 +48,7 @@ const parseFarmFormData = ({
         // calender section
 
         if (section === "calender") {
-            if (key === "calender[target_yield]") {
+            if (key === "calender[target_yield_in_kgha]") {
                 newValue = Number(value);
                 newValue = isNaN(newValue) ? 0 : newValue;
             } else if (
@@ -92,14 +92,18 @@ const checkFarmFormData = (data: {
 
     // Calendar Check
 
-    const { crop_fk, target_yield, growth_stage_fk, irrigation_method_fk } =
-        data.calender;
+    const {
+        crop_fk,
+        growth_stage_fk,
+        irrigation_method_fk,
+        target_yield_in_kgha,
+    } = data.calender;
 
     const isRegistrationFilled = !!(
         crop_fk &&
         growth_stage_fk &&
         irrigation_method_fk &&
-        target_yield
+        target_yield_in_kgha
     );
 
     if (isRegistrationFilled === false) {

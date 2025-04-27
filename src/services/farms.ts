@@ -37,9 +37,9 @@ type FarmCalender = {
     irrigation_method_fk: string;
     tillage_type_fk: string;
     season_fk: string;
-    yield: number;
-    target_yield: number;
-    estimated_yield: number;
+    yield_in_kgha: number;
+    target_yield_in_kgha: number;
+    estimated_yield_in_kgha: number;
     created: Date;
     update: Date;
     active: boolean;
@@ -56,7 +56,7 @@ type FarmCalenderForm = Pick<
     | "irrigation_method_fk"
     | "tillage_type_fk"
     | "season_fk"
-    | "target_yield"
+    | "target_yield_in_kgha"
 >;
 
 type IndexImage = {
@@ -94,7 +94,7 @@ const addFarmCalendar = async ({
     growth_stage_fk,
     tillage_type_fk,
     irrigation_method_fk,
-    target_yield,
+    target_yield_in_kgha,
 }: FarmCalenderForm & { farm_fk: string }): Promise<RecordModel> => {
     const data = await pocketbase.collection("farm_calendar").create({
         farm_fk,
@@ -105,7 +105,7 @@ const addFarmCalendar = async ({
         growth_stage_fk,
         tillage_type_fk,
         irrigation_method_fk,
-        target_yield,
+        target_yield_in_kgha,
     });
 
     return data;

@@ -58,7 +58,6 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
         (e) => {
-            coordinates.push(coordinates[0]);
             handleFarmFormSubmit({ e, coordinates });
         },
         [coordinates]
@@ -164,7 +163,7 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="calender[target_yield]">
+                                <Label htmlFor="calender[target_yield_in_kgha]">
                                     Target Yield
                                 </Label>
 
@@ -172,8 +171,8 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                                     min="0"
                                     step="0.01"
                                     type="number"
-                                    id="calender[target_yield]"
-                                    name="calender[target_yield]"
+                                    id="calender[target_yield_in_kgha]"
+                                    name="calender[target_yield_in_kgha]"
                                     placeholder="Enter target yield"
                                 />
                             </div>

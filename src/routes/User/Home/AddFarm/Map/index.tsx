@@ -77,6 +77,8 @@ const MapComponent = () => {
                     Coordinates.push({ lat: point.lat(), lng: point.lng() });
                 }
 
+                Coordinates.push(Coordinates[0]);
+
                 setPolygon(Polygon);
                 setShowFarmForm(true);
                 setCoordinates(Coordinates);
