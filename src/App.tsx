@@ -17,7 +17,7 @@ const OrganizationLogin = lazy(() => import("@/routes/Organization/Login"));
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/">
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
                     {/* user auth routes */}
