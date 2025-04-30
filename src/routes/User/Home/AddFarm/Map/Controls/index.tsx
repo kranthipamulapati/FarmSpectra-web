@@ -7,6 +7,7 @@ type Props = {
     startDrawing: () => void;
     clearPolygon: () => void;
     toggleMapType: () => void;
+    toggleMapSearch: () => void;
 };
 
 const toggleFullScreen = () => {
@@ -17,11 +18,19 @@ const toggleFullScreen = () => {
     }
 };
 
-const Controls = ({ clearPolygon, startDrawing, toggleMapType }: Props) => {
+const Controls = ({
+    clearPolygon,
+    startDrawing,
+    toggleMapType,
+    toggleMapSearch,
+}: Props) => {
     return (
         <MapControl position={ControlPosition.TOP_RIGHT}>
             <div className="bg-white p-2 rounded-none shadow-lg flex flex-col space-y-2 absolute right-4 top-4 z-[2]">
-                <button className="p-2 bg-gray-100 rounded-md hover:bg-gray-200">
+                <button
+                    onClick={toggleMapSearch}
+                    className="p-2 bg-gray-100 rounded-md hover:bg-gray-200"
+                >
                     <Search className="w-5 h-5" />
                 </button>
 

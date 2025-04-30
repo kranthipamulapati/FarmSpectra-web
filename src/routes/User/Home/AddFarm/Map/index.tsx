@@ -8,12 +8,15 @@ import { americanFarmsGeoCenter } from "@/constants";
 
 import Controls from "./Controls";
 import FarmForm from "@/components/custom/Farm/Form";
+import MapSearch from "@/components/custom/Maps/Search";
 
 const MapComponent = () => {
     const map = useMap();
     const drawing = useMapsLibrary("drawing");
+    const geocoding = useMapsLibrary("geocoding");
 
     const [showFarmForm, setShowFarmForm] = useState(false);
+    const [showMapSearch, setShowMapSearch] = useState(false);
     const [polygon, setPolygon] = useState<google.maps.Polygon>();
     const [coordinates, setCoordinates] = useState<Array<Coordinate>>([]);
     const [mapType, setMapType] = useState(google.maps.MapTypeId.HYBRID);
@@ -37,7 +40,7 @@ const MapComponent = () => {
         setShowFarmForm(false);
     }, [polygon]);
 
-    // toggle map between road & satellite
+    // toggle map between road & hybrid
 
     const toggleMapType = useCallback(() => {
         setMapType((prev) =>
@@ -45,6 +48,12 @@ const MapComponent = () => {
                 ? google.maps.MapTypeId.ROADMAP
                 : google.maps.MapTypeId.HYBRID
         );
+    }, []);
+
+    // toggle map search
+
+    const toggleMapSearch = useCallback(() => {
+        setShowMapSearch((prev) => !prev);
     }, []);
 
     // add polygon complete listener
@@ -103,10 +112,17 @@ const MapComponent = () => {
                 </div>
             )}
 
+            {showMapSearch && (
+                <div className="absolute top-4 right-20">
+                    <MapSearch map={map} geocoding={geocoding} />
+                </div>
+            )}
+
             <Controls
                 clearPolygon={clearPolygon}
                 startDrawing={startDrawing}
                 toggleMapType={toggleMapType}
+                toggleMapSearch={toggleMapSearch}
             />
         </Map>
     );

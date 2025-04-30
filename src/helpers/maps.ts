@@ -6,6 +6,83 @@ import {
 
 import type { Coordinate } from "@/services";
 
+export type Suggestion = {
+    place_id: string;
+    description: string;
+};
+
+const getAddress = async ({
+    geocoding,
+    Coordinates,
+}: {
+    geocoding: google.maps.GeocodingLibrary;
+    Coordinates: Array<{
+        lat: number;
+        lng: number;
+    }>;
+}) => {
+    const geocoder = new geocoding.Geocoder();
+    const response = await geocoder.geocode({
+        location: {
+            lat: Coordinates[0].lat,
+            lng: Coordinates[0].lng,
+        },
+    });
+
+    let state_code = "";
+    let country_code = "";
+    let postal_code = "";
+    let district_name = "";
+
+    response.results.map((result) => {
+        for (const component of result.address_components) {
+            if (component.types.includes("postal_code")) {
+                postal_code = component.short_name;
+            }
+
+            if (component.types.includes("administrative_area_level_3")) {
+                district_name = component.long_name;
+            }
+
+            if (component.types.includes("administrative_area_level_1")) {
+                state_code = component.short_name;
+            }
+
+            if (component.types.includes("country")) {
+                country_code = component.short_name;
+            }
+        }
+    });
+
+    return {
+        postal_code,
+        district_name,
+        state_code,
+        country_code,
+    };
+};
+
+const searchByAddress = async ({
+    places,
+    address,
+}: {
+    address: string;
+    places: google.maps.PlacesLibrary;
+}): Promise<Array<Suggestion>> => {
+    const autocompleteService = new places.AutocompleteService();
+    const response = await autocompleteService.getPlacePredictions({
+        input: address,
+    });
+
+    return response.predictions.map((prediction) => {
+        const { place_id, description } = prediction;
+        return {
+            place_id,
+            description,
+        };
+    });
+};
+
 const getBboxForPolygon = (
     polygon: Array<Coordinate>
 ): [Coordinate, Coordinate] => {
@@ -71,4 +148,10 @@ const getPolygonLayer = (coordinates: Array<Coordinate>): PolygonLayer => {
     return polygonLayer;
 };
 
-export { getBitmapLayer, getPolygonLayer, getBboxForPolygon };
+export {
+    getAddress,
+    searchByAddress,
+    getBitmapLayer,
+    getPolygonLayer,
+    getBboxForPolygon,
+};
