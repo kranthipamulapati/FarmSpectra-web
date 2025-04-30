@@ -16,7 +16,7 @@ const MapComponent = () => {
     const [showFarmForm, setShowFarmForm] = useState(false);
     const [polygon, setPolygon] = useState<google.maps.Polygon>();
     const [coordinates, setCoordinates] = useState<Array<Coordinate>>([]);
-    const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
+    const [mapType, setMapType] = useState(google.maps.MapTypeId.HYBRID);
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(
         null
     );
@@ -41,19 +41,11 @@ const MapComponent = () => {
 
     const toggleMapType = useCallback(() => {
         setMapType((prev) =>
-            prev === google.maps.MapTypeId.SATELLITE
+            prev === google.maps.MapTypeId.HYBRID
                 ? google.maps.MapTypeId.ROADMAP
-                : google.maps.MapTypeId.SATELLITE
+                : google.maps.MapTypeId.HYBRID
         );
-
-        if (map) {
-            map.setMapTypeId(
-                mapType === google.maps.MapTypeId.SATELLITE
-                    ? google.maps.MapTypeId.ROADMAP
-                    : google.maps.MapTypeId.SATELLITE
-            );
-        }
-    }, [map, mapType]);
+    }, []);
 
     // add polygon complete listener
 
