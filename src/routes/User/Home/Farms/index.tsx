@@ -28,11 +28,7 @@ import {
     getVisitDatesByFarm,
 } from "@/services/farms";
 
-import {
-    getBitmapLayer,
-    getPolygonLayer,
-    getBboxForPolygon,
-} from "@/helpers/maps";
+import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
@@ -105,12 +101,11 @@ const Farms = () => {
 
         overlayRef.current?.setMap(null);
 
-        const { coordinates } = farm;
-        const bbox = getBboxForPolygon(coordinates);
+        const { bbox } = farm;
 
         map.panTo({
-            lat: (bbox[0].lat + bbox[1].lat) / 2,
-            lng: (bbox[0].lng + bbox[1].lng) / 2,
+            lat: (bbox[1] + bbox[3]) / 2, // (south + north) / 2
+            lng: (bbox[0] + bbox[2]) / 2, // (west + east) / 2
         });
         map.setZoom(16);
 
@@ -121,7 +116,7 @@ const Farms = () => {
                 id: "1",
                 opacity: 1,
                 link: Image.image_url,
-                bounds: [bbox[0].lng, bbox[0].lat, bbox[1].lng, bbox[1].lat],
+                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
             });
 
             const polygonLayer = getPolygonLayer(farm.coordinates);

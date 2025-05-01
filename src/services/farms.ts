@@ -21,6 +21,7 @@ type Farm = {
     area_in_sqm: number;
     unit_fk: string;
     user_fk: string;
+    bbox: Array<number>;
     coordinates: Array<Coordinate>;
     created: Date;
     update: Date;
