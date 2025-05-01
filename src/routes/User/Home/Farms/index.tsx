@@ -152,7 +152,10 @@ const Farms = () => {
 
             setImages(Images);
             setIndices(Indices);
-            setIndex(Indices[0] || "");
+
+            if (index === "" || Indices.indexOf(index) === -1) {
+                setIndex(Indices[0] || "");
+            }
 
             dispatch(setLoading(false));
         },
@@ -181,7 +184,9 @@ const Farms = () => {
             const Dates = data.map((item) => new Date(item.date));
 
             setHighlightedDates(Dates);
-            setSelectedDates([Dates[Dates.length - 1]]);
+            if (Dates.length) {
+                setSelectedDates([Dates[Dates.length - 1]]);
+            }
 
             dispatch(setLoading(false));
         },
