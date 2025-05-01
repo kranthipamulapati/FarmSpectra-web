@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { getAreaOfPolygon } from "geolib";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { Coordinate } from "@/helpers";
+import type { Coordinate } from "@/services";
 
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
