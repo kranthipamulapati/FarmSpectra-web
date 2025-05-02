@@ -6,11 +6,11 @@ import type { LucideProps } from "lucide-react";
 import {
     Sidebar,
     SidebarMenu,
-    SidebarGroup,
-    SidebarContent,
+    SidebarGroup,    SidebarContent,
     SidebarMenuItem,
     SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import SidebarTrigger from "../SideBar/Trigger";
 
 type SideBarItem = {
     url: string;
@@ -28,7 +28,7 @@ const AppSidebar = ({ items }: Props) => {
     return (
         <Sidebar collapsible="icon">
             <SidebarContent>
-                <SidebarGroup className="bg-green-600">
+                <SidebarGroup className="bg-green-600 rounded-b-lg">
                     <SidebarMenu>
                         {items.map((item) => (
                             <SidebarMenuItem key={item.title}>
@@ -42,8 +42,9 @@ const AppSidebar = ({ items }: Props) => {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         ))}
-                    </SidebarMenu>
+                    </SidebarMenu>                    
                 </SidebarGroup>
+                <SidebarTrigger />
             </SidebarContent>
         </Sidebar>
     );

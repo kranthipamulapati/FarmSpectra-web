@@ -5,7 +5,7 @@ import SidebarTrigger from "../SideBar/Trigger";
 const Header = ({ children }: { children?: React.ReactNode }) => {
     return (
         <header className="flex items-center h-12 px-4 border-b bg-gray-50">
-            <SidebarTrigger />
+            {/* <SidebarTrigger /> */}
 
             {children}
         </header>
