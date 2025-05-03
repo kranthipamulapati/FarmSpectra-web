@@ -8,6 +8,7 @@ const UserHome = lazy(() => import("@/routes/User/Home"));
 const UserFarms = lazy(() => import("@/routes/User/Home/Farms"));
 const UserAddFarm = lazy(() => import("@/routes/User/Home/AddFarm"));
 const UserDashboard = lazy(() => import("@/routes/User/Home/Dashboard"));
+const UserCompareMap = lazy(() => import("@/routes/User/Home/CompareMap"));
 
 const AdminLogin = lazy(() => import("@/routes/Admin/Login"));
 const AdminHome = lazy(() => import("@/routes/Admin/Home"));
@@ -31,10 +32,17 @@ function App() {
                                 path="/home/dashboard"
                                 element={<UserDashboard />}
                             />
+
                             <Route path="/home/farms" element={<UserFarms />} />
+
                             <Route
                                 path="/home/addFarm"
                                 element={<UserAddFarm />}
+                            />
+
+                            <Route
+                                path="/home/compareMap"
+                                element={<UserCompareMap />}
                             />
                         </Route>
                     </Route>
