@@ -22,7 +22,10 @@ import FarmSelect from "@/components/custom/Farm/Select";
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
-import { getSatelliteImages, getVisitDatesByFarm } from "@/services/farms";
+import {
+    getVisitDatesByFarm,
+    getSatelliteIndicesByDateRange,
+} from "@/services/farms";
 
 const CompareMap = () => {
     const map = useMap();
@@ -64,6 +67,7 @@ const CompareMap = () => {
         const unique = Array.from(new Set(dates.map((d) => d.toDateString())))
             .map((d) => new Date(d))
             .slice(0, 2); // limit to two unique dates
+
         setSelectedDates(unique);
     }, []);
 
@@ -119,13 +123,16 @@ const CompareMap = () => {
 
             dispatch(setLoading(true));
 
-            const Images = await getSatelliteImages({
-                id: farm.id,
-                date: selectedDates[0],
+            const Images = await getSatelliteIndicesByDateRange({
                 signal,
+                id: farm.id,
+                end_date: selectedDates[1],
+                start_date: selectedDates[0],
             });
 
-            const Indices = Images.map((item) => item.index_code);
+            const Indices = Array.from(
+                new Set(Images.map((item) => item.index_code))
+            );
 
             setIndices(Indices);
 
@@ -161,7 +168,7 @@ const CompareMap = () => {
 
             setHighlightedDates(Dates);
             if (Dates.length) {
-                setSelectedDates([Dates[Dates.length - 1]]);
+                setSelectedDates([Dates[0], Dates[Dates.length - 1]]);
             }
 
             dispatch(setLoading(false));

@@ -210,5 +210,35 @@ const getSatelliteImages = async ({
     return dates;
 };
 
+const getSatelliteIndicesByDateRange = async ({
+    id,
+    signal,
+    end_date,
+    start_date,
+}: {
+    id: string;
+    end_date: Date;
+    start_date: Date;
+    signal: AbortSignal;
+}) => {
+    const endDate = getUTCDate(end_date);
+    const startDate = getUTCDate(start_date);
+
+    const dates = await pocketbase
+        .collection("farm_satellite_data_index_images_view")
+        .getFullList<IndexImage>({
+            signal,
+            fields: "index_code",
+            filter: `farm_fk = '${id}' && visit_date >= '${startDate}' && visit_date <= '${endDate}'`,
+        });
+
+    return dates;
+};
+
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
-export { handleFarmFormSubmit, getVisitDatesByFarm, getSatelliteImages };
+export {
+    getSatelliteImages,
+    getVisitDatesByFarm,
+    handleFarmFormSubmit,
+    getSatelliteIndicesByDateRange,
+};
