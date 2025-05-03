@@ -235,10 +235,25 @@ const getSatelliteIndicesByDateRange = async ({
     return dates;
 };
 
+const getFarmSatelliteIndexDataByDate = async ({
+    id,
+    date,
+    signal,
+    farm_fk,
+    index_fk,
+}: {
+    id: string;
+    date: Date;
+    farm_fk: string;
+    index_fk: string;
+    signal: AbortSignal;
+}) => {};
+
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
 export {
     handleFarmFormSubmit,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
     getSatelliteIndicesByDateRange,
+    getFarmSatelliteIndexDataByDate,
 };
