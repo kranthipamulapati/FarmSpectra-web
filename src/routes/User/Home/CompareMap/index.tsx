@@ -56,12 +56,16 @@ const CompareMap = () => {
 
     // Calendar on select date
 
-    const onSelectDates = useCallback(
-        (_: Array<Date> | undefined, day: Date) => {
-            setSelectedDates([day]);
-        },
-        []
-    );
+    const onSelectDates = useCallback((dates: Array<Date> | undefined) => {
+        if (!dates) {
+            return;
+        }
+
+        const unique = Array.from(new Set(dates.map((d) => d.toDateString())))
+            .map((d) => new Date(d))
+            .slice(0, 2); // limit to two unique dates
+        setSelectedDates(unique);
+    }, []);
 
     // Calendar disable other dates that do not have satellite visits
 
@@ -181,38 +185,10 @@ const CompareMap = () => {
                 <div className="flex flex-row justify-center mt-5">
                     <FarmSelect />
 
-                    <div className="pl-2">
-                        <Select value={index} onValueChange={onIndexSelect}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Select Index" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                                {indices.map((item) => (
-                                    <SelectItem value={item}>{item}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="pl-2">
-                        <Select value={index} onValueChange={onIndexSelect}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Select Index" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                                {indices.map((item) => (
-                                    <SelectItem value={item}>{item}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex justify-center border m-5">
+                    <div className="flex justify-center border ml-5 mr-5">
                         <Calendar
                             mode="multiple"
-                            numberOfMonths={2}
+                            numberOfMonths={1}
                             modifiers={modifiers}
                             selected={selectedDates}
                             onSelect={onSelectDates}
@@ -220,6 +196,18 @@ const CompareMap = () => {
                             modifiersClassNames={modifiersClassNames}
                         />
                     </div>
+
+                    <Select value={index} onValueChange={onIndexSelect}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Select Index" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                            {indices.map((item) => (
+                                <SelectItem value={item}>{item}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
