@@ -24,8 +24,8 @@ import FarmSelect from "@/components/custom/Farm/Select";
 
 import {
     type IndexImage,
-    getSatelliteImages,
-    getVisitDatesByFarm,
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteImagesByDate,
 } from "@/services/farms";
 
 import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
@@ -142,7 +142,7 @@ const Farms = () => {
 
             dispatch(setLoading(true));
 
-            const Images = await getSatelliteImages({
+            const Images = await getFarmSatelliteImagesByDate({
                 id: farm.id,
                 date: selectedDates[0],
                 signal,
@@ -180,7 +180,10 @@ const Farms = () => {
 
             dispatch(setLoading(true));
 
-            const data = await getVisitDatesByFarm({ id: farm.id, signal });
+            const data = await getSatelliteVisitDatesByFarm({
+                signal,
+                id: farm.id,
+            });
             const Dates = data.map((item) => new Date(item.date));
 
             setHighlightedDates(Dates);

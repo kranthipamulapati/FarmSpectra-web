@@ -1,4 +1,4 @@
-import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useCallback } from "react";
 
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +23,7 @@ import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
-    getVisitDatesByFarm,
+    getSatelliteVisitDatesByFarm,
     getSatelliteIndicesByDateRange,
 } from "@/services/farms";
 
@@ -86,33 +86,30 @@ const CompareMap = () => {
 
     // pan the map to farm location
     // add bitmap layer to show image
-    useEffect(() => {
-        if (!map || !farm || !index) {
-            return;
-        }
+    useAsyncEffect(
+        async (signal) => {
+            if (!map || !farm || !index) {
+                return;
+            }
 
-        overlayRef.current?.setMap(null);
+            dispatch(setLoading(true));
 
-        const { bbox } = farm;
+            overlayRef.current?.setMap(null);
 
-        map.panTo({
-            lat: (bbox[1] + bbox[3]) / 2, // (south + north) / 2
-            lng: (bbox[0] + bbox[2]) / 2, // (west + east) / 2
-        });
-        map.setZoom(16);
-
-        if (Image) {
             overlayRef.current = new GoogleMapsOverlay({
                 layers: [],
             });
 
             overlayRef.current.setMap(map);
-        }
 
-        return () => {
-            overlayRef.current?.setMap(null);
-        };
-    }, [map, farm, index]);
+            dispatch(setLoading(false));
+
+            return () => {
+                overlayRef.current?.setMap(null);
+            };
+        },
+        [map, farm, index]
+    );
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -123,7 +120,7 @@ const CompareMap = () => {
 
             dispatch(setLoading(true));
 
-            const Images = await getSatelliteIndicesByDateRange({
+            const indexRows = await getSatelliteIndicesByDateRange({
                 signal,
                 id: farm.id,
                 end_date: selectedDates[1],
@@ -131,7 +128,7 @@ const CompareMap = () => {
             });
 
             const Indices = Array.from(
-                new Set(Images.map((item) => item.index_code))
+                new Set(indexRows.map((item) => item.index_code))
             );
 
             setIndices(Indices);
@@ -155,15 +152,26 @@ const CompareMap = () => {
     // get visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id) {
+            if (!map || !farm?.id) {
                 setSelectedDates([]);
                 setHighlightedDates([]);
                 return;
             }
 
+            const { bbox } = farm;
+
+            map.panTo({
+                lat: (bbox[1] + bbox[3]) / 2, // (south + north) / 2
+                lng: (bbox[0] + bbox[2]) / 2, // (west + east) / 2
+            });
+            map.setZoom(16);
+
             dispatch(setLoading(true));
 
-            const data = await getVisitDatesByFarm({ id: farm.id, signal });
+            const data = await getSatelliteVisitDatesByFarm({
+                signal,
+                id: farm.id,
+            });
             const Dates = data.map((item) => new Date(item.date));
 
             setHighlightedDates(Dates);
@@ -173,7 +181,7 @@ const CompareMap = () => {
 
             dispatch(setLoading(false));
         },
-        [farm?.id],
+        [map, farm?.id],
         (error) => {
             setSelectedDates([]);
             setHighlightedDates([]);

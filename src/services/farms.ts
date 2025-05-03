@@ -172,7 +172,7 @@ const handleFarmFormSubmit = async ({
     }
 };
 
-const getVisitDatesByFarm = async ({
+const getSatelliteVisitDatesByFarm = async ({
     id,
     signal,
 }: {
@@ -189,7 +189,7 @@ const getVisitDatesByFarm = async ({
     return dates;
 };
 
-const getSatelliteImages = async ({
+const getFarmSatelliteImagesByDate = async ({
     id,
     date,
     signal,
@@ -237,8 +237,8 @@ const getSatelliteIndicesByDateRange = async ({
 
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
 export {
-    getSatelliteImages,
-    getVisitDatesByFarm,
     handleFarmFormSubmit,
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteImagesByDate,
     getSatelliteIndicesByDateRange,
 };
