@@ -1,5 +1,7 @@
 import { memo, useEffect } from "react";
+
 import { useDispatch } from "react-redux";
+import { APIProvider as GoogleMapsAPIProvider } from "@vis.gl/react-google-maps";
 
 import { Outlet } from "react-router";
 
@@ -25,13 +27,18 @@ const UserHome = () => {
     }, [User]);
 
     return (
-        <SidebarProvider defaultOpen={false}>
-            <AppSidebar items={userSideBarItems} />
+        <GoogleMapsAPIProvider
+            region="IN"
+            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+        >
+            <SidebarProvider defaultOpen={false}>
+                <AppSidebar items={userSideBarItems} />
 
-            <main className="flex flex-col min-h-screen w-full">
-                <Outlet />
-            </main>
-        </SidebarProvider>
+                <main className="flex flex-col min-h-screen w-full">
+                    <Outlet />
+                </main>
+            </SidebarProvider>
+        </GoogleMapsAPIProvider>
     );
 };
 
