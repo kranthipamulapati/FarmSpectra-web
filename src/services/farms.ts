@@ -1,6 +1,8 @@
 import { toast } from "react-toastify";
 import { ClientResponseError, type RecordModel } from "pocketbase";
 
+import { apiBaseURL } from "@/constants";
+
 import { pocketbase, type Coordinate } from ".";
 
 import store from "@/store";
@@ -210,7 +212,7 @@ const getFarmSatelliteImagesByDate = async ({
     return dates;
 };
 
-const getSatelliteIndicesByDateRange = async ({
+const getFarmSatelliteIndicesByDateRange = async ({
     id,
     signal,
     end_date,
@@ -228,7 +230,7 @@ const getSatelliteIndicesByDateRange = async ({
         .collection("farm_satellite_data_index_images_view")
         .getFullList<IndexImage>({
             signal,
-            fields: "index_code",
+            fields: "index_code, satellite_code",
             filter: `farm_fk = '${id}' && visit_date >= '${startDate}' && visit_date <= '${endDate}'`,
         });
 
@@ -236,24 +238,44 @@ const getSatelliteIndicesByDateRange = async ({
 };
 
 const getFarmSatelliteIndexDataByDate = async ({
-    id,
-    date,
-    signal,
     farm_fk,
     index_fk,
+    visit_date,
+    satellite_fk,
 }: {
-    id: string;
-    date: Date;
+    visit_date: Date;
     farm_fk: string;
     index_fk: string;
+    satellite_fk: string;
     signal: AbortSignal;
-}) => {};
+}) => {
+    const response = await fetch(
+        apiBaseURL + "api/farms/satellite/index/data",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + pocketbase.authStore.token,
+            },
+            body: JSON.stringify({
+                farm_fk,
+                index_fk,
+                visit_date,
+                satellite_fk,
+            }),
+        }
+    );
+
+    const result = await response.json();
+
+    console.log(result);
+};
 
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
 export {
     handleFarmFormSubmit,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
-    getSatelliteIndicesByDateRange,
     getFarmSatelliteIndexDataByDate,
+    getFarmSatelliteIndicesByDateRange,
 };

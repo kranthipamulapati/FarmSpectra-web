@@ -24,7 +24,8 @@ import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
     getSatelliteVisitDatesByFarm,
-    getSatelliteIndicesByDateRange,
+    getFarmSatelliteIndexDataByDate,
+    getFarmSatelliteIndicesByDateRange,
 } from "@/services/farms";
 
 const CompareMap = () => {
@@ -84,8 +85,6 @@ const CompareMap = () => {
         [highlightedDates]
     );
 
-    // pan the map to farm location
-    // add bitmap layer to show image
     useAsyncEffect(
         async (signal) => {
             if (!map || !farm || !index) {
@@ -93,6 +92,14 @@ const CompareMap = () => {
             }
 
             dispatch(setLoading(true));
+
+            await getFarmSatelliteIndexDataByDate({
+                signal,
+                farm_fk: farm.id,
+                index_fk: "j8r97ur095m85wc",
+                satellite_fk: "f06wu043077g8ou",
+                visit_date: selectedDates[0],
+            });
 
             overlayRef.current?.setMap(null);
 
@@ -120,7 +127,7 @@ const CompareMap = () => {
 
             dispatch(setLoading(true));
 
-            const indexRows = await getSatelliteIndicesByDateRange({
+            const indexRows = await getFarmSatelliteIndicesByDateRange({
                 signal,
                 id: farm.id,
                 end_date: selectedDates[1],
@@ -128,7 +135,12 @@ const CompareMap = () => {
             });
 
             const Indices = Array.from(
-                new Set(indexRows.map((item) => item.index_code))
+                new Set(
+                    indexRows.map(
+                        (item) =>
+                            item.index_code + " (" + item.satellite_code + ")"
+                    )
+                )
             );
 
             setIndices(Indices);
