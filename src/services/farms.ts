@@ -268,7 +268,7 @@ const getFarmSatelliteIndexDataByDate = async ({
 
     const result = await response.json();
 
-    console.log(result);
+    return result;
 };
 
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
