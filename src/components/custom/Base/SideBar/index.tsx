@@ -5,10 +5,10 @@ import { ChevronRight, type LucideProps } from "lucide-react";
 
 import {
     Sidebar,
+    useSidebar,
     SidebarMenu,
     SidebarGroup,
     SidebarFooter,
-    SidebarTrigger,
     SidebarContent,
     SidebarMenuItem,
     SidebarMenuButton,
@@ -27,6 +27,8 @@ type Props = {
 };
 
 const AppSidebar = ({ items }: Props) => {
+    const { toggleSidebar } = useSidebar();
+
     return (
         <Sidebar collapsible="icon" className="border-r-0">
             <SidebarContent className="flex">
@@ -48,10 +50,11 @@ const AppSidebar = ({ items }: Props) => {
                     </SidebarMenu>
                 </SidebarGroup>
 
-                <SidebarGroup className="bg-white-500 flex-3 justify-center">
-                    <SidebarTrigger className="bg-white text-green-500 w-4 h-4">
-                        <ChevronRight size={12} />
-                    </SidebarTrigger>
+                <SidebarGroup className="bg-white-500 flex-3 justify-center items-center">
+                    <ChevronRight
+                        onClick={toggleSidebar}
+                        className="text-green-500 w-5 h-5"
+                    />
                 </SidebarGroup>
 
                 <SidebarFooter className="bg-green-500 p-4">
