@@ -1,13 +1,7 @@
 import { memo } from "react";
 
-import Header from "@/components/custom/base/Header";
-
 const UserDashboard = () => {
-    return (
-        <>
-            <Header />
-        </>
-    );
+    return <></>;
 };
 
 export default memo(UserDashboard);
