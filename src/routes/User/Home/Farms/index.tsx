@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
+import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 
 import {
     type IndexImage,
@@ -29,8 +30,6 @@ import {
 } from "@/services/farms";
 
 import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
-import CurrentWeather from "@/components/custom/Farm/Weather/Current";
-import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
 const controlsPosition = {
     position: google.maps.ControlPosition.BOTTOM_RIGHT,
@@ -255,11 +254,7 @@ const Farms = () => {
                 </div>
             </div>
 
-            <div className="col-span-1 row-span-1 m-5">
-                <WeatherForecast />
-            </div>
-
-            <div className="col-span-1 row-span-1 flex items-center justify-center">
+            <div className="col-span-1 row-span-2 m-5 flex flex-row">
                 <CurrentWeather />
             </div>
         </div>
