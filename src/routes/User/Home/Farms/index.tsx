@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
-import CurrentWeather from "@/components/custom/Farm/Weather/Current/New";
+import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 
 import {
     type IndexImage,
@@ -108,7 +108,10 @@ const Farms = () => {
         });
         map.setZoom(16);
 
-        const Image = images.find((item) => item.index_code === index);
+        const Image = images.find(
+            (item) =>
+                item.index_code + " (" + item.satellite_code + ")" === index
+        );
 
         if (Image) {
             const imageLayer = getBitmapLayer({
@@ -147,7 +150,9 @@ const Farms = () => {
                 signal,
             });
 
-            const Indices = Images.map((item) => item.index_code);
+            const Indices = Images.map(
+                (item) => item.index_code + " (" + item.satellite_code + ")"
+            );
 
             setImages(Images);
             setIndices(Indices);
