@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
-import CurrentWeather from "@/components/custom/Farm/Weather/Current";
+import CurrentWeather from "@/components/custom/Farm/Weather/Current/New";
 
 import {
     type IndexImage,
@@ -254,7 +254,7 @@ const Farms = () => {
                 </div>
             </div>
 
-            <div className="col-span-1 row-span-2 m-5 flex flex-row">
+            <div className="col-span-2 row-span-2 m-5 flex flex-row">
                 <CurrentWeather />
             </div>
         </div>
