@@ -24,6 +24,7 @@ import FarmSelect from "@/components/custom/Farm/Select";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 
 import {
+    getFarmWeather,
     type IndexImage,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
@@ -183,6 +184,11 @@ const Farms = () => {
             }
 
             dispatch(setLoading(true));
+
+            await getFarmWeather({
+                lat: farm.coordinates[0].lat,
+                lon: farm.coordinates[0].lng,
+            });
 
             const data = await getSatelliteVisitDatesByFarm({
                 signal,

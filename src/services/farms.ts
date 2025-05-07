@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { ClientResponseError, type RecordModel } from "pocketbase";
 
-import { apiBaseURL } from "@/constants";
+import { apiBaseURL, openWeatherMapApiKey } from "@/constants";
 
 import { pocketbase, type Coordinate } from ".";
 
@@ -271,8 +271,19 @@ const getFarmSatelliteIndexDataByDate = async ({
     return result;
 };
 
+const getFarmWeather = async ({ lat, lon }: { lat: number; lon: number }) => {
+    const response = await fetch(
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${openWeatherMapApiKey}`
+    );
+
+    const data = await response.json();
+
+    return data;
+};
+
 export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
 export {
+    getFarmWeather,
     handleFarmFormSubmit,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,

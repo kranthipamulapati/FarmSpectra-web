@@ -62,11 +62,13 @@ const adminSideBarItems = [
 ];
 
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL;
+const openWeatherMapApiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
 
 export {
     apiBaseURL,
     userSideBarItems,
     adminSideBarItems,
     hyderabadGeoCenter,
+    openWeatherMapApiKey,
     americanFarmsGeoCenter,
 };
