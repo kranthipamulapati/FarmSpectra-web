@@ -26,6 +26,7 @@ import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import {
     getFarmWeather,
     type IndexImage,
+    type WeatherData,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
 } from "@/services/farms";
@@ -42,6 +43,8 @@ const Farms = () => {
 
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
+
+    const [weatherData, setWeatherData] = useState<WeatherData>();
 
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
@@ -185,7 +188,7 @@ const Farms = () => {
 
             dispatch(setLoading(true));
 
-            await getFarmWeather({
+            const weatherData = await getFarmWeather({
                 lat: farm.coordinates[0].lat,
                 lon: farm.coordinates[0].lng,
             });
@@ -195,6 +198,8 @@ const Farms = () => {
                 id: farm.id,
             });
             const Dates = data.map((item) => new Date(item.date));
+
+            setWeatherData(weatherData);
 
             setHighlightedDates(Dates);
             if (Dates.length) {
@@ -266,7 +271,7 @@ const Farms = () => {
             </div>
 
             <div className="col-span-2 row-span-2 m-5 flex flex-row">
-                <CurrentWeather />
+                {weatherData && <CurrentWeather weatherData={weatherData} />}
             </div>
         </div>
     );

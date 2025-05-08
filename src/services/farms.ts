@@ -72,6 +72,31 @@ type IndexImage = {
     image_url: string;
 };
 
+type WeatherData = {
+    current: {
+        clouds: number;
+        dew_point: number;
+        dt: number;
+        feels_like: number;
+        humidity: number;
+        pressure: number;
+        sunrise: number;
+        sunset: number;
+        temp: number;
+        uvi: number;
+        visibility: number;
+        weather: {
+            id: number;
+            main: string;
+            description: string;
+            icon: string;
+        }[];
+        wind_deg: number;
+        wind_gust: number;
+        wind_speed: number;
+    };
+};
+
 const addFarm = async ({
     name,
     area_in_sqm,
@@ -271,7 +296,13 @@ const getFarmSatelliteIndexDataByDate = async ({
     return result;
 };
 
-const getFarmWeather = async ({ lat, lon }: { lat: number; lon: number }) => {
+const getFarmWeather = async ({
+    lat,
+    lon,
+}: {
+    lat: number;
+    lon: number;
+}): Promise<WeatherData> => {
     const response = await fetch(
         `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${openWeatherMapApiKey}`
     );
@@ -281,7 +312,14 @@ const getFarmWeather = async ({ lat, lon }: { lat: number; lon: number }) => {
     return data;
 };
 
-export type { Farm, FarmForm, IndexImage, FarmCalender, FarmCalenderForm };
+export type {
+    Farm,
+    FarmForm,
+    IndexImage,
+    WeatherData,
+    FarmCalender,
+    FarmCalenderForm,
+};
 export {
     getFarmWeather,
     handleFarmFormSubmit,

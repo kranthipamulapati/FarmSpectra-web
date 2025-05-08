@@ -16,24 +16,16 @@ import clsx from "clsx";
 
 import { Card } from "@/components/ui/card";
 
+import type { WeatherData } from "@/services/farms";
+
 const TABS = ["Temp", "Precipitation", "Wind", "UV", "AQI"];
 
-export default function FarmWeatherDashboard() {
+export default function FarmWeatherDashboard({
+    weatherData,
+}: {
+    weatherData: WeatherData;
+}) {
     const [tab, setTab] = useState("Temp");
-
-    const data = {
-        temperature: 27.5,
-        humidity: 65,
-        pressure: 1013,
-        dewPoint: 18.2,
-        vpd: 1.2,
-        precipitation: 4,
-        windSpeed: 15,
-        windDirection: "NE",
-        solarRadiation: 720,
-        uvIndex: 6,
-        aqi: 120,
-    };
 
     return (
         <Card className="w-full max-w-3xl mx-auto px-4 py-3 rounded-xl shadow-sm bg-white">
@@ -49,15 +41,17 @@ export default function FarmWeatherDashboard() {
                 </div>
 
                 <div className="text-xs text-right space-y-1 text-muted-foreground">
-                    <p>Humidity: {data.humidity}%</p>
-                    <p>Rain: {data.precipitation} mm</p>
-                    <p>Wind: {data.windSpeed} km/h</p>
+                    <p>Humidity: {weatherData.current.humidity}%</p>
+                    <p>Rain: {weatherData.current.weather[0].description} mm</p>
+                    <p>Wind: {weatherData.current.wind_speed} km/h</p>
                 </div>
             </div>
 
             <div className="flex items-center gap-2 mb-2">
                 <Sun className="text-yellow-400 w-5 h-5" />
-                <span className="text-3xl font-bold">{data.temperature}°</span>
+                <span className="text-3xl font-bold">
+                    {weatherData.current.temp}°
+                </span>
                 <span className="text-sm text-muted-foreground">C</span>
             </div>
 
@@ -86,31 +80,35 @@ export default function FarmWeatherDashboard() {
                             <ThermometerSun className="w-4 h-4" />
                             Temp:{" "}
                             <span className="text-black font-medium">
-                                {data.temperature}°C
+                                {weatherData.current.temp}°C
                             </span>
                         </span>
+
                         <span className="flex items-center gap-1">
                             <Gauge className="w-4 h-4" />
                             Pressure:{" "}
                             <span className="text-black font-medium">
-                                {data.pressure} hPa
+                                {weatherData.current.pressure} hPa
                             </span>
                         </span>
+
                         <span className="flex items-center gap-1">
                             <ArrowUpRight className="w-4 h-4" />
                             Dew Point:{" "}
                             <span className="text-black font-medium">
-                                {data.dewPoint}°C
+                                {weatherData.current.dew_point}°C
                             </span>
                         </span>
+
                         <span className="flex items-center gap-1">
                             <Zap className="w-4 h-4" />
                             VPD:{" "}
                             <span className="text-black font-medium">
-                                {data.vpd} kPa
+                                {/* {weatherData.current.vpd} kPa */}
                             </span>
                         </span>
                     </div>
+
                     <p className="text-xs text-muted-foreground mt-2">
                         Ideal temperature and VPD help optimize plant
                         transpiration and photosynthesis.
@@ -122,11 +120,11 @@ export default function FarmWeatherDashboard() {
                 <div className="text-sm space-y-1">
                     <p>
                         <CloudRain className="inline w-4 h-4 mr-1" />
-                        Rainfall: {data.precipitation} mm
+                        {/* Rainfall: {weatherData.current.precipitation} mm */}
                     </p>
                     <p>
                         <Droplets className="inline w-4 h-4 mr-1" />
-                        Humidity: {data.humidity}%
+                        Humidity: {weatherData.current.humidity}%
                     </p>
                     <p className="text-xs text-muted-foreground pt-1">
                         Moisture levels affect irrigation needs and disease
@@ -139,11 +137,11 @@ export default function FarmWeatherDashboard() {
                 <div className="text-sm space-y-1">
                     <p>
                         <Wind className="inline w-4 h-4 mr-1" />
-                        Speed: {data.windSpeed} km/h
+                        Speed: {weatherData.current.wind_speed} km/h
                     </p>
                     <p>
                         <Compass className="inline w-4 h-4 mr-1" />
-                        Direction: {data.windDirection}
+                        Direction: {weatherData.current.wind_gust}
                     </p>
                     <p className="text-xs text-muted-foreground pt-1">
                         Wind impacts pollination, pesticide application, and
@@ -156,11 +154,15 @@ export default function FarmWeatherDashboard() {
                 <div className="text-sm space-y-1">
                     <p>
                         <SunMedium className="inline w-4 h-4 mr-1" />
-                        UV Index: {data.uvIndex}
+                        UV Index: {weatherData.current.uvi}
                     </p>
                     <p>
                         <Sun className="inline w-4 h-4 mr-1" />
-                        Solar Radiation: {data.solarRadiation} W/m²
+                        Solar Radiation:{" "}
+                        {
+                            // weatherData.current.solarRadiation
+                        }{" "}
+                        W/m²
                     </p>
                     <p className="text-xs text-muted-foreground pt-1">
                         High UV and radiation boost photosynthesis but require
@@ -172,19 +174,23 @@ export default function FarmWeatherDashboard() {
             {tab === "AQI" && (
                 <div className="space-y-1 text-sm">
                     <div className="text-3xl font-bold text-black">
-                        {data.aqi}
+                        {/* {weatherData.current.aqi} */}
                     </div>
+
                     <p className="text-xs font-medium text-yellow-600">Poor</p>
+
                     <p className="text-xs text-muted-foreground">
                         Air pollution affects plant respiration and may stress
                         crops. Sensitive crops may show reduced growth.
                     </p>
+
                     <div className="relative h-2 mt-2 bg-green-300 rounded-full">
                         <div
                             className="absolute top-0 h-2 bg-yellow-400 rounded-full"
-                            style={{ width: `${(data.aqi / 400) * 100}%` }}
+                            // style={{ width: `${(data.aqi / 400) * 100}%` }}
                         />
                     </div>
+
                     <div className="flex justify-between text-[10px] text-muted-foreground pt-1">
                         <span>0</span>
                         <span>100</span>
