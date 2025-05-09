@@ -1,7 +1,7 @@
 import { memo } from "react";
 
 import { Link } from "react-router";
-import { ChevronRight, type LucideProps } from "lucide-react";
+import { ChevronRight, ChevronLeft, type LucideProps } from "lucide-react";
 
 import {
     Sidebar,
@@ -27,20 +27,23 @@ type Props = {
 };
 
 const AppSidebar = ({ items }: Props) => {
-    const { toggleSidebar } = useSidebar();
+    const { open, toggleSidebar } = useSidebar();
 
     return (
         <Sidebar collapsible="icon" className="border-r-0">
-            <SidebarContent className="flex">
+            <SidebarContent>
                 <SidebarGroup className="bg-green-500">
                     <SidebarMenu>
                         {items.map((item) => (
-                            <SidebarMenuItem key={item.title}>
+                            <SidebarMenuItem
+                                key={item.title}
+                                className="mt-1 mb-1"
+                            >
                                 <SidebarMenuButton asChild>
                                     <Link to={item.url}>
                                         <item.icon fill="white" color="white" />
 
-                                        <span className="text-white ml-2">
+                                        <span className="text-white ml-2 font-800 text-lg">
                                             {item.title}
                                         </span>
                                     </Link>
@@ -51,10 +54,17 @@ const AppSidebar = ({ items }: Props) => {
                 </SidebarGroup>
 
                 <SidebarGroup className="bg-white-500 flex-3 justify-center items-center">
-                    <ChevronRight
-                        onClick={toggleSidebar}
-                        className="text-green-500 w-5 h-5"
-                    />
+                    {open ? (
+                        <ChevronLeft
+                            onClick={toggleSidebar}
+                            className="text-green-500 w-5 h-5"
+                        />
+                    ) : (
+                        <ChevronRight
+                            onClick={toggleSidebar}
+                            className="text-green-500 w-5 h-5"
+                        />
+                    )}
                 </SidebarGroup>
 
                 <SidebarFooter className="bg-green-500 p-4">
