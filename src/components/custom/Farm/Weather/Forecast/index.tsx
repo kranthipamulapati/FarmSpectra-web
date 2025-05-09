@@ -6,13 +6,13 @@ import {
     LineChart,
     ResponsiveContainer,
 } from "recharts";
-
 import { format } from "date-fns";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 import type { WeatherData } from "@/services/farms";
+import { memo } from "react";
 
 function transformHumidityData(weatherData: WeatherData) {
     return weatherData.hourly.slice(0, 30).map((entry) => ({
@@ -21,11 +21,7 @@ function transformHumidityData(weatherData: WeatherData) {
     }));
 }
 
-export default function HumidityCard({
-    weatherData,
-}: {
-    weatherData: WeatherData;
-}) {
+function WeatherForecast({ weatherData }: { weatherData: WeatherData }) {
     const chartData = transformHumidityData(weatherData);
 
     return (
@@ -79,3 +75,5 @@ export default function HumidityCard({
         </Card>
     );
 }
+
+export default memo(WeatherForecast);
