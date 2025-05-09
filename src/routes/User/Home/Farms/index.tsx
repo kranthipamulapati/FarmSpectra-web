@@ -22,6 +22,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
+import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
 import {
     getFarmWeather,
@@ -222,8 +223,8 @@ const Farms = () => {
     );
 
     return (
-        <div className="min-h-screen w-full grid grid-cols-3 grid-rows-3">
-            <div className="col-span-2 row-span-2">
+        <div className="min-h-screen w-full grid grid-cols-4 grid-rows-3">
+            <div className="col-span-3 row-span-2">
                 <Map
                     defaultZoom={13}
                     mapTypeId={mapType}
@@ -260,7 +261,7 @@ const Farms = () => {
                 <div className="flex justify-center border m-5">
                     <Calendar
                         mode="multiple"
-                        numberOfMonths={2}
+                        numberOfMonths={1}
                         modifiers={modifiers}
                         selected={selectedDates}
                         onSelect={onSelectDates}
@@ -270,8 +271,10 @@ const Farms = () => {
                 </div>
             </div>
 
-            <div className="col-span-2 row-span-2 m-5 flex flex-row">
+            <div className="col-span-3 row-span-2 m-5 flex flex-row">
                 {weatherData && <CurrentWeather weatherData={weatherData} />}
+
+                {weatherData && <WeatherForecast weatherData={weatherData} />}
             </div>
         </div>
     );

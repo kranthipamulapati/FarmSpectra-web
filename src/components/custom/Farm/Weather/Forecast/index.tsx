@@ -1,56 +1,81 @@
-import { memo } from "react";
-
 import {
-    ChartLegend,
-    ChartTooltip,
-    ChartContainer,
-    type ChartConfig,
-    ChartLegendContent,
-    ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Line, XAxis, LineChart, CartesianGrid } from "recharts";
+    Line,
+    XAxis,
+    YAxis,
+    Tooltip,
+    LineChart,
+    ResponsiveContainer,
+} from "recharts";
 
-const chartData = [
-    { month: "January", desktop: 186, mobile: 80 },
-    { month: "February", desktop: 305, mobile: 200 },
-    { month: "March", desktop: 237, mobile: 120 },
-    { month: "April", desktop: 73, mobile: 190 },
-    { month: "May", desktop: 209, mobile: 130 },
-    { month: "June", desktop: 214, mobile: 140 },
-];
+import { format } from "date-fns";
 
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "#2563eb",
-    },
-    mobile: {
-        label: "Mobile",
-        color: "#60a5fa",
-    },
-} satisfies ChartConfig;
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
-const WeatherForecast = () => {
+import type { WeatherData } from "@/services/farms";
+
+function transformHumidityData(weatherData: WeatherData) {
+    return weatherData.hourly.slice(0, 30).map((entry) => ({
+        time: format(new Date(entry.dt * 1000), "d MMM, haaa"),
+        humidity: entry.humidity,
+    }));
+}
+
+export default function HumidityCard({
+    weatherData,
+}: {
+    weatherData: WeatherData;
+}) {
+    const chartData = transformHumidityData(weatherData);
+
     return (
-        <ChartContainer config={chartConfig} className="max-h-[200px] w-full">
-            <LineChart accessibilityLayer data={chartData}>
-                <CartesianGrid vertical={false} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <ChartTooltip content={<ChartTooltipContent />} />
+        <Card className="ml-4 p-4 shadow-md w-[50%]">
+            <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xl font-semibold">Day Forecast</h2>
 
-                <XAxis
-                    tickMargin={10}
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                />
+                <div className="space-x-2">
+                    <Badge
+                        variant="default"
+                        className="bg-orange-500 hover:bg-orange-600"
+                    >
+                        Humidity
+                    </Badge>
 
-                <Line dataKey="desktop" fill="var(--color-desktop)" />
-                <Line dataKey="mobile" fill="var(--color-mobile)" />
-            </LineChart>
-        </ChartContainer>
+                    <span className="text-muted-foreground text-sm">
+                        Pressure
+                    </span>
+
+                    <span className="text-muted-foreground text-sm">
+                        Temperature
+                    </span>
+
+                    <span className="text-muted-foreground text-sm">Rain</span>
+
+                    <span className="text-muted-foreground text-sm">
+                        Wind Speed
+                    </span>
+                </div>
+            </div>
+
+            <CardContent className="h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                        <XAxis dataKey="time" tick={{ fontSize: 10 }} />
+
+                        <YAxis domain={[0, 100]} />
+
+                        <Tooltip />
+
+                        <Line
+                            type="monotone"
+                            dataKey="humidity"
+                            stroke="#0ea5e9"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
     );
-};
-
-export default memo(WeatherForecast);
+}
