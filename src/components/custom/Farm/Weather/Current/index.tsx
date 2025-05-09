@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
 import {
     Sun,
@@ -20,23 +20,20 @@ import type { WeatherData } from "@/services/farms";
 
 const TABS = ["Temp", "Precipitation", "Wind", "UV", "AQI"];
 
-export default function FarmWeatherDashboard({
-    weatherData,
-}: {
-    weatherData: WeatherData;
-}) {
+function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
     const [tab, setTab] = useState("Temp");
 
     return (
-        <Card className="w-full max-w-3xl mx-auto px-4 py-3 rounded-xl shadow-sm bg-white">
-            <div className="flex justify-between items-start mb-2">
+        <Card className="w-[50%] max-w-[50%] p-3 shadow-sm">
+            <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-base font-medium">
-                        Farm Weather Summary
-                    </h2>
+                    <h2 className="text-base font-medium">Current Weather</h2>
 
                     <p className="text-xs text-muted-foreground">
-                        Today, 3:00 PM
+                        {new Date().toLocaleTimeString([], {
+                            hour: "numeric",
+                            minute: "2-digit",
+                        })}
                     </p>
                 </div>
 
@@ -47,15 +44,17 @@ export default function FarmWeatherDashboard({
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
                 <Sun className="text-yellow-400 w-5 h-5" />
+
                 <span className="text-3xl font-bold">
                     {weatherData.current.temp}°
                 </span>
+
                 <span className="text-sm text-muted-foreground">C</span>
             </div>
 
-            <div className="flex gap-4 border-b mb-2 text-sm">
+            <div className="flex gap-4 border-b text-sm">
                 {TABS.map((t) => (
                     <button
                         key={t}
@@ -72,7 +71,6 @@ export default function FarmWeatherDashboard({
                 ))}
             </div>
 
-            {/* Tab Content */}
             {tab === "Temp" && (
                 <div className="text-sm space-y-1">
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
@@ -104,7 +102,7 @@ export default function FarmWeatherDashboard({
                             <Zap className="w-4 h-4" />
                             VPD:{" "}
                             <span className="text-black font-medium">
-                                {/* {weatherData.current.vpd} kPa */}
+                                {weatherData.current.vpd} kPa
                             </span>
                         </span>
                     </div>
@@ -120,7 +118,7 @@ export default function FarmWeatherDashboard({
                 <div className="text-sm space-y-1">
                     <p>
                         <CloudRain className="inline w-4 h-4 mr-1" />
-                        {/* Rainfall: {weatherData.current.precipitation} mm */}
+                        Rainfall: {weatherData.current.precipitation} mm
                     </p>
                     <p>
                         <Droplets className="inline w-4 h-4 mr-1" />
@@ -158,9 +156,8 @@ export default function FarmWeatherDashboard({
                     </p>
                     <p>
                         <Sun className="inline w-4 h-4 mr-1" />
-                        Solar Radiation:{" "}
-                        {
-                            // weatherData.current.solarRadiation
+                        Solar Radiation: {
+                            weatherData.current.solarRadiation
                         }{" "}
                         W/m²
                     </p>
@@ -174,7 +171,7 @@ export default function FarmWeatherDashboard({
             {tab === "AQI" && (
                 <div className="space-y-1 text-sm">
                     <div className="text-3xl font-bold text-black">
-                        {/* {weatherData.current.aqi} */}
+                        {weatherData.current.aqi}
                     </div>
 
                     <p className="text-xs font-medium text-yellow-600">Poor</p>
@@ -187,7 +184,7 @@ export default function FarmWeatherDashboard({
                     <div className="relative h-2 mt-2 bg-green-300 rounded-full">
                         <div
                             className="absolute top-0 h-2 bg-yellow-400 rounded-full"
-                            // style={{ width: `${(data.aqi / 400) * 100}%` }}
+                            style={{ width: `${(data.aqi / 400) * 100}%` }}
                         />
                     </div>
 
@@ -203,3 +200,5 @@ export default function FarmWeatherDashboard({
         </Card>
     );
 }
+
+export default memo(CurrentWeather);
