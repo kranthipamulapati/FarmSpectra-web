@@ -12,11 +12,26 @@ const TABS = ["Temp", "Precip", "Wind", "Humidity", "UV"];
 function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
     const [tab, setTab] = useState("Temp");
 
+    const diurnalRange = Math.round(
+        weatherData.daily[0].temp.max - weatherData.daily[0].temp.min
+    );
+
+    const baseTemp = 10; // Adjust for crop type
+    const gdd = Math.max(
+        (weatherData.daily[0].temp.max + weatherData.daily[0].temp.min) / 2 -
+            baseTemp,
+        0
+    );
+
+    const frostRisk =
+        weatherData.current.temp <= 2 && weatherData.current.dew_point <= 2;
+
     return (
         <Card className="w-[50%] max-w-[50%] p-3 shadow-sm">
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-medium">Current Weather</h2>
+
                     <p className="text-xs text-muted-foreground">
                         {new Date().toLocaleTimeString([], {
                             hour: "numeric",
@@ -76,6 +91,12 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                                 minute: "2-digit",
                             })}
                         </span>
+                    </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>Diurnal range:</span>
+
+                        <span className="font-medium">{diurnalRange}°C</span>
                     </p>
 
                     <p className="flex justify-between gap-4">
@@ -150,6 +171,12 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                         <span className="font-medium">
                             {`${weatherData.current.clouds}%`}
                         </span>
+                    </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>GDD:</span>
+
+                        <span className="font-medium">{gdd.toFixed(1)}</span>
                     </p>
                 </div>
             </div>
