@@ -23,10 +23,15 @@ const TABS = [
     { label: "UV", icon: SunMedium },
 ];
 
-const DataRow = ({ label, value }: { label: string; value: string }) => (
+const DataRow = ({
+    label,
+    value,
+}: {
+    label: string;
+    value: string | React.ReactNode;
+}) => (
     <div className="flex items-center gap-1 text-xs text-muted-foreground">
         <span>{label}:</span>
-
         <span className="font-medium text-black mr-4">{value}</span>
     </div>
 );
@@ -53,7 +58,6 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-medium">Current Weather</h2>
-
                     <p className="text-xs text-muted-foreground">
                         {new Date().toLocaleTimeString([], {
                             hour: "numeric",
@@ -69,134 +73,98 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                     ) : null}
                 </div>
 
-                <div className="text-xs text-right space-y-1 text-muted-foreground">
-                    <p className="flex justify-between gap-4">
-                        <span>Feels Like:</span>
-
-                        <span className="font-medium">
-                            {Math.round(weatherData.current.feels_like)}°C
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Sunrise:</span>
-
-                        <span className="font-medium">
-                            {new Date(
-                                weatherData.current.sunrise * 1000
-                            ).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Sunset:</span>
-
-                        <span className="font-medium">
-                            {new Date(
-                                weatherData.current.sunset * 1000
-                            ).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Wind speed:</span>
-
-                        <span className="font-medium">
-                            {`${weatherData.current.wind_speed.toFixed(1)} m/s`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Wind gusts:</span>
-
-                        <span className="font-medium">
-                            {`${
-                                weatherData.current.wind_gust?.toFixed(1) || "-"
-                            } m/s`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Wind direction:</span>
-
-                        <span className="font-medium">
-                            <WindArrow degrees={weatherData.current.wind_deg} />
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Rain 1hr:</span>
-
-                        <span className="font-medium">
-                            {`${(weatherData.hourly[0].pop * 100).toFixed(0)}%`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Rain 24hr:</span>
-
-                        <span className="font-medium">
-                            {`${(weatherData.daily[0].rain || 0).toFixed(
-                                1
-                            )} mm`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Humidity:</span>
-
-                        <span className="font-medium">
-                            {`${weatherData.current.humidity} %`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Current UV:</span>
-
-                        <span className="font-medium">
-                            {weatherData.current.uvi.toFixed(1)}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>MAX UV:</span>
-
-                        <span className="font-medium">
-                            {weatherData.daily[0].uvi.toFixed(1)}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Dew point:</span>
-
-                        <span className="font-medium">
-                            {`${weatherData.current.dew_point.toFixed(1)}°C`}
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Cloud cover:</span>
-
-                        <span className="font-medium">
-                            {`${weatherData.current.clouds}%`}
-                        </span>
-                    </p>
+                {/* Reorganized right side into two columns */}
+                <div className="grid grid-cols-2 gap-x-6 text-xs text-muted-foreground">
+                    <div className="space-y-1">
+                        <p className="flex justify-between gap-2">
+                            <span>Sunset:</span>
+                            <span className="font-medium">
+                                {new Date(
+                                    weatherData.current.sunset * 1000
+                                ).toLocaleTimeString([], {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                })}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Wind speed:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.wind_speed.toFixed(
+                                    1
+                                )} m/s`}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Wind gusts:</span>
+                            <span className="font-medium">
+                                {`${
+                                    weatherData.current.wind_gust?.toFixed(1) ||
+                                    "-"
+                                } m/s`}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Wind dir:</span>
+                            <span className="font-medium">
+                                <WindArrow
+                                    degrees={weatherData.current.wind_deg}
+                                />
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Rain 1hr:</span>
+                            <span className="font-medium">
+                                {`${(weatherData.hourly[0].pop * 100).toFixed(
+                                    0
+                                )}%`}
+                            </span>
+                        </p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="flex justify-between gap-2">
+                            <span>Rain 24hr:</span>
+                            <span className="font-medium">
+                                {`${(weatherData.daily[0].rain || 0).toFixed(
+                                    1
+                                )} mm`}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Humidity:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.humidity} %`}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>UV:</span>
+                            <span className="font-medium">
+                                {weatherData.current.uvi.toFixed(1)}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Dew point:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.dew_point.toFixed(
+                                    1
+                                )}°C`}
+                            </span>
+                        </p>
+                        <p className="flex justify-between gap-2">
+                            <span>Clouds:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.clouds}%`}
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-2">
                 <Sun className="text-yellow-400 w-5 h-5" />
-
                 <span className="text-3xl font-bold">
                     {weatherData.current.temp}°
                 </span>
-
                 <span className="text-sm text-muted-foreground">C</span>
             </div>
 
@@ -205,12 +173,11 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                     <button
                         key={label}
                         onClick={() => setTab(label)}
-                        className={clsx(
-                            "pb-1 flex items-center gap-1",
+                        className={
                             tab === label
-                                ? "text-black border-b-2 border-yellow-400"
-                                : "text-muted-foreground"
-                        )}
+                                ? "pb-1 flex items-center gap-1 text-black border-b-2 border-yellow-400"
+                                : "pb-1 flex items-center gap-1 text-muted-foreground"
+                        }
                     >
                         <Icon className="w-4 h-4" />
                         {label}
@@ -227,22 +194,18 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                                 weatherData.daily[0].temp.max
                             )}°C`}
                         />
-
                         <DataRow
                             label="Low"
                             value={`${Math.round(
                                 weatherData.daily[0].temp.min
                             )}°C`}
                         />
-
                         <DataRow
                             label="Diurnal Range"
                             value={`${diurnalRange}°C`}
                         />
-
                         <DataRow label="GDD" value={gdd.toFixed(1)} />
                     </div>
-
                     <p className="text-xs text-muted-foreground mt-2">
                         {getTempRecommendation(weatherData.current.temp)}
                     </p>
@@ -357,7 +320,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
 export default memo(CurrentWeather);
 
-// 2. Add wind direction arrow component:
+// Wind direction arrow component
 const WindArrow = ({ degrees }: { degrees: number }) => (
     <div
         className="inline-block transition-transform"
@@ -395,7 +358,6 @@ function getTempRecommendation(temp: number): string {
     return "Severe heat stress — delay operations and protect crops.";
 }
 
-// Add this recommendation function at the bottom
 function getPrecipRecommendation(rain: number, humidity: number): string {
     if (rain > 5)
         return "Heavy rainfall - Delay field work and check drainage systems.";
@@ -423,19 +385,10 @@ function getUVRecommendation(uvi: number): string {
     return "Low - Safe for extended outdoor work";
 }
 
-// Recommendation function
 function getDewPointRecommendation(dewPoint: number, temp: number): string {
     const spread = temp - dewPoint;
     if (spread < 2) return "Fog likely - Delay spraying operations";
     if (dewPoint > 20) return "High humidity - Increase fungicide applications";
     if (dewPoint < 5) return "Low humidity - Ideal for harvesting grains";
     return "Comfortable humidity levels for most crops";
-}
-
-// Pressure recommendation logic
-function getPressureTrend(current: number, hourly: HourlyForecast[]): string {
-    const trend = hourly[0].pressure - current;
-    if (trend > 2) return "Rapidly rising - Expect clearing skies";
-    if (trend < -2) return "Falling quickly - Storm likely within 6 hours";
-    return "Stable pressure - No significant weather changes expected";
 }
