@@ -1,13 +1,35 @@
 import { memo, useState } from "react";
 
 import clsx from "clsx";
-import { Sun, AlertTriangle } from "lucide-react";
+import {
+    Sun,
+    Wind,
+    Droplet,
+    CloudRain,
+    SunMedium,
+    Thermometer,
+    AlertTriangle,
+} from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
 import type { WeatherData } from "@/services/farms";
 
-const TABS = ["Temp", "Precip", "Wind", "Humidity", "UV"];
+const TABS = [
+    { label: "Temp", icon: Thermometer },
+    { label: "Precip", icon: CloudRain },
+    { label: "Wind", icon: Wind },
+    { label: "Humidity", icon: Droplet },
+    { label: "UV", icon: SunMedium },
+];
+
+const DataRow = ({ label, value }: { label: string; value: string }) => (
+    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <span>{label}:</span>
+
+        <span className="font-medium text-black mr-4">{value}</span>
+    </div>
+);
 
 function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
     const [tab, setTab] = useState("Temp");
@@ -50,27 +72,15 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                 <div className="text-xs text-right space-y-1 text-muted-foreground">
                     <p className="flex justify-between gap-4">
                         <span>Feels Like:</span>
+
                         <span className="font-medium">
                             {Math.round(weatherData.current.feels_like)}°C
                         </span>
                     </p>
 
                     <p className="flex justify-between gap-4">
-                        <span>High:</span>
-                        <span className="font-medium">
-                            {Math.round(weatherData.daily[0].temp.max)}°C
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>Low:</span>
-                        <span className="font-medium">
-                            {Math.round(weatherData.daily[0].temp.min)}°C
-                        </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
                         <span>Sunrise:</span>
+
                         <span className="font-medium">
                             {new Date(
                                 weatherData.current.sunrise * 1000
@@ -83,6 +93,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Sunset:</span>
+
                         <span className="font-medium">
                             {new Date(
                                 weatherData.current.sunset * 1000
@@ -94,13 +105,8 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                     </p>
 
                     <p className="flex justify-between gap-4">
-                        <span>Diurnal range:</span>
-
-                        <span className="font-medium">{diurnalRange}°C</span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
                         <span>Wind speed:</span>
+
                         <span className="font-medium">
                             {`${weatherData.current.wind_speed.toFixed(1)} m/s`}
                         </span>
@@ -108,6 +114,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Wind gusts:</span>
+
                         <span className="font-medium">
                             {`${
                                 weatherData.current.wind_gust?.toFixed(1) || "-"
@@ -117,6 +124,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Wind direction:</span>
+
                         <span className="font-medium">
                             <WindArrow degrees={weatherData.current.wind_deg} />
                         </span>
@@ -124,6 +132,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Rain 1hr:</span>
+
                         <span className="font-medium">
                             {`${(weatherData.hourly[0].pop * 100).toFixed(0)}%`}
                         </span>
@@ -131,6 +140,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Rain 24hr:</span>
+
                         <span className="font-medium">
                             {`${(weatherData.daily[0].rain || 0).toFixed(
                                 1
@@ -140,6 +150,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Humidity:</span>
+
                         <span className="font-medium">
                             {`${weatherData.current.humidity} %`}
                         </span>
@@ -147,6 +158,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Current UV:</span>
+
                         <span className="font-medium">
                             {weatherData.current.uvi.toFixed(1)}
                         </span>
@@ -154,6 +166,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>MAX UV:</span>
+
                         <span className="font-medium">
                             {weatherData.daily[0].uvi.toFixed(1)}
                         </span>
@@ -161,6 +174,7 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Dew point:</span>
+
                         <span className="font-medium">
                             {`${weatherData.current.dew_point.toFixed(1)}°C`}
                         </span>
@@ -168,15 +182,10 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
 
                     <p className="flex justify-between gap-4">
                         <span>Cloud cover:</span>
+
                         <span className="font-medium">
                             {`${weatherData.current.clouds}%`}
                         </span>
-                    </p>
-
-                    <p className="flex justify-between gap-4">
-                        <span>GDD:</span>
-
-                        <span className="font-medium">{gdd.toFixed(1)}</span>
                     </p>
                 </div>
             </div>
@@ -192,24 +201,48 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             </div>
 
             <div className="flex gap-4 border-b text-sm">
-                {TABS.map((t) => (
+                {TABS.map(({ label, icon: Icon }) => (
                     <button
-                        key={t}
-                        onClick={() => setTab(t)}
+                        key={label}
+                        onClick={() => setTab(label)}
                         className={clsx(
-                            "pb-1",
-                            t === tab
+                            "pb-1 flex items-center gap-1",
+                            tab === label
                                 ? "text-black border-b-2 border-yellow-400"
                                 : "text-muted-foreground"
                         )}
                     >
-                        {t}
+                        <Icon className="w-4 h-4" />
+                        {label}
                     </button>
                 ))}
             </div>
 
             {tab === "Temp" && (
-                <div className="text-sm space-y-1">
+                <div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <DataRow
+                            label="High"
+                            value={`${Math.round(
+                                weatherData.daily[0].temp.max
+                            )}°C`}
+                        />
+
+                        <DataRow
+                            label="Low"
+                            value={`${Math.round(
+                                weatherData.daily[0].temp.min
+                            )}°C`}
+                        />
+
+                        <DataRow
+                            label="Diurnal Range"
+                            value={`${diurnalRange}°C`}
+                        />
+
+                        <DataRow label="GDD" value={gdd.toFixed(1)} />
+                    </div>
+
                     <p className="text-xs text-muted-foreground mt-2">
                         {getTempRecommendation(weatherData.current.temp)}
                     </p>
@@ -217,8 +250,30 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             )}
 
             {tab === "Wind" && (
-                <div className="text-sm space-y-2">
-                    <p className="text-xs text-muted-foreground pt-2">
+                <div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <DataRow
+                            label="Wind speed"
+                            value={`${weatherData.current.wind_speed.toFixed(
+                                1
+                            )} m/s`}
+                        />
+                        <DataRow
+                            label="Wind gusts"
+                            value={`${
+                                weatherData.current.wind_gust?.toFixed(1) || "-"
+                            } m/s`}
+                        />
+                        <DataRow
+                            label="Wind direction"
+                            value={
+                                <WindArrow
+                                    degrees={weatherData.current.wind_deg}
+                                />
+                            }
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
                         {getWindRecommendation(
                             weatherData.current.wind_speed,
                             weatherData.current.wind_gust
@@ -228,8 +283,22 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             )}
 
             {tab === "Precip" && (
-                <div className="text-sm space-y-2">
-                    <p className="text-xs text-muted-foreground pt-2">
+                <div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <DataRow
+                            label="Rain 1hr"
+                            value={`${(weatherData.hourly[0].pop * 100).toFixed(
+                                0
+                            )}%`}
+                        />
+                        <DataRow
+                            label="Rain 24hr"
+                            value={`${(weatherData.daily[0].rain || 0).toFixed(
+                                1
+                            )} mm`}
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
                         {getPrecipRecommendation(
                             weatherData.daily[0].rain || 0,
                             weatherData.current.humidity
@@ -239,16 +308,42 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             )}
 
             {tab === "UV" && (
-                <div className="text-sm space-y-2">
-                    <p className="text-xs text-muted-foreground pt-2">
+                <div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <DataRow
+                            label="Current UV"
+                            value={weatherData.current.uvi.toFixed(1)}
+                        />
+                        <DataRow
+                            label="MAX UV"
+                            value={weatherData.daily[0].uvi.toFixed(1)}
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
                         {getUVRecommendation(weatherData.current.uvi)}
                     </p>
                 </div>
             )}
 
             {tab === "Humidity" && (
-                <div className="text-sm space-y-2">
-                    <p className="text-xs text-muted-foreground pt-2">
+                <div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <DataRow
+                            label="Humidity"
+                            value={`${weatherData.current.humidity} %`}
+                        />
+                        <DataRow
+                            label="Dew point"
+                            value={`${weatherData.current.dew_point.toFixed(
+                                1
+                            )}°C`}
+                        />
+                        <DataRow
+                            label="Cloud cover"
+                            value={`${weatherData.current.clouds}%`}
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
                         {getDewPointRecommendation(
                             weatherData.current.dew_point,
                             weatherData.current.temp
