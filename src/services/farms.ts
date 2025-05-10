@@ -72,29 +72,111 @@ type IndexImage = {
     image_url: string;
 };
 
+type WeatherDescription = {
+    id: number;
+    main: string;
+    description: string;
+    icon: string;
+};
+
+type Temperature = {
+    day: number;
+    min: number;
+    max: number;
+    night: number;
+    eve: number;
+    morn: number;
+};
+
+type FeelsLike = {
+    day: number;
+    night: number;
+    eve: number;
+    morn: number;
+};
+
+type CurrentWeather = {
+    dt: number;
+    sunrise: number;
+    sunset: number;
+    temp: number;
+    feels_like: number;
+    pressure: number;
+    humidity: number;
+    dew_point: number;
+    uvi: number;
+    clouds: number;
+    visibility: number;
+    wind_speed: number;
+    wind_deg: number;
+    wind_gust: number;
+    weather: WeatherDescription[];
+};
+
+type MinutelyForecast = {
+    dt: number;
+    precipitation: number;
+};
+
+type HourlyForecast = {
+    dt: number;
+    temp: number;
+    feels_like: number;
+    pressure: number;
+    humidity: number;
+    dew_point: number;
+    uvi: number;
+    clouds: number;
+    visibility: number;
+    wind_speed: number;
+    wind_deg: number;
+    wind_gust: number;
+    weather: WeatherDescription[];
+    pop: number;
+};
+
+type DailyForecast = {
+    dt: number;
+    sunrise: number;
+    sunset: number;
+    moonrise: number;
+    moonset: number;
+    moon_phase: number;
+    summary: string;
+    temp: Temperature;
+    feels_like: FeelsLike;
+    pressure: number;
+    humidity: number;
+    dew_point: number;
+    wind_speed: number;
+    wind_deg: number;
+    wind_gust: number;
+    weather: WeatherDescription[];
+    clouds: number;
+    pop: number;
+    rain?: number;
+    uvi: number;
+};
+
+type WeatherAlert = {
+    sender_name: string;
+    event: string;
+    start: number;
+    end: number;
+    description: string;
+    tags: string[];
+};
+
 type WeatherData = {
-    current: {
-        clouds: number;
-        dew_point: number;
-        dt: number;
-        feels_like: number;
-        humidity: number;
-        pressure: number;
-        sunrise: number;
-        sunset: number;
-        temp: number;
-        uvi: number;
-        visibility: number;
-        weather: {
-            id: number;
-            main: string;
-            description: string;
-            icon: string;
-        }[];
-        wind_deg: number;
-        wind_gust: number;
-        wind_speed: number;
-    };
+    lat: number;
+    lon: number;
+    timezone: string;
+    timezone_offset: number;
+    current: CurrentWeather;
+    minutely: MinutelyForecast[];
+    hourly: HourlyForecast[];
+    daily: DailyForecast[];
+    alerts?: WeatherAlert[];
 };
 
 const addFarm = async ({
@@ -304,7 +386,7 @@ const getFarmWeather = async ({
     lon: number;
 }): Promise<WeatherData> => {
     const response = await fetch(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${openWeatherMapApiKey}`
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude={minutely}&units=metric&appid=${openWeatherMapApiKey}`
     );
 
     const data = await response.json();

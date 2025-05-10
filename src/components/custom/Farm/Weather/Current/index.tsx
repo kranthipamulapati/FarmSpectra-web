@@ -18,7 +18,7 @@ import { Card } from "@/components/ui/card";
 
 import type { WeatherData } from "@/services/farms";
 
-const TABS = ["Temp", "Precipitation", "Wind", "UV", "AQI"];
+const TABS = ["Temp"];
 
 function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
     const [tab, setTab] = useState("Temp");
