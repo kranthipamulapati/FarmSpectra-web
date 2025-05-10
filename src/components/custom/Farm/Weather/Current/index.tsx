@@ -1,13 +1,6 @@
 import { memo, useState } from "react";
 
-import {
-    Sun,
-    Wind,
-    Droplet,
-    CloudRain,
-    SunMedium,
-    Thermometer,
-} from "lucide-react";
+import { Sun, Wind, Droplet } from "lucide-react";
 
 import {
     getUVRecommendation,
@@ -20,11 +13,11 @@ import {
 import type { WeatherData } from "@/services/farms";
 
 const TABS = [
-    { label: "Temp", icon: Thermometer },
-    { label: "Precip", icon: CloudRain },
-    { label: "Wind", icon: Wind },
-    { label: "Humidity", icon: Droplet },
-    { label: "UV", icon: SunMedium },
+    { label: "Temp" },
+    { label: "Precip" },
+    { label: "Wind" },
+    { label: "Humidity" },
+    { label: "UV" },
 ];
 
 const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
@@ -66,6 +59,26 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     <span className="text-sm text-muted-foreground">C</span>
                 </div>
 
+                <div className="flex flex-row gap-2 items-center">
+                    <Wind className="text-yellow-400 w-10 h-10" />
+
+                    <span className="text-3xl font-medium">
+                        {weatherData.current.wind_speed.toFixed(1)}
+                    </span>
+
+                    <span className="text-sm text-muted-foreground">m/s</span>
+                </div>
+
+                <div className="flex flex-row gap-2 items-center">
+                    <Droplet className="text-yellow-400 w-10 h-10" />
+
+                    <span className="text-3xl font-medium">
+                        {(weatherData.hourly[0].pop * 100).toFixed(0)}
+                    </span>
+
+                    <span className="text-sm text-muted-foreground">%</span>
+                </div>
+
                 <div className="flex flex-row gap-2 text-xs">
                     <div>
                         <p className="flex justify-between gap-2">
@@ -78,16 +91,6 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                                     hour: "numeric",
                                     minute: "2-digit",
                                 })}
-                            </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Wind speed:</span>
-
-                            <span className="font-medium">
-                                {`${weatherData.current.wind_speed.toFixed(
-                                    1
-                                )} m/s`}
                             </span>
                         </p>
 
@@ -109,16 +112,6 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                                 <WindArrow
                                     degrees={weatherData.current.wind_deg}
                                 />
-                            </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Rain 1hr:</span>
-
-                            <span className="font-medium">
-                                {`${(weatherData.hourly[0].pop * 100).toFixed(
-                                    0
-                                )}%`}
                             </span>
                         </p>
                     </div>
@@ -168,7 +161,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
             <div>
                 <div className="flex gap-4 border-b text-sm">
-                    {TABS.map(({ label, icon: Icon }) => (
+                    {TABS.map(({ label }) => (
                         <button
                             key={label}
                             onClick={() => setTab(label)}
@@ -178,8 +171,6 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                                     : "pb-1 flex items-center gap-1 text-muted-foreground"
                             }
                         >
-                            <Icon className="w-4 h-4" />
-
                             {label}
                         </button>
                     ))}
