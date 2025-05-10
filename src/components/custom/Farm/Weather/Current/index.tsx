@@ -55,14 +55,115 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                 </p>
             </div>
 
-            <div className="flex flex-row gap-2 items-center mt-3">
-                <Sun className="text-yellow-400 w-10 h-10" />
+            <div className="flex flex-row justify-between">
+                <div className="flex flex-row gap-2 items-center">
+                    <Sun className="text-yellow-400 w-10 h-10" />
 
-                <span className="text-3xl font-medium">
-                    {weatherData.current.temp}°
-                </span>
+                    <span className="text-3xl font-medium">
+                        {weatherData.current.temp}°
+                    </span>
 
-                <span className="text-sm text-muted-foreground">C</span>
+                    <span className="text-sm text-muted-foreground">C</span>
+                </div>
+
+                <div className="flex flex-row gap-2 text-xs">
+                    <div>
+                        <p className="flex justify-between gap-2">
+                            <span>Sunset:</span>
+
+                            <span className="font-medium">
+                                {new Date(
+                                    weatherData.current.sunset * 1000
+                                ).toLocaleTimeString([], {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                })}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Wind speed:</span>
+
+                            <span className="font-medium">
+                                {`${weatherData.current.wind_speed.toFixed(
+                                    1
+                                )} m/s`}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Wind gusts:</span>
+
+                            <span className="font-medium">
+                                {`${
+                                    weatherData.current.wind_gust?.toFixed(1) ||
+                                    "-"
+                                } m/s`}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Wind dir:</span>
+
+                            <span className="font-medium">
+                                <WindArrow
+                                    degrees={weatherData.current.wind_deg}
+                                />
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Rain 1hr:</span>
+
+                            <span className="font-medium">
+                                {`${(weatherData.hourly[0].pop * 100).toFixed(
+                                    0
+                                )}%`}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="flex justify-between gap-2">
+                            <span>Rain 24hr:</span>
+                            <span className="font-medium">
+                                {`${(weatherData.daily[0].rain || 0).toFixed(
+                                    1
+                                )} mm`}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Humidity:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.humidity} %`}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>UV:</span>
+                            <span className="font-medium">
+                                {weatherData.current.uvi.toFixed(1)}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Dew point:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.dew_point.toFixed(
+                                    1
+                                )}°C`}
+                            </span>
+                        </p>
+
+                        <p className="flex justify-between gap-2">
+                            <span>Clouds:</span>
+                            <span className="font-medium">
+                                {`${weatherData.current.clouds}%`}
+                            </span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div>
