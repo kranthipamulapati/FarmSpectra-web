@@ -1,13 +1,13 @@
 import { memo, useState } from "react";
 
 import clsx from "clsx";
-import { Sun } from "lucide-react";
+import { Sun, AlertTriangle } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
 import type { WeatherData } from "@/services/farms";
 
-const TABS = ["Temp", "Precip", "Wind"];
+const TABS = ["Temp", "Precip", "Wind", "Humidity", "UV"];
 
 function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
     const [tab, setTab] = useState("Temp");
@@ -17,13 +17,19 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-medium">Current Weather</h2>
-
                     <p className="text-xs text-muted-foreground">
                         {new Date().toLocaleTimeString([], {
                             hour: "numeric",
                             minute: "2-digit",
                         })}
                     </p>
+
+                    {weatherData.alerts && weatherData.alerts.length > 0 ? (
+                        <div className="mb-2 p-2 bg-red-100 rounded text-red-800 text-sm">
+                            <AlertTriangle className="inline mr-1 w-4 h-4" />
+                            Active Alert: {weatherData?.alerts[0].event}
+                        </div>
+                    ) : null}
                 </div>
 
                 <div className="text-xs text-right space-y-1 text-muted-foreground">
@@ -117,6 +123,34 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                             {`${weatherData.current.humidity} %`}
                         </span>
                     </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>Current UV:</span>
+                        <span className="font-medium">
+                            {weatherData.current.uvi.toFixed(1)}
+                        </span>
+                    </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>MAX UV:</span>
+                        <span className="font-medium">
+                            {weatherData.daily[0].uvi.toFixed(1)}
+                        </span>
+                    </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>Dew point:</span>
+                        <span className="font-medium">
+                            {`${weatherData.current.dew_point.toFixed(1)}°C`}
+                        </span>
+                    </p>
+
+                    <p className="flex justify-between gap-4">
+                        <span>Cloud cover:</span>
+                        <span className="font-medium">
+                            {`${weatherData.current.clouds}%`}
+                        </span>
+                    </p>
                 </div>
             </div>
 
@@ -172,6 +206,25 @@ function CurrentWeather({ weatherData }: { weatherData: WeatherData }) {
                         {getPrecipRecommendation(
                             weatherData.daily[0].rain || 0,
                             weatherData.current.humidity
+                        )}
+                    </p>
+                </div>
+            )}
+
+            {tab === "UV" && (
+                <div className="text-sm space-y-2">
+                    <p className="text-xs text-muted-foreground pt-2">
+                        {getUVRecommendation(weatherData.current.uvi)}
+                    </p>
+                </div>
+            )}
+
+            {tab === "Humidity" && (
+                <div className="text-sm space-y-2">
+                    <p className="text-xs text-muted-foreground pt-2">
+                        {getDewPointRecommendation(
+                            weatherData.current.dew_point,
+                            weatherData.current.temp
                         )}
                     </p>
                 </div>
@@ -235,4 +288,32 @@ function getPrecipRecommendation(rain: number, humidity: number): string {
     if (humidity < 50)
         return "Dry conditions - Check soil moisture levels before irrigating.";
     return "Normal precipitation conditions - Maintain regular irrigation schedule.";
+}
+
+function getUVRecommendation(uvi: number): string {
+    if (uvi >= 11)
+        return "Extreme UV - Avoid fieldwork, crops need shade protection";
+    if (uvi >= 8)
+        return "Very High - Limit sun exposure, harvest in early morning";
+    if (uvi >= 6)
+        return "High - Use sun protection, sensitive crops may need cover";
+    if (uvi >= 3) return "Moderate - Ideal for photosynthesis and plant growth";
+    return "Low - Safe for extended outdoor work";
+}
+
+// Recommendation function
+function getDewPointRecommendation(dewPoint: number, temp: number): string {
+    const spread = temp - dewPoint;
+    if (spread < 2) return "Fog likely - Delay spraying operations";
+    if (dewPoint > 20) return "High humidity - Increase fungicide applications";
+    if (dewPoint < 5) return "Low humidity - Ideal for harvesting grains";
+    return "Comfortable humidity levels for most crops";
+}
+
+// Pressure recommendation logic
+function getPressureTrend(current: number, hourly: HourlyForecast[]): string {
+    const trend = hourly[0].pressure - current;
+    if (trend > 2) return "Rapidly rising - Expect clearing skies";
+    if (trend < -2) return "Falling quickly - Storm likely within 6 hours";
+    return "Stable pressure - No significant weather changes expected";
 }
