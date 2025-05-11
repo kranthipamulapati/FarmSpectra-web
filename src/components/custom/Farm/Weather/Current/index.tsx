@@ -39,13 +39,14 @@ const TABS = [
 ];
 
 const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
+    const baseTemp = 10; // Adjust for crop type
+    const nowUtc = new Date(); // this is UTC under the hood
+
     const [tab, setTab] = useState("Temperature");
 
     const diurnalRange = Math.round(
         weatherData.daily[0].temp.max - weatherData.daily[0].temp.min
     );
-
-    const baseTemp = 10; // Adjust for crop type
 
     const gdd = Math.max(
         (weatherData.daily[0].temp.max + weatherData.daily[0].temp.min) / 2 -
@@ -53,17 +54,26 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
         0
     );
 
+    const dateStr = nowUtc.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        weekday: "long",
+        timeZone: weatherData.timezone,
+    });
+
+    // Format time in the target timezone
+    const timeStr = nowUtc.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: weatherData.timezone,
+    });
+
     return (
-        <div className="w-[45%] max-w-[45%] p-3 shadow-sm rounded-2xl flex flex-col justify-between">
+        <div className="w-[45%] max-w-[45%] p-4 shadow-sm rounded-2xl flex flex-col justify-between">
             <div className="flex flex-row gap-2 items-center">
                 <p className="text-base font-medium">Current Weather</p>
 
-                <p>
-                    {new Date().toLocaleTimeString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                    })}
-                </p>
+                <p>{timeStr + ", " + dateStr}</p>
             </div>
 
             <div className="flex flex-row items-center">

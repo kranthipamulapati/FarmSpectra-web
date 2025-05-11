@@ -25,7 +25,7 @@ function WeatherForecast({ weatherData }: { weatherData: WeatherData }) {
     const chartData = transformHumidityData(weatherData);
 
     return (
-        <Card className="w-[60%] p-3 shadow-sm ml-4">
+        <Card className="w-[55%] p-3 shadow-sm ml-4">
             <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-semibold">Day Forecast</h2>
 
