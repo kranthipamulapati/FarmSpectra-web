@@ -15,8 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import type { WeatherData } from "@/services/farms";
 
 const metrics = [
-    "Precip",
     "Temp",
+    "Precip",
     "Humidity",
     "Wind",
     "Pressure",
@@ -30,7 +30,7 @@ type Props = {
 
 function WeatherForecast({ weatherData }: Props) {
     const [forecastRange, setForecastRange] =
-        useState<(typeof forecastRanges)[number]>("60 min");
+        useState<(typeof forecastRanges)[number]>("48 hours");
 
     const [selectedMetric, setSelectedMetric] =
         useState<(typeof metrics)[number]>("Temp");
@@ -39,25 +39,68 @@ function WeatherForecast({ weatherData }: Props) {
         if (!weatherData) return [];
 
         if (forecastRange === "60 min") {
-            // OpenWeather minutely only gives precipitation (mm)
-            return weatherData.minutely.slice(0, 60).map((entry) => ({
-                time: format(new Date(entry.dt * 1000), "h:mmaaa"),
-                value: null, // temperature not available here
-            }));
+            // Only precipitation is available in minutely
+            if (selectedMetric === "Precip") {
+                return weatherData.minutely.slice(0, 60).map((entry) => ({
+                    time: format(new Date(entry.dt * 1000), "h:mmaaa"),
+                    value: entry.precipitation ?? 0,
+                }));
+            } else {
+                return weatherData.minutely.slice(0, 60).map((entry) => ({
+                    time: format(new Date(entry.dt * 1000), "h:mmaaa"),
+                    value: null,
+                }));
+            }
         }
 
         if (forecastRange === "48 hours") {
-            return weatherData.hourly.slice(0, 48).map((entry) => ({
-                time: format(new Date(entry.dt * 1000), "haaa"),
-                value: entry.temp,
-            }));
+            return weatherData.hourly.slice(0, 48).map((entry) => {
+                const time = format(new Date(entry.dt * 1000), "haaa");
+                const value = (() => {
+                    switch (selectedMetric) {
+                        case "Temp":
+                            return entry.temp;
+                        case "Humidity":
+                            return entry.humidity;
+                        case "Wind":
+                            return entry.wind_speed;
+                        case "Pressure":
+                            return entry.pressure;
+                        case "UV":
+                            return entry.uvi;
+                        case "Precip":
+                            return entry.pop * 100; // pop = probability of precipitation (0–1)
+                        default:
+                            return null;
+                    }
+                })();
+                return { time, value };
+            });
         }
 
         if (forecastRange === "7 days") {
-            return weatherData.daily.slice(0, 7).map((entry) => ({
-                time: format(new Date(entry.dt * 1000), "EEE"), // day of week
-                value: entry.temp.day,
-            }));
+            return weatherData.daily.slice(0, 7).map((entry) => {
+                const time = format(new Date(entry.dt * 1000), "EEE");
+                const value = (() => {
+                    switch (selectedMetric) {
+                        case "Temp":
+                            return entry.temp.day;
+                        case "Humidity":
+                            return entry.humidity;
+                        case "Wind":
+                            return entry.wind_speed;
+                        case "Pressure":
+                            return entry.pressure;
+                        case "UV":
+                            return entry.uvi;
+                        case "Precip":
+                            return entry.pop * 100;
+                        default:
+                            return null;
+                    }
+                })();
+                return { time, value };
+            });
         }
 
         return [];
