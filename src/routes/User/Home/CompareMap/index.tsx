@@ -140,7 +140,7 @@ const Compare2D = () => {
             const imageLayer2 = getBitmapLayer({
                 id: "2",
                 opacity: 1,
-                link: Images[1].image_url,
+                link: Images[Images.length - 1].image_url,
                 bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
             });
 
@@ -355,7 +355,7 @@ const Compare2D = () => {
                         mapTypeControl={false}
                         fullscreenControl={false}
                         streetViewControl={false}
-                        gestureHandling="greedy"
+                        gestureHandling="none"
                         defaultCenter={americanFarmsGeoCenter}
                         fullscreenControlOptions={controlsPosition}
                     />
@@ -382,14 +382,14 @@ const Compare2D = () => {
                         mapTypeControl={false}
                         fullscreenControl={false}
                         streetViewControl={false}
-                        gestureHandling="greedy"
+                        gestureHandling="none"
                         defaultCenter={americanFarmsGeoCenter}
                         fullscreenControlOptions={controlsPosition}
                     />
                 </div>
             </div>
 
-            <div className="row-span-1 border-2"></div>
+            <div className="row-span-1"></div>
         </div>
     );
 };
