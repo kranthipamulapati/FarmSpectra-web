@@ -64,7 +64,7 @@ function WeatherForecast({ weatherData }: Props) {
     })();
 
     return (
-        <div className="w-[55%] max-w-[55%] p-4 shadow-sm ml-4 rounded-2xl flex flex-col justify-between">
+        <div className="w-[55%] max-w-[55%] p-4 shadow-sm ml-4 rounded-2xl flex flex-col">
             <div className="flex flex-row items-center justify-between">
                 <p className="text-base font-medium">Weather Forecast</p>
 
@@ -118,12 +118,15 @@ function WeatherForecast({ weatherData }: Props) {
             </div>
 
             {/* Chart */}
-            <div>
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[100%]">
+                <ResponsiveContainer className="mt-5" width="100%" height="90%">
                     <LineChart data={chartData}>
                         <XAxis dataKey="time" tick={{ fontSize: 10 }} />
+
                         <YAxis />
+
                         <Tooltip />
+
                         <Line
                             type="monotone"
                             dataKey="value"
