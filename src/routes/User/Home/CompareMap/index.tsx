@@ -46,8 +46,10 @@ const controlsPosition = {
 };
 
 const Compare2D = () => {
-    const map = useMap();
-    const overlayRef = useRef<GoogleMapsOverlay | null>(null);
+    const leftMap = useMap("left-map");
+    const rightMap = useMap("right-map");
+    const leftOverlayRef = useRef<GoogleMapsOverlay | null>(null);
+    const rightOverlayRef = useRef<GoogleMapsOverlay | null>(null);
 
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
@@ -58,6 +60,10 @@ const Compare2D = () => {
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [dragging, setDragging] = useState(false);
+    const [sliderX, setSliderX] = useState(0.5); // Ratio (0 to 1), default center
 
     const modifiers = useMemo(
         () => ({
@@ -86,11 +92,35 @@ const Compare2D = () => {
     );
 
     useEffect(() => {
-        if (!map || !farm || !index) {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!dragging || !containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            const newX = (e.clientX - rect.left) / rect.width;
+            setSliderX(Math.min(1, Math.max(0, newX))); // Clamp between 0 and 1
+        };
+
+        const handleMouseUp = () => {
+            setDragging(false);
+        };
+
+        if (dragging) {
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        }
+
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, [dragging]);
+
+    useEffect(() => {
+        if (!farm || !index || !leftMap || !rightMap) {
             return;
         }
 
-        overlayRef.current?.setMap(null);
+        leftOverlayRef.current?.setMap(null);
+        rightOverlayRef.current?.setMap(null);
 
         const { bbox } = farm;
 
@@ -114,22 +144,33 @@ const Compare2D = () => {
                 bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
             });
 
-            const polygonLayer = getPolygonLayer({
+            const polygonLayer1 = getPolygonLayer({
                 id: "3",
                 coordinates: farm.coordinates,
             });
 
-            overlayRef.current = new GoogleMapsOverlay({
-                layers: [imageLayer1, imageLayer2, polygonLayer],
+            const polygonLayer2 = getPolygonLayer({
+                id: "4",
+                coordinates: farm.coordinates,
             });
 
-            overlayRef.current.setMap(map);
+            leftOverlayRef.current = new GoogleMapsOverlay({
+                layers: [imageLayer1, polygonLayer1],
+            });
+
+            rightOverlayRef.current = new GoogleMapsOverlay({
+                layers: [imageLayer2, polygonLayer2],
+            });
+
+            leftOverlayRef.current.setMap(leftMap);
+            rightOverlayRef.current.setMap(rightMap);
         }
 
         return () => {
-            overlayRef.current?.setMap(null);
+            leftOverlayRef.current?.setMap(null);
+            rightOverlayRef.current?.setMap(null);
         };
-    }, [map, farm, index, images]);
+    }, [farm, index, images, leftMap, rightMap]);
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -178,7 +219,7 @@ const Compare2D = () => {
     // get visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
-            if (!map || !farm?.id) {
+            if (!leftMap || !rightMap || !farm?.id) {
                 setSelectedDates([]);
                 setHighlightedDates([]);
                 return;
@@ -186,11 +227,17 @@ const Compare2D = () => {
 
             const { bbox } = farm;
 
-            map.panTo({
+            leftMap.panTo({
                 lat: (bbox[1] + bbox[3]) / 2,
                 lng: (bbox[0] + bbox[2]) / 2,
             });
-            map.setZoom(16);
+            rightMap.panTo({
+                lat: (bbox[1] + bbox[3]) / 2,
+                lng: (bbox[0] + bbox[2]) / 2,
+            });
+
+            leftMap.setZoom(16);
+            rightMap.setZoom(16);
 
             dispatch(setLoading(true));
 
@@ -211,7 +258,7 @@ const Compare2D = () => {
 
             dispatch(setLoading(false));
         },
-        [map, farm?.id],
+        [leftMap, rightMap, farm?.id],
         (error) => {
             setSelectedDates([]);
             setHighlightedDates([]);
@@ -289,19 +336,57 @@ const Compare2D = () => {
                 </div>
             </div>
 
-            <div className="row-span-8">
-                <Map
-                    defaultZoom={13}
-                    mapTypeId={mapType}
-                    zoomControl={false}
-                    cameraControl={false}
-                    mapTypeControl={false}
-                    fullscreenControl={true}
-                    streetViewControl={true}
-                    gestureHandling="greedy"
-                    defaultCenter={americanFarmsGeoCenter}
-                    fullscreenControlOptions={controlsPosition}
+            <div
+                ref={containerRef}
+                className="row-span-8 relative w-full h-full select-none"
+            >
+                {/* Left Map: Visible only on the left half */}
+
+                <div
+                    className="absolute w-full h-full"
+                    style={{ clipPath: `inset(0 ${100 - sliderX * 100}% 0 0)` }}
+                >
+                    <Map
+                        id="left-map"
+                        defaultZoom={13}
+                        mapTypeId={mapType}
+                        zoomControl={false}
+                        cameraControl={false}
+                        mapTypeControl={false}
+                        fullscreenControl={false}
+                        streetViewControl={false}
+                        gestureHandling="greedy"
+                        defaultCenter={americanFarmsGeoCenter}
+                        fullscreenControlOptions={controlsPosition}
+                    />
+                </div>
+
+                {/* Separator Line */}
+                <div
+                    style={{ left: `${sliderX * 100}%` }}
+                    onMouseDown={() => setDragging(true)}
+                    className="absolute inset-y-0 w-[3px] bg-violet-500 z-20 cursor-col-resize"
                 />
+
+                {/* Right Map: Visible only on the right half */}
+                <div
+                    className="absolute w-full h-full"
+                    style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}
+                >
+                    <Map
+                        id="right-map"
+                        defaultZoom={13}
+                        mapTypeId={mapType}
+                        zoomControl={false}
+                        cameraControl={false}
+                        mapTypeControl={false}
+                        fullscreenControl={false}
+                        streetViewControl={false}
+                        gestureHandling="greedy"
+                        defaultCenter={americanFarmsGeoCenter}
+                        fullscreenControlOptions={controlsPosition}
+                    />
+                </div>
             </div>
 
             <div className="row-span-1 border-2"></div>
