@@ -3,14 +3,21 @@ import { memo, useState } from "react";
 import {
     Sun,
     Wind,
-    Droplet,
-    Thermometer,
-    ArrowUp,
-    ArrowDown,
-    Repeat,
     Cloud,
+    Repeat,
+    Droplet,
+    ArrowUp,
     Umbrella,
+    ArrowDown,
+    Thermometer,
 } from "lucide-react";
+
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    TooltipProvider,
+} from "@/components/ui/tooltip";
 
 import {
     getUVRecommendation,
@@ -71,121 +78,181 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                 </div>
 
                 {/* 4x2 Grid - Right Side */}
-                <div className="grid grid-cols-4 grid-rows-2 gap-x-3 gap-y-2 flex-grow">
-                    {/* Row 1 */}
-                    <div className="flex flex-row gap-1 items-center">
-                        <Wind className="text-blue-400 w-6 h-6" />
+                <TooltipProvider>
+                    <div className="grid grid-cols-4 grid-rows-2 gap-x-3 gap-y-2 flex-grow">
+                        {/* Row 1 */}
 
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {weatherData.current.wind_speed.toFixed(1)}
-                            </span>
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Wind className="text-blue-400 w-6 h-6" />
 
-                            <span className="text-xs text-muted-foreground">
-                                m/s
-                            </span>
-                        </div>
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.current.wind_speed.toFixed(
+                                            1
+                                        )}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        m/s
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                <p>Wind speed</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Droplet className="text-blue-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {(
+                                            weatherData.hourly[0].pop * 100
+                                        ).toFixed(0)}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        %
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                <p>Rain</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <ArrowUp className="text-red-500 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {Math.round(
+                                            weatherData.daily[0].temp.max
+                                        )}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        °C
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Max Temp</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <ArrowDown className="text-blue-500 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {Math.round(
+                                            weatherData.daily[0].temp.min
+                                        )}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        °C
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Min Temp</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        {/* Row 2 */}
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Repeat className="text-purple-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {diurnalRange}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        °C
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Diurnal Range</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Cloud className="text-purple-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.current.uvi.toFixed(1)}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        UV
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>UV</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Thermometer className="text-orange-500 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {gdd.toFixed(1)}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        GDD
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Growing degree days</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Umbrella className="text-grey-500 w-6 h-6" />
+
+                                <div className="flex flex-col text-xs text-muted-foreground">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.current.clouds}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        %
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Cloud cover</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
                     </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <Droplet className="text-blue-400 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {(weatherData.hourly[0].pop * 100).toFixed(0)}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                %
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <ArrowUp className="text-red-500 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {Math.round(weatherData.daily[0].temp.max)}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                °C
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <ArrowDown className="text-blue-500 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {Math.round(weatherData.daily[0].temp.min)}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                °C
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Row 2 */}
-                    <div className="flex flex-row gap-1 items-center">
-                        <Repeat className="text-purple-400 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {diurnalRange}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                °C
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <Cloud className="text-purple-400 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {weatherData.current.uvi.toFixed(1)}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                UV
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <Thermometer className="text-orange-500 w-6 h-6" />
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-medium">
-                                {gdd.toFixed(1)}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                GDD
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <Umbrella className="text-grey-500 w-6 h-6" />
-
-                        <div className="flex flex-col text-xs text-muted-foreground">
-                            <span className="text-lg font-medium">
-                                {weatherData.current.clouds}
-                            </span>
-
-                            <span className="text-xs text-muted-foreground">
-                                %
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                </TooltipProvider>
             </div>
 
             <div>
