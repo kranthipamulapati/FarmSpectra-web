@@ -114,7 +114,10 @@ const Compare2D = () => {
                 bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
             });
 
-            const polygonLayer = getPolygonLayer(farm.coordinates);
+            const polygonLayer = getPolygonLayer({
+                id: "3",
+                coordinates: farm.coordinates,
+            });
 
             overlayRef.current = new GoogleMapsOverlay({
                 layers: [imageLayer1, imageLayer2, polygonLayer],

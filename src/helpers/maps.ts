@@ -127,11 +127,17 @@ const getBitmapLayer = ({
     return surveyMapLayer;
 };
 
-const getPolygonLayer = (coordinates: Array<Coordinate>): PolygonLayer => {
+const getPolygonLayer = ({
+    id,
+    coordinates,
+}: {
+    id: string;
+    coordinates: Array<Coordinate>;
+}): PolygonLayer => {
     const polygonCoords = coordinates.map((point) => [point.lng, point.lat]);
 
     const polygonLayer = new PolygonLayer({
-        id: "user-polygon-layer",
+        id,
         data: [
             {
                 contour: polygonCoords,
