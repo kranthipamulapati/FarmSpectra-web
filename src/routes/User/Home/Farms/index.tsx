@@ -5,12 +5,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { GoogleMapsOverlay } from "@deck.gl/google-maps";
 
+import {
+    getFarmWeather,
+    type IndexImage,
+    type WeatherData,
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteImagesByDate,
+} from "@/services/farms";
+
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
 import { americanFarmsGeoCenter } from "@/constants";
 
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
+
+import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
 
 import {
     Select,
@@ -23,16 +33,6 @@ import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
-
-import {
-    getFarmWeather,
-    type IndexImage,
-    type WeatherData,
-    getSatelliteVisitDatesByFarm,
-    getFarmSatelliteImagesByDate,
-} from "@/services/farms";
-
-import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
 
 const controlsPosition = {
     position: google.maps.ControlPosition.BOTTOM_RIGHT,
