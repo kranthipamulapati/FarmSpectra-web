@@ -31,10 +31,11 @@ import {
 import type { WeatherData } from "@/services/farms";
 
 const TABS = [
+    { label: "Overview" },
     { label: "Temperature" },
     { label: "Precipitation" },
-    { label: "Wind" },
     { label: "Humidity" },
+    { label: "Wind" },
     { label: "UV" },
 ];
 
@@ -42,11 +43,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
     const baseTemp = 10; // Adjust for crop type
     const nowUtc = new Date(); // this is UTC under the hood
 
-    const [tab, setTab] = useState("Temperature");
-
-    const diurnalRange = Math.round(
-        weatherData.daily[0].temp.max - weatherData.daily[0].temp.min
-    );
+    const [tab, setTab] = useState("Overview");
 
     const gdd = Math.max(
         (weatherData.daily[0].temp.max + weatherData.daily[0].temp.min) / 2 -
@@ -175,9 +172,61 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     ))}
                 </div>
 
+                {tab === "Overview" && (
+                    <div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                            <DataRow
+                                label="Sunrise"
+                                value={new Date(
+                                    weatherData.current.sunrise * 1000
+                                ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            />
+
+                            <DataRow
+                                label="Sunset"
+                                value={new Date(
+                                    weatherData.current.sunset * 1000
+                                ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            />
+
+                            <DataRow
+                                label="Pressure"
+                                value={`${weatherData.current.pressure} hPa`}
+                            />
+
+                            <DataRow
+                                label="Visibility"
+                                value={`${(
+                                    weatherData.current.visibility / 1000
+                                ).toFixed(1)} km`}
+                            />
+                        </div>
+
+                        <p className="text-xs text-muted-foreground mt-2">
+                            {weatherData.alerts && weatherData.alerts.length > 0
+                                ? `⚠️ Alert: ${weatherData.alerts[0].event}`
+                                : weatherData.daily[0].summary ||
+                                  "No weather info available."}
+                        </p>
+                    </div>
+                )}
+
                 {tab === "Temperature" && (
                     <div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                            <DataRow
+                                label="Feels like"
+                                value={`${Math.round(
+                                    weatherData.current.feels_like
+                                )}°C`}
+                            />
+
                             <DataRow
                                 label="High"
                                 value={`${Math.round(
@@ -192,12 +241,46 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                                 )}°C`}
                             />
 
+                            <DataRow label="GDD" value={gdd.toFixed(1)} />
+
                             <DataRow
-                                label="Diurnal Range"
-                                value={`${diurnalRange}°C`}
+                                label="Trend"
+                                value={
+                                    <span
+                                        className={
+                                            weatherData.daily[0].temp.day >
+                                            weatherData.daily[1].temp.day
+                                                ? "text-red-500"
+                                                : "text-blue-500"
+                                        }
+                                    >
+                                        {weatherData.daily[0].temp.day >
+                                        weatherData.daily[1].temp.day
+                                            ? "↑"
+                                            : "↓"}
+                                        {Math.abs(
+                                            weatherData.daily[0].temp.day -
+                                                weatherData.daily[1].temp.day
+                                        ).toFixed(1)}
+                                        °C
+                                    </span>
+                                }
                             />
 
-                            <DataRow label="GDD" value={gdd.toFixed(1)} />
+                            <DataRow
+                                label="Frost Risk"
+                                value={
+                                    weatherData.daily[0].temp.min < 2 ? (
+                                        <span className="text-blue-500">
+                                            High
+                                        </span>
+                                    ) : (
+                                        <span className="text-green-500">
+                                            Low
+                                        </span>
+                                    )
+                                }
+                            />
                         </div>
 
                         <p className="text-xs text-muted-foreground mt-2">
