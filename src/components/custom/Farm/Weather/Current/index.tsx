@@ -289,24 +289,42 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
                 )}
 
-                {tab === "Wind" && (
+                {tab === "Precipitation" && (
                     <div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                             <DataRow
-                                label="Wind speed"
-                                value={`${weatherData.current.wind_speed.toFixed(
-                                    1
-                                )} m/s`}
+                                label="Rain 1hr"
+                                value={`${(
+                                    weatherData.hourly[0].pop * 100
+                                ).toFixed(0)}%`}
                             />
+                        </div>
 
-                            <DataRow
-                                label="Wind gusts"
-                                value={`${
-                                    weatherData.current.wind_gust?.toFixed(1) ||
-                                    "-"
-                                } m/s`}
-                            />
+                        <p className="text-xs text-muted-foreground mt-2">
+                            {getPrecipRecommendation(
+                                weatherData.daily[0].rain || 0,
+                                weatherData.current.humidity
+                            )}
+                        </p>
+                    </div>
+                )}
 
+                {tab === "Humidity" && (
+                    <div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2"></div>
+
+                        <p className="text-xs text-muted-foreground mt-2">
+                            {getDewPointRecommendation(
+                                weatherData.current.dew_point,
+                                weatherData.current.temp
+                            )}
+                        </p>
+                    </div>
+                )}
+
+                {tab === "Wind" && (
+                    <div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                             <DataRow
                                 label="Wind direction"
                                 value={
@@ -326,41 +344,9 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
                 )}
 
-                {tab === "Precipitation" && (
-                    <div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                            <DataRow
-                                label="Rain 1hr"
-                                value={`${(
-                                    weatherData.hourly[0].pop * 100
-                                ).toFixed(0)}%`}
-                            />
-
-                            <DataRow
-                                label="Rain 24hr"
-                                value={`${(
-                                    weatherData.daily[0].rain || 0
-                                ).toFixed(1)} mm`}
-                            />
-                        </div>
-
-                        <p className="text-xs text-muted-foreground mt-2">
-                            {getPrecipRecommendation(
-                                weatherData.daily[0].rain || 0,
-                                weatherData.current.humidity
-                            )}
-                        </p>
-                    </div>
-                )}
-
                 {tab === "UV" && (
                     <div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                            <DataRow
-                                label="Current UV"
-                                value={weatherData.current.uvi.toFixed(1)}
-                            />
-
                             <DataRow
                                 label="MAX UV"
                                 value={weatherData.daily[0].uvi.toFixed(1)}
@@ -369,36 +355,6 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                         <p className="text-xs text-muted-foreground mt-2">
                             {getUVRecommendation(weatherData.current.uvi)}
-                        </p>
-                    </div>
-                )}
-
-                {tab === "Humidity" && (
-                    <div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                            <DataRow
-                                label="Humidity"
-                                value={`${weatherData.current.humidity} %`}
-                            />
-
-                            <DataRow
-                                label="Dew point"
-                                value={`${weatherData.current.dew_point.toFixed(
-                                    1
-                                )}°C`}
-                            />
-
-                            <DataRow
-                                label="Cloud cover"
-                                value={`${weatherData.current.clouds}%`}
-                            />
-                        </div>
-
-                        <p className="text-xs text-muted-foreground mt-2">
-                            {getDewPointRecommendation(
-                                weatherData.current.dew_point,
-                                weatherData.current.temp
-                            )}
                         </p>
                     </div>
                 )}
