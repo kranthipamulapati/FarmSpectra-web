@@ -1,4 +1,5 @@
 import {
+    LineLayer,
     BitmapLayer,
     PolygonLayer,
     type BitmapBoundingBox,
@@ -154,9 +155,39 @@ const getPolygonLayer = ({
     return polygonLayer;
 };
 
+const getLineLayer = ({
+    id,
+    bounds,
+}: {
+    id: string;
+    bounds: [number, number, number, number];
+}): LineLayer => {
+    const [west, south, , north] = bounds;
+
+    const data = [
+        {
+            source: [west, north], // top-left
+            target: [west, south], // bottom-left
+        },
+    ];
+
+    const lineLayer = new LineLayer({
+        id,
+        data,
+        getWidth: 1,
+        pickable: false,
+        getColor: [0, 0, 255],
+        getSourcePosition: (d) => d.source,
+        getTargetPosition: (d) => d.target,
+    });
+
+    return lineLayer;
+};
+
 export {
     getAddress,
     searchByAddress,
+    getLineLayer,
     getBitmapLayer,
     getPolygonLayer,
     getBboxForPolygon,
