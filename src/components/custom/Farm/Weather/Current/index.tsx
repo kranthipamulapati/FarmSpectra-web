@@ -1,6 +1,16 @@
 import { memo, useState } from "react";
 
-import { Sun, Wind, Droplet } from "lucide-react";
+import {
+    Sun,
+    Wind,
+    Droplet,
+    Thermometer,
+    ArrowUp,
+    ArrowDown,
+    Repeat,
+    Cloud,
+    Umbrella,
+} from "lucide-react";
 
 import {
     getUVRecommendation,
@@ -48,8 +58,9 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                 </p>
             </div>
 
-            <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-2 items-center">
+            <div className="flex flex-row items-center">
+                {/* Current Temperature - Left Side */}
+                <div className="flex flex-row gap-2 items-center mr-6">
                     <Sun className="text-yellow-400 w-10 h-10" />
 
                     <span className="text-3xl font-medium">
@@ -59,108 +70,114 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     <span className="text-sm text-muted-foreground">C</span>
                 </div>
 
-                <div className="flex flex-row gap-2 items-center">
-                    <Wind className="text-yellow-400 w-10 h-10" />
+                {/* 4x2 Grid - Right Side */}
+                <div className="grid grid-cols-4 grid-rows-2 gap-x-3 gap-y-2 flex-grow">
+                    {/* Row 1 */}
+                    <div className="flex flex-row gap-1 items-center">
+                        <Wind className="text-yellow-400 w-6 h-6" />
 
-                    <span className="text-3xl font-medium">
-                        {weatherData.current.wind_speed.toFixed(1)}
-                    </span>
-
-                    <span className="text-sm text-muted-foreground">m/s</span>
-                </div>
-
-                <div className="flex flex-row gap-2 items-center">
-                    <Droplet className="text-yellow-400 w-10 h-10" />
-
-                    <span className="text-3xl font-medium">
-                        {(weatherData.hourly[0].pop * 100).toFixed(0)}
-                    </span>
-
-                    <span className="text-sm text-muted-foreground">%</span>
-                </div>
-
-                <div className="flex flex-row gap-2 text-xs">
-                    <div>
-                        <p className="flex justify-between gap-2">
-                            <span>Sunset:</span>
-
-                            <span className="font-medium">
-                                {new Date(
-                                    weatherData.current.sunset * 1000
-                                ).toLocaleTimeString([], {
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                })}
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {weatherData.current.wind_speed.toFixed(1)}
                             </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Wind gusts:</span>
-
-                            <span className="font-medium">
-                                {`${
-                                    weatherData.current.wind_gust?.toFixed(1) ||
-                                    "-"
-                                } m/s`}
+                            <span className="text-xs text-muted-foreground">
+                                m/s
                             </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Wind dir:</span>
-
-                            <span className="font-medium">
-                                <WindArrow
-                                    degrees={weatherData.current.wind_deg}
-                                />
-                            </span>
-                        </p>
+                        </div>
                     </div>
 
-                    <div>
-                        <p className="flex justify-between gap-2">
-                            <span>Rain 24hr:</span>
-                            <span className="font-medium">
-                                {`${(weatherData.daily[0].rain || 0).toFixed(
-                                    1
-                                )} mm`}
+                    <div className="flex flex-row gap-1 items-center">
+                        <Droplet className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {(weatherData.hourly[0].pop * 100).toFixed(0)}
                             </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Humidity:</span>
-                            <span className="font-medium">
-                                {`${weatherData.current.humidity} %`}
+                            <span className="text-xs text-muted-foreground">
+                                %
                             </span>
-                        </p>
+                        </div>
+                    </div>
 
-                        <p className="flex justify-between gap-2">
-                            <span>UV:</span>
-                            <span className="font-medium">
+                    <div className="flex flex-row gap-1 items-center">
+                        <ArrowUp className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {Math.round(weatherData.daily[0].temp.max)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                °C
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row gap-1 items-center">
+                        <ArrowDown className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {Math.round(weatherData.daily[0].temp.min)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                °C
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="flex flex-row gap-1 items-center">
+                        <Repeat className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {diurnalRange}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                °C
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row gap-1 items-center">
+                        <Cloud className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
                                 {weatherData.current.uvi.toFixed(1)}
                             </span>
-                        </p>
-
-                        <p className="flex justify-between gap-2">
-                            <span>Dew point:</span>
-                            <span className="font-medium">
-                                {`${weatherData.current.dew_point.toFixed(
-                                    1
-                                )}°C`}
+                            <span className="text-xs text-muted-foreground">
+                                UV
                             </span>
-                        </p>
+                        </div>
+                    </div>
 
-                        <p className="flex justify-between gap-2">
-                            <span>Clouds:</span>
-                            <span className="font-medium">
-                                {`${weatherData.current.clouds}%`}
+                    <div className="flex flex-row gap-1 items-center">
+                        <Thermometer className="text-yellow-400 w-6 h-6" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-medium">
+                                {gdd.toFixed(1)}
                             </span>
-                        </p>
+
+                            <span className="text-xs text-muted-foreground">
+                                GDD
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row gap-1 items-center">
+                        <Umbrella className="text-yellow-400 w-6 h-6" />
+
+                        <div className="flex flex-col text-xs text-muted-foreground">
+                            <span className="text-lg font-medium">
+                                {weatherData.current.clouds}
+                            </span>
+
+                            <span className="text-xs text-muted-foreground">
+                                %
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div>
-                <div className="flex gap-4 border-b text-sm">
+                <div className="flex gap-4 border-b text-sm mt-4">
                     {TABS.map(({ label }) => (
                         <button
                             key={label}
