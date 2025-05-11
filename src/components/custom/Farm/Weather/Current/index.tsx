@@ -1,15 +1,16 @@
 import { memo, useState } from "react";
 
 import {
+    Zap,
     Sun,
     Wind,
     Cloud,
-    Repeat,
     Droplet,
-    ArrowUp,
+    Sparkles,
     Umbrella,
-    ArrowDown,
-    Thermometer,
+    CloudRain,
+    LucideIcon,
+    ThermometerSnowflake,
 } from "lucide-react";
 
 import {
@@ -79,178 +80,70 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                 {/* 4x2 Grid - Right Side */}
                 <TooltipProvider>
-                    <div className="grid grid-cols-4 grid-rows-2 gap-x-3 gap-y-2 flex-grow">
-                        {/* Row 1 */}
+                    <div className="grid grid-cols-4 grid-rows-2 gap-3 flex-grow">
+                        <WeatherStat
+                            icon={CloudRain}
+                            value={(weatherData.daily[0].rain || 0).toFixed(0)}
+                            unit="mm"
+                            label="Total Rainfall"
+                            colorClass="text-blue-400"
+                        />
 
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Droplet className="text-blue-400 w-6 h-6" />
+                        <WeatherStat
+                            icon={Umbrella}
+                            value={weatherData.daily[0].pop.toFixed(0)}
+                            unit="%"
+                            label="Rain Probability"
+                            colorClass="text-blue-400"
+                        />
 
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {(
-                                            weatherData.daily[0].rain || 0
-                                        ).toFixed(0)}
-                                    </span>
+                        <WeatherStat
+                            icon={Droplet}
+                            value={weatherData.current.humidity}
+                            unit="%"
+                            label="Humidity"
+                            colorClass="text-teal-400"
+                        />
 
-                                    <span className="text-xs text-muted-foreground">
-                                        mm
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
+                        <WeatherStat
+                            icon={Cloud}
+                            value={weatherData.current.clouds}
+                            unit="%"
+                            label="Cloud Cover"
+                            colorClass="text-gray-500"
+                        />
 
-                            <TooltipContent>
-                                <p>Total Rainfall</p>
-                            </TooltipContent>
-                        </Tooltip>
+                        <WeatherStat
+                            icon={Wind}
+                            value={weatherData.current.wind_speed.toFixed(1)}
+                            unit="m/s"
+                            label="Wind Speed"
+                            colorClass="text-green-400"
+                        />
 
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Droplet className="text-blue-400 w-6 h-6" />
+                        <WeatherStat
+                            icon={Zap}
+                            value={weatherData.current.wind_gust.toFixed(1)}
+                            unit="m/s"
+                            label="Wind Gust"
+                            colorClass="text-green-400"
+                        />
 
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.daily[0].pop.toFixed(0)}
-                                    </span>
+                        <WeatherStat
+                            icon={ThermometerSnowflake}
+                            value={weatherData.current.dew_point.toFixed(1)}
+                            unit="°C"
+                            label="Dew Point"
+                            colorClass="text-teal-400"
+                        />
 
-                                    <span className="text-xs text-muted-foreground">
-                                        %
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
-
-                            <TooltipContent>
-                                <p>Rain Probability</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Droplet className="text-blue-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.humidity}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        %
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
-
-                            <TooltipContent>
-                                <p>Humidity</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Umbrella className="text-grey-500 w-6 h-6" />
-
-                                <div className="flex flex-col text-xs text-muted-foreground">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.clouds}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        %
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>Cloud cover</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
-                        </Tooltip>
-
-                        {/* Row 2 */}
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Wind className="text-blue-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.wind_speed.toFixed(
-                                            1
-                                        )}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        m/s
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
-
-                            <TooltipContent>
-                                <p>Wind speed</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Wind className="text-blue-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.wind_gust.toFixed(
-                                            1
-                                        )}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        m/s
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
-
-                            <TooltipContent>
-                                <p>Wind gust</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Wind className="text-blue-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.dew_point.toFixed(
-                                            1
-                                        )}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        °C
-                                    </span>
-                                </div>
-                            </TooltipTrigger>
-
-                            <TooltipContent>
-                                <p>Dew Point</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Cloud className="text-purple-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.uvi.toFixed(1)}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        UV
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>UV</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
-                        </Tooltip>
+                        <WeatherStat
+                            icon={Sparkles}
+                            value={weatherData.current.uvi.toFixed(1)}
+                            unit="UV"
+                            label="UV Index"
+                            colorClass="text-yellow-400"
+                        />
                     </div>
                 </TooltipProvider>
             </div>
@@ -442,5 +335,47 @@ const WindArrow = ({ degrees }: { degrees: number }) => (
         ↑
     </div>
 );
+
+type WeatherStatProps = {
+    unit?: string;
+    label: string;
+    icon: LucideIcon;
+    colorClass: string;
+    value: string | number;
+};
+
+function WeatherStat({
+    unit,
+    label,
+    value,
+    icon: Icon,
+    colorClass,
+}: WeatherStatProps) {
+    return (
+        <Tooltip>
+            <TooltipTrigger
+                aria-label={label}
+                className="flex gap-1 items-center"
+            >
+                <Icon className={`${colorClass} w-6 h-6`} aria-hidden="true" />
+
+                <div className="flex flex-col">
+                    <span className="text-lg font-medium">
+                        {value}{" "}
+                        {unit && (
+                            <span className="text-xs text-muted-foreground">
+                                {unit}
+                            </span>
+                        )}
+                    </span>
+                </div>
+            </TooltipTrigger>
+
+            <TooltipContent>
+                <p>{label}</p>
+            </TooltipContent>
+        </Tooltip>
+    );
+}
 
 export default memo(CurrentWeather);
