@@ -84,6 +84,90 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                         <Tooltip>
                             <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Droplet className="text-blue-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {(
+                                            weatherData.daily[0].rain || 0
+                                        ).toFixed(0)}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        mm
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                <p>Total Rainfall</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Droplet className="text-blue-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.daily[0].pop.toFixed(0)}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        %
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                <p>Rain Probability</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Droplet className="text-blue-400 w-6 h-6" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.current.humidity}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        %
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                <p>Humidity</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
+                                <Umbrella className="text-grey-500 w-6 h-6" />
+
+                                <div className="flex flex-col text-xs text-muted-foreground">
+                                    <span className="text-lg font-medium">
+                                        {weatherData.current.clouds}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                        %
+                                    </span>
+                                </div>
+
+                                <TooltipContent>
+                                    <p>Cloud cover</p>
+                                </TooltipContent>
+                            </TooltipTrigger>
+                        </Tooltip>
+
+                        {/* Row 2 */}
+
+                        <Tooltip>
+                            <TooltipTrigger className="flex flex-row gap-1 items-center">
                                 <Wind className="text-blue-400 w-6 h-6" />
 
                                 <div className="flex flex-col">
@@ -106,34 +190,34 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                         <Tooltip>
                             <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Droplet className="text-blue-400 w-6 h-6" />
+                                <Wind className="text-blue-400 w-6 h-6" />
 
                                 <div className="flex flex-col">
                                     <span className="text-lg font-medium">
-                                        {(
-                                            weatherData.hourly[0].pop * 100
-                                        ).toFixed(0)}
+                                        {weatherData.current.wind_gust.toFixed(
+                                            1
+                                        )}
                                     </span>
 
                                     <span className="text-xs text-muted-foreground">
-                                        %
+                                        m/s
                                     </span>
                                 </div>
                             </TooltipTrigger>
 
                             <TooltipContent>
-                                <p>Rain</p>
+                                <p>Wind gust</p>
                             </TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
                             <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <ArrowUp className="text-red-500 w-6 h-6" />
+                                <Wind className="text-blue-400 w-6 h-6" />
 
                                 <div className="flex flex-col">
                                     <span className="text-lg font-medium">
-                                        {Math.round(
-                                            weatherData.daily[0].temp.max
+                                        {weatherData.current.dew_point.toFixed(
+                                            1
                                         )}
                                     </span>
 
@@ -141,55 +225,11 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                                         °C
                                     </span>
                                 </div>
-
-                                <TooltipContent>
-                                    <p>Max Temp</p>
-                                </TooltipContent>
                             </TooltipTrigger>
-                        </Tooltip>
 
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <ArrowDown className="text-blue-500 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {Math.round(
-                                            weatherData.daily[0].temp.min
-                                        )}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        °C
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>Min Temp</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
-                        </Tooltip>
-
-                        {/* Row 2 */}
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Repeat className="text-purple-400 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {diurnalRange}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        °C
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>Diurnal Range</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Dew Point</p>
+                            </TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
@@ -208,46 +248,6 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                                 <TooltipContent>
                                     <p>UV</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Thermometer className="text-orange-500 w-6 h-6" />
-
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-medium">
-                                        {gdd.toFixed(1)}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        GDD
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>Growing degree days</p>
-                                </TooltipContent>
-                            </TooltipTrigger>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger className="flex flex-row gap-1 items-center">
-                                <Umbrella className="text-grey-500 w-6 h-6" />
-
-                                <div className="flex flex-col text-xs text-muted-foreground">
-                                    <span className="text-lg font-medium">
-                                        {weatherData.current.clouds}
-                                    </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                        %
-                                    </span>
-                                </div>
-
-                                <TooltipContent>
-                                    <p>Cloud cover</p>
                                 </TooltipContent>
                             </TooltipTrigger>
                         </Tooltip>
