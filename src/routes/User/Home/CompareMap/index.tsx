@@ -1,10 +1,11 @@
-import { memo, useMemo, useState, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
+import { GoogleMapsOverlay } from "@deck.gl/google-maps";
 
 import { cn } from "@/lib/utils";
 
@@ -38,12 +39,15 @@ import FarmSelect from "@/components/custom/Farm/Select";
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
+import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
+
 const controlsPosition = {
     position: google.maps.ControlPosition.BOTTOM_RIGHT,
 };
 
 const Compare2D = () => {
     const map = useMap();
+    const overlayRef = useRef<GoogleMapsOverlay | null>(null);
 
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
@@ -80,6 +84,49 @@ const Compare2D = () => {
         },
         [indices]
     );
+
+    useEffect(() => {
+        if (!map || !farm || !index) {
+            return;
+        }
+
+        overlayRef.current?.setMap(null);
+
+        const { bbox } = farm;
+
+        const Images = images.filter(
+            (item) =>
+                item.index_code + " (" + item.satellite_code + ")" === index
+        );
+
+        if (Images.length >= 2) {
+            const imageLayer1 = getBitmapLayer({
+                id: "1",
+                opacity: 1,
+                link: Images[0].image_url,
+                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+            });
+
+            const imageLayer2 = getBitmapLayer({
+                id: "2",
+                opacity: 1,
+                link: Images[1].image_url,
+                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+            });
+
+            const polygonLayer = getPolygonLayer(farm.coordinates);
+
+            overlayRef.current = new GoogleMapsOverlay({
+                layers: [imageLayer1, imageLayer2, polygonLayer],
+            });
+
+            overlayRef.current.setMap(map);
+        }
+
+        return () => {
+            overlayRef.current?.setMap(null);
+        };
+    }, [map, farm, index, images]);
 
     // get satellite images when a date is selected
     useAsyncEffect(
