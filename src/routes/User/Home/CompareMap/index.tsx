@@ -187,8 +187,8 @@ const Compare2D = () => {
             const { bbox } = farm;
 
             map.panTo({
-                lat: (bbox[1] + bbox[3]) / 2, // (south + north) / 2
-                lng: (bbox[0] + bbox[2]) / 2, // (west + east) / 2
+                lat: (bbox[1] + bbox[3]) / 2,
+                lng: (bbox[0] + bbox[2]) / 2,
             });
             map.setZoom(16);
 
@@ -280,7 +280,9 @@ const Compare2D = () => {
 
                         <SelectContent>
                             {indices.map((item) => (
-                                <SelectItem value={item}>{item}</SelectItem>
+                                <SelectItem key={item} value={item}>
+                                    {item}
+                                </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
