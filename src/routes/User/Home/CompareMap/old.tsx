@@ -1,18 +1,9 @@
-import { memo, useMemo, useState, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useCallback } from "react";
 
-import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
-
-import { cn } from "@/lib/utils";
-
-import {
-    type IndexImage,
-    getSatelliteVisitDatesByFarm,
-    getFarmSatelliteIndicesByDateRange,
-} from "@/services/farms";
+import { GoogleMapsOverlay } from "@deck.gl/google-maps";
 
 import useAsyncEffect from "@/hooks/useAsyncEffect";
 
@@ -25,35 +16,40 @@ import {
     SelectTrigger,
     SelectContent,
 } from "@/components/ui/select";
-
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
-const controlsPosition = {
-    position: google.maps.ControlPosition.BOTTOM_RIGHT,
-};
+import {
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteIndexDataByDate,
+    getFarmSatelliteIndicesByDateRange,
+} from "@/services/farms";
 
-const Compare2D = () => {
+const CompareMap = () => {
     const map = useMap();
 
+    const overlayRef = useRef<GoogleMapsOverlay | null>(null);
+
     const dispatch = useDispatch();
-    const { farm, loading } = useSelector((state: RootState) => state.global);
+    const { farm } = useSelector((state: RootState) => state.global);
 
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
-    const [images, setImages] = useState<Array<IndexImage>>([]);
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
-    const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
+
+    const onIndexSelect = useCallback(
+        (value: string) => {
+            const item = indices.find((a) => a === value);
+            setIndex(item || "");
+        },
+        [indices]
+    );
+
+    // Calendar highlight dates
 
     const modifiers = useMemo(
         () => ({
@@ -61,6 +57,22 @@ const Compare2D = () => {
         }),
         [highlightedDates]
     );
+
+    // Calendar on select date
+
+    const onSelectDates = useCallback((dates: Array<Date> | undefined) => {
+        if (!dates) {
+            return;
+        }
+
+        const unique = Array.from(new Set(dates.map((d) => d.toDateString())))
+            .map((d) => new Date(d))
+            .slice(0, 2); // limit to two unique dates
+
+        setSelectedDates(unique);
+    }, []);
+
+    // Calendar disable other dates that do not have satellite visits
 
     const disabledMatcher = useCallback(
         (date: Date) =>
@@ -73,12 +85,37 @@ const Compare2D = () => {
         [highlightedDates]
     );
 
-    const onIndexSelect = useCallback(
-        (value: string) => {
-            const item = indices.find((a) => a === value);
-            setIndex(item || "");
+    useAsyncEffect(
+        async (signal) => {
+            if (!map || !farm || !index) {
+                return;
+            }
+
+            dispatch(setLoading(true));
+
+            await getFarmSatelliteIndexDataByDate({
+                signal,
+                farm_fk: farm.id,
+                index_fk: "j8r97ur095m85wc",
+                satellite_fk: "f06wu043077g8ou",
+                visit_date: selectedDates[0],
+            });
+
+            overlayRef.current?.setMap(null);
+
+            overlayRef.current = new GoogleMapsOverlay({
+                layers: [],
+            });
+
+            overlayRef.current.setMap(map);
+
+            dispatch(setLoading(false));
+
+            return () => {
+                overlayRef.current?.setMap(null);
+            };
         },
-        [indices]
+        [map, farm, index]
     );
 
     // get satellite images when a date is selected
@@ -90,7 +127,7 @@ const Compare2D = () => {
 
             dispatch(setLoading(true));
 
-            const Images = await getFarmSatelliteIndicesByDateRange({
+            const indexRows = await getFarmSatelliteIndicesByDateRange({
                 signal,
                 id: farm.id,
                 end_date: selectedDates[1],
@@ -99,14 +136,13 @@ const Compare2D = () => {
 
             const Indices = Array.from(
                 new Set(
-                    Images.map(
+                    indexRows.map(
                         (item) =>
                             item.index_code + " (" + item.satellite_code + ")"
                     )
                 )
             );
 
-            setImages(Images);
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
@@ -151,12 +187,8 @@ const Compare2D = () => {
             const Dates = data.map((item) => new Date(item.date));
 
             setHighlightedDates(Dates);
-
-            if (Dates.length >= 2) {
-                setSelectedDates([
-                    Dates[Dates.length - 2],
-                    Dates[Dates.length - 1],
-                ]);
+            if (Dates.length) {
+                setSelectedDates([Dates[0], Dates[Dates.length - 1]]);
             }
 
             dispatch(setLoading(false));
@@ -175,54 +207,23 @@ const Compare2D = () => {
     );
 
     return (
-        <div className="min-h-screen w-full grid grid-rows-10">
-            <div className="row-span-1 flex items-center justify-center">
-                <FarmSelect />
+        <div className="min-h-screen w-full grid grid-cols-2 grid-rows-10">
+            <div className="col-span-2 row-span-1">
+                <div className="flex flex-row justify-center mt-5">
+                    <FarmSelect />
 
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "w-[280px] justify-start text-left font-normal ml-2",
-                                selectedDates.length === 0 &&
-                                    "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-
-                            {selectedDates.length === 2
-                                ? `${format(
-                                      selectedDates[0],
-                                      "PPP"
-                                  )} → ${format(selectedDates[1], "PPP")}`
-                                : selectedDates.length === 1
-                                ? `${format(
-                                      selectedDates[0],
-                                      "PPP"
-                                  )} → Pick end date`
-                                : "Pick two dates"}
-                        </Button>
-                    </PopoverTrigger>
-
-                    <PopoverContent className="w-auto p-0">
+                    <div className="flex justify-center border ml-5 mr-5">
                         <Calendar
                             mode="multiple"
+                            numberOfMonths={1}
                             modifiers={modifiers}
                             selected={selectedDates}
+                            onSelect={onSelectDates}
                             disabled={disabledMatcher}
                             modifiersClassNames={modifiersClassNames}
-                            onSelect={(dates) => {
-                                const sorted = [...(dates || [])].sort(
-                                    (a, b) => a.getTime() - b.getTime()
-                                );
-                                setSelectedDates(sorted.slice(0, 2));
-                            }}
                         />
-                    </PopoverContent>
-                </Popover>
+                    </div>
 
-                <div className="pl-2">
                     <Select value={index} onValueChange={onIndexSelect}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue placeholder="Select Index" />
@@ -237,10 +238,9 @@ const Compare2D = () => {
                 </div>
             </div>
 
-            <div className="row-span-8">
+            <div className="col-span-2 row-span-9">
                 <Map
                     defaultZoom={13}
-                    mapTypeId={mapType}
                     zoomControl={false}
                     cameraControl={false}
                     mapTypeControl={false}
@@ -249,10 +249,9 @@ const Compare2D = () => {
                     gestureHandling="greedy"
                     defaultCenter={americanFarmsGeoCenter}
                     fullscreenControlOptions={controlsPosition}
-                />
+                    mapTypeId={google.maps.MapTypeId.SATELLITE}
+                ></Map>
             </div>
-
-            <div className="row-span-1 border-2"></div>
         </div>
     );
 };
@@ -262,4 +261,8 @@ const modifiersClassNames = {
         "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
 };
 
-export default memo(Compare2D);
+const controlsPosition = {
+    position: google.maps.ControlPosition.BOTTOM_RIGHT,
+};
+
+export default memo(CompareMap);

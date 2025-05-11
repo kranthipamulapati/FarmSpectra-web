@@ -337,7 +337,6 @@ const getFarmSatelliteIndicesByDateRange = async ({
         .collection("farm_satellite_data_index_images_view")
         .getFullList<IndexImage>({
             signal,
-            fields: "index_code, satellite_code",
             filter: `farm_fk = '${id}' && visit_date >= '${startDate}' && visit_date <= '${endDate}'`,
         });
 
