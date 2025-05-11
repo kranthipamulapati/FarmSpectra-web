@@ -23,15 +23,15 @@ import {
 import type { WeatherData } from "@/services/farms";
 
 const TABS = [
-    { label: "Temp" },
-    { label: "Precip" },
+    { label: "Temperature" },
+    { label: "Precipitation" },
     { label: "Wind" },
     { label: "Humidity" },
     { label: "UV" },
 ];
 
 const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
-    const [tab, setTab] = useState("Temp");
+    const [tab, setTab] = useState("Temperature");
 
     const diurnalRange = Math.round(
         weatherData.daily[0].temp.max - weatherData.daily[0].temp.min
@@ -46,7 +46,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
     );
 
     return (
-        <div className="w-[40%] max-w-[40%] p-3 shadow-sm rounded-2xl flex flex-col justify-between">
+        <div className="w-[45%] max-w-[45%] p-3 shadow-sm rounded-2xl flex flex-col justify-between">
             <div className="flex flex-row gap-2 items-center">
                 <p className="text-base font-medium">Current Weather</p>
 
@@ -61,9 +61,9 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
             <div className="flex flex-row items-center">
                 {/* Current Temperature - Left Side */}
                 <div className="flex flex-row gap-2 items-center mr-6">
-                    <Sun className="text-yellow-400 w-10 h-10" />
+                    <Sun className="text-yellow-400 w-15 h-15" />
 
-                    <span className="text-3xl font-medium">
+                    <span className="text-4xl font-medium">
                         {weatherData.current.temp}°
                     </span>
 
@@ -74,12 +74,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                 <div className="grid grid-cols-4 grid-rows-2 gap-x-3 gap-y-2 flex-grow">
                     {/* Row 1 */}
                     <div className="flex flex-row gap-1 items-center">
-                        <Wind className="text-yellow-400 w-6 h-6" />
+                        <Wind className="text-blue-400 w-6 h-6" />
 
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {weatherData.current.wind_speed.toFixed(1)}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 m/s
                             </span>
@@ -87,11 +88,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <Droplet className="text-yellow-400 w-6 h-6" />
+                        <Droplet className="text-blue-400 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {(weatherData.hourly[0].pop * 100).toFixed(0)}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 %
                             </span>
@@ -99,11 +102,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <ArrowUp className="text-yellow-400 w-6 h-6" />
+                        <ArrowUp className="text-red-500 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {Math.round(weatherData.daily[0].temp.max)}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 °C
                             </span>
@@ -111,11 +116,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <ArrowDown className="text-yellow-400 w-6 h-6" />
+                        <ArrowDown className="text-blue-500 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {Math.round(weatherData.daily[0].temp.min)}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 °C
                             </span>
@@ -124,11 +131,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
 
                     {/* Row 2 */}
                     <div className="flex flex-row gap-1 items-center">
-                        <Repeat className="text-yellow-400 w-6 h-6" />
+                        <Repeat className="text-purple-400 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {diurnalRange}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 °C
                             </span>
@@ -136,11 +145,13 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <Cloud className="text-yellow-400 w-6 h-6" />
+                        <Cloud className="text-purple-400 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {weatherData.current.uvi.toFixed(1)}
                             </span>
+
                             <span className="text-xs text-muted-foreground">
                                 UV
                             </span>
@@ -148,7 +159,8 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <Thermometer className="text-yellow-400 w-6 h-6" />
+                        <Thermometer className="text-orange-500 w-6 h-6" />
+
                         <div className="flex flex-col">
                             <span className="text-lg font-medium">
                                 {gdd.toFixed(1)}
@@ -161,7 +173,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
 
                     <div className="flex flex-row gap-1 items-center">
-                        <Umbrella className="text-yellow-400 w-6 h-6" />
+                        <Umbrella className="text-grey-500 w-6 h-6" />
 
                         <div className="flex flex-col text-xs text-muted-foreground">
                             <span className="text-lg font-medium">
@@ -193,7 +205,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     ))}
                 </div>
 
-                {tab === "Temp" && (
+                {tab === "Temperature" && (
                     <div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                             <DataRow
@@ -261,7 +273,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
                     </div>
                 )}
 
-                {tab === "Precip" && (
+                {tab === "Precipitation" && (
                     <div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                             <DataRow
