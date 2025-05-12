@@ -42,6 +42,11 @@ const userSideBarItems = [
         url: "/home/comparemap",
         icon: SlidersHorizontal,
     },
+    {
+        title: "3D Compare",
+        url: "/home/compare3d",
+        icon: SlidersHorizontal,
+    },
 ];
 
 const adminSideBarItems = [
