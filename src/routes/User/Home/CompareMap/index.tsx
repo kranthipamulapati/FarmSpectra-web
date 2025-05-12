@@ -227,17 +227,13 @@ const Compare2D = () => {
 
             const { bbox } = farm;
 
-            leftMap.panTo({
-                lat: (bbox[1] + bbox[3]) / 2,
-                lng: (bbox[0] + bbox[2]) / 2,
-            });
-            rightMap.panTo({
-                lat: (bbox[1] + bbox[3]) / 2,
-                lng: (bbox[0] + bbox[2]) / 2,
-            });
+            const bounds = new google.maps.LatLngBounds(
+                { lat: bbox[1], lng: bbox[0] }, // southwest corner
+                { lat: bbox[3], lng: bbox[2] } // northeast corner
+            );
 
-            leftMap.setZoom(16);
-            rightMap.setZoom(16);
+            leftMap.fitBounds(bounds);
+            rightMap.fitBounds(bounds);
 
             dispatch(setLoading(true));
 

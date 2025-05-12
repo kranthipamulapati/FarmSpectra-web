@@ -107,11 +107,12 @@ const Farms = () => {
 
         const { bbox } = farm;
 
-        map.panTo({
-            lat: (bbox[1] + bbox[3]) / 2, // (south + north) / 2
-            lng: (bbox[0] + bbox[2]) / 2, // (west + east) / 2
-        });
-        map.setZoom(16);
+        const bounds = new google.maps.LatLngBounds(
+            { lat: bbox[1], lng: bbox[0] }, // southwest corner
+            { lat: bbox[3], lng: bbox[2] } // northeast corner
+        );
+
+        map.fitBounds(bounds);
 
         const Image = images.find(
             (item) =>
