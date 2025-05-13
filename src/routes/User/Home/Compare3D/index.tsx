@@ -1,8 +1,8 @@
 import { memo, useRef, useMemo, useState, useCallback } from "react";
 
 import { format } from "date-fns";
-import Map, { MapRef } from "react-map-gl/mapbox";
 import { toast } from "react-toastify";
+import Map, { MapRef } from "react-map-gl/mapbox";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -31,7 +31,11 @@ import FarmSelect from "@/components/custom/Farm/Select";
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
-import { getSatelliteVisitDatesByFarm } from "@/services/farms";
+import {
+    type IndexImage,
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteIndicesByDateRange,
+} from "@/services/farms";
 
 const INITIAL_VIEW_STATE = {
     longitude: americanFarmsGeoCenter.lng,
@@ -46,6 +50,7 @@ const Compare3d = () => {
 
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
+    const [images, setImages] = useState<Array<IndexImage>>([]);
 
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
@@ -77,6 +82,50 @@ const Compare3d = () => {
             setIndex(item || "");
         },
         [indices]
+    );
+
+    // get satellite images when a date is selected
+    useAsyncEffect(
+        async (signal) => {
+            if (!farm?.id || selectedDates.length === 0) {
+                return;
+            }
+
+            dispatch(setLoading(true));
+
+            const Images = await getFarmSatelliteIndicesByDateRange({
+                signal,
+                id: farm.id,
+                end_date: selectedDates[1],
+                start_date: selectedDates[0],
+            });
+
+            const Indices = Array.from(
+                new Set(
+                    Images.map(
+                        (item) =>
+                            item.index_code + " (" + item.satellite_code + ")"
+                    )
+                )
+            );
+
+            setImages(Images);
+            setIndices(Indices);
+
+            if (index === "" || Indices.indexOf(index) === -1) {
+                setIndex(Indices[0] || "");
+            }
+
+            dispatch(setLoading(false));
+        },
+        [selectedDates],
+        (error) => {
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
     );
 
     // get visit dates when a farm is selected
