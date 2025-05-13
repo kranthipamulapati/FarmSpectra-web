@@ -1,8 +1,10 @@
-import { memo, useRef, useMemo, useState, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import { ColumnLayer } from "@deck.gl/layers";
 import Map, { MapRef } from "react-map-gl/mapbox";
+import DeckGL, { DeckGLRef } from "@deck.gl/react";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -45,15 +47,64 @@ const INITIAL_VIEW_STATE = {
     zoom: 16,
 };
 
+type MockPixel = {
+    longitude: number;
+    latitude: number;
+    value: number;
+};
+
+/**
+ * Generates fake NDVI values at 10m resolution across a given farm bounding box.
+ */
+function generateMockFarmPixelData(
+    bbox: [number, number, number, number]
+): MockPixel[] {
+    const [minLng, minLat, maxLng, maxLat] = bbox;
+
+    // Roughly convert 10 meters to degrees
+    const DEG_PER_M_LAT = 1 / 111320; // ~0.00000898°
+    const DEG_PER_M_LNG =
+        1 / (111320 * Math.cos(((minLat + maxLat) / 2) * (Math.PI / 180))); // Adjust for latitude
+
+    const latStep = 10 * DEG_PER_M_LAT;
+    const lngStep = 10 * DEG_PER_M_LNG;
+
+    const pixelData: MockPixel[] = [];
+
+    for (let lat = minLat; lat < maxLat; lat += latStep) {
+        for (let lng = minLng; lng < maxLng; lng += lngStep) {
+            // Create a pattern – radial NDVI drop-off from center
+            const centerLat = (minLat + maxLat) / 2;
+            const centerLng = (minLng + maxLng) / 2;
+            const distance = Math.sqrt(
+                (lat - centerLat) ** 2 + (lng - centerLng) ** 2
+            );
+
+            // Simulated NDVI: 1 near center, fades to 0 outward
+            const maxDist = Math.sqrt(
+                ((maxLat - minLat) / 2) ** 2 + ((maxLng - minLng) / 2) ** 2
+            );
+            const value = Math.max(0, 1 - distance / maxDist);
+
+            pixelData.push({ latitude: lat, longitude: lng, value });
+        }
+    }
+
+    return pixelData;
+}
+
 const Compare3d = () => {
     const mapRef = useRef<MapRef | null>(null);
+    const deckRef = useRef<DeckGLRef | null>(null);
 
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
     const [images, setImages] = useState<Array<IndexImage>>([]);
+    const [mockPixels, setMockPixels] = useState<MockPixel[]>([]);
+    const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
 
     const dispatch = useDispatch();
-    const { farm, loading } = useSelector((state: RootState) => state.global);
+    const { farm } = useSelector((state: RootState) => state.global);
 
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
@@ -83,6 +134,13 @@ const Compare3d = () => {
         },
         [indices]
     );
+
+    useEffect(() => {
+        if (farm?.bbox) {
+            const data = generateMockFarmPixelData(farm.bbox);
+            setMockPixels(data);
+        }
+    }, [farm?.id]);
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -131,7 +189,7 @@ const Compare3d = () => {
     // get visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || !mapRef.current) {
+            if (!farm?.id || !mapRef.current || !deckRef.current) {
                 setSelectedDates([]);
                 setHighlightedDates([]);
                 return;
@@ -147,6 +205,14 @@ const Compare3d = () => {
                 pitch: 60,
                 bearing: 0,
                 duration: 1000,
+            });
+
+            setViewState({
+                zoom: 16,
+                pitch: 60,
+                bearing: 0,
+                latitude: farm.coordinates[0].lat,
+                longitude: farm.coordinates[0].lng,
             });
 
             dispatch(setLoading(true));
@@ -246,13 +312,35 @@ const Compare3d = () => {
                 </div>
             </div>
 
-            <div className="row-span-8 w-full h-full">
-                <Map
-                    ref={mapRef}
+            <div className="row-span-8 relative">
+                <DeckGL
+                    ref={deckRef}
+                    controller={true}
+                    viewState={viewState}
                     initialViewState={INITIAL_VIEW_STATE}
-                    mapStyle="mapbox://styles/mapbox/satellite-v9"
-                    mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-                />
+                    layers={[
+                        new ColumnLayer({
+                            id: "mock-ndvi-layer",
+                            data: mockPixels,
+                            radius: 2,
+                            diskResolution: 5,
+                            elevationScale: 10,
+                            getPosition: (d) => [d.longitude, d.latitude],
+                            getFillColor: (d) => {
+                                const scaled = d.value * 255;
+                                return [scaled, 255 - scaled, 0];
+                            },
+                            getElevation: (d) => d.value * 10,
+                            pickable: true,
+                        }),
+                    ]}
+                >
+                    <Map
+                        ref={mapRef}
+                        mapStyle="mapbox://styles/mapbox/satellite-v9"
+                        mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
+                    />
+                </DeckGL>
             </div>
         </div>
     );
