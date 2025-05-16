@@ -1,12 +1,12 @@
 import { toast } from "react-toastify";
 import { ClientResponseError, type RecordModel } from "pocketbase";
 
-import { apiBaseURL, openWeatherMapApiKey } from "@/constants";
-
 import { pocketbase, type Coordinate } from ".";
 
 import store from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
+
+import { apiBaseURL, openWeatherMapApiKey } from "@/constants";
 
 import { getUTCDate } from "@/helpers";
 import { parseFarmFormData, checkFarmFormData } from "@/helpers/farms";
@@ -343,20 +343,14 @@ const getFarmSatelliteIndicesByDateRange = async ({
     return dates;
 };
 
-const getFarmSatelliteIndexDataByDate = async ({
-    farm_fk,
-    index_fk,
-    visit_date,
-    satellite_fk,
+const getFarmSatelliteIndexImageData = async ({
+    image,
 }: {
-    visit_date: Date;
-    farm_fk: string;
-    index_fk: string;
-    satellite_fk: string;
+    image: IndexImage;
     signal: AbortSignal;
 }) => {
     const response = await fetch(
-        apiBaseURL + "api/farms/satellite/index/data",
+        apiBaseURL + "api/farms/satellite/image/data",
         {
             method: "POST",
             headers: {
@@ -364,10 +358,7 @@ const getFarmSatelliteIndexDataByDate = async ({
                 Authorization: "Bearer " + pocketbase.authStore.token,
             },
             body: JSON.stringify({
-                farm_fk,
-                index_fk,
-                visit_date,
-                satellite_fk,
+                image,
             }),
         }
     );
@@ -406,6 +397,6 @@ export {
     handleFarmFormSubmit,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
-    getFarmSatelliteIndexDataByDate,
+    getFarmSatelliteIndexImageData,
     getFarmSatelliteIndicesByDateRange,
 };

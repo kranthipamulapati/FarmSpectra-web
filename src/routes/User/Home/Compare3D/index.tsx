@@ -33,7 +33,9 @@ import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
 import {
+    type IndexImage,
     getSatelliteVisitDatesByFarm,
+    getFarmSatelliteIndexImageData,
     getFarmSatelliteIndicesByDateRange,
 } from "@/services/farms";
 
@@ -42,7 +44,9 @@ const Compare3d = () => {
     const deckRef = useRef<DeckGLRef | null>(null);
 
     const [index, setIndex] = useState("");
+
     const [indices, setIndices] = useState<Array<string>>([]);
+    const [images, setImages] = useState<Array<IndexImage>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
@@ -81,7 +85,23 @@ const Compare3d = () => {
             if (!farm || !index) {
                 return;
             }
+
             dispatch(setLoading(true));
+
+            const image = images.find(
+                (item) =>
+                    item.index_code + " (" + item.satellite_code + ")" === index
+            );
+
+            if (image) {
+                const data = await getFarmSatelliteIndexImageData({
+                    image,
+                    signal,
+                });
+
+                console.log(data);
+            }
+
             dispatch(setLoading(false));
         },
         [farm, index],
@@ -119,6 +139,7 @@ const Compare3d = () => {
                 )
             );
 
+            setImages(Images);
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
