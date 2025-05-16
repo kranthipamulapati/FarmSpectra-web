@@ -40,6 +40,27 @@ import {
     getFarmSatelliteIndicesByDateRange,
 } from "@/services/farms";
 
+function getColorFromMatrix(
+    value: number,
+    matrix: { min: number | null; max: number | null; hex: string }[]
+): [number, number, number] {
+    const entry = matrix.find(({ min, max }) => {
+        if (min === null) return value < max!;
+        if (max === null) return value >= min;
+        return value >= min && value < max;
+    });
+
+    if (!entry) return [128, 128, 128]; // fallback grey
+
+    // Convert hex to RGB
+    const hex = entry.hex.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    return [r, g, b];
+}
+
 const Compare3d = () => {
     const mapRef = useRef<MapRef | null>(null);
     const deckRef = useRef<DeckGLRef | null>(null);
@@ -111,9 +132,10 @@ const Compare3d = () => {
                     elevationScale: 10,
                     getPosition: (d) => d.position,
                     getFillColor: (d) => {
-                        const v = d.value;
-                        const color = Math.round(((v + 1) / 2) * 255);
-                        return [color, 255 - color, 0]; // basic green-red scale
+                        return getColorFromMatrix(
+                            d.value,
+                            data.data.color_matrix
+                        );
                     },
                     getElevation: (d) => d.value * 10,
                 });
