@@ -154,9 +154,9 @@ const Farms = () => {
             dispatch(setLoading(true));
 
             const Images = await getFarmSatelliteImagesByDate({
+                signal,
                 id: farm.id,
                 date: selectedDates[0],
-                signal,
             });
 
             const Indices = Images.map(
@@ -172,7 +172,7 @@ const Farms = () => {
 
             dispatch(setLoading(false));
         },
-        [selectedDates],
+        [farm?.id, selectedDates],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });

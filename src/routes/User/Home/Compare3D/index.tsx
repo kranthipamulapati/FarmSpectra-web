@@ -76,10 +76,28 @@ const Compare3d = () => {
         [highlightedDates]
     );
 
+    useAsyncEffect(
+        async (signal) => {
+            if (!farm || !index) {
+                return;
+            }
+            dispatch(setLoading(true));
+            dispatch(setLoading(false));
+        },
+        [farm, index],
+        (error) => {
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
+    );
+
     // get satellite indices when a date is selected
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || selectedDates.length === 0) {
+            if (!farm?.id || selectedDates.length < 2) {
                 return;
             }
 
@@ -104,12 +122,12 @@ const Compare3d = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex(Indices[0] || "");
+                setIndex(Indices[0]);
             }
 
             dispatch(setLoading(false));
         },
-        [selectedDates],
+        [farm?.id, selectedDates],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -122,14 +140,14 @@ const Compare3d = () => {
     // get visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || !mapRef.current) {
+            if (!farm?.id) {
                 setSelectedDates([]);
                 setHighlightedDates([]);
+
                 return;
             }
 
             const { bbox } = farm;
-
             const center = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
 
             setViewState((prev) => ({
@@ -151,7 +169,6 @@ const Compare3d = () => {
             const Dates = data.map((item) => new Date(item.date));
 
             setHighlightedDates(Dates);
-
             if (Dates.length >= 2) {
                 setSelectedDates([
                     Dates[Dates.length - 2],
@@ -161,7 +178,7 @@ const Compare3d = () => {
 
             dispatch(setLoading(false));
         },
-        [farm?.id, mapRef.current],
+        [farm?.id],
         (error) => {
             setSelectedDates([]);
             setHighlightedDates([]);
