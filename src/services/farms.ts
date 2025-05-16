@@ -358,7 +358,7 @@ const getFarmSatelliteIndexImageData = async ({
                 Authorization: "Bearer " + pocketbase.authStore.token,
             },
             body: JSON.stringify({
-                image,
+                ...image,
             }),
         }
     );
