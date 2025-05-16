@@ -2,6 +2,7 @@ import { memo, useRef, useMemo, useState, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import { ColumnLayer } from "@deck.gl/layers";
 import Map, { MapRef } from "react-map-gl/mapbox";
 import DeckGL, { DeckGLRef } from "@deck.gl/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,6 +46,7 @@ const Compare3d = () => {
 
     const [index, setIndex] = useState("");
 
+    const [columnLayer, setColumnLayer] = useState<any>(null);
     const [indices, setIndices] = useState<Array<string>>([]);
     const [images, setImages] = useState<Array<IndexImage>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
@@ -99,7 +101,24 @@ const Compare3d = () => {
                     signal,
                 });
 
-                console.log(data);
+                const layer = new ColumnLayer({
+                    id: "ndvi-columns",
+                    data: data.data.columns,
+                    diskResolution: 12,
+                    radius: 5, // or 10 (based on ~10m spatial resolution)
+                    extruded: true,
+                    pickable: true,
+                    elevationScale: 10,
+                    getPosition: (d) => d.position,
+                    getFillColor: (d) => {
+                        const v = d.value;
+                        const color = Math.round(((v + 1) / 2) * 255);
+                        return [color, 255 - color, 0]; // basic green-red scale
+                    },
+                    getElevation: (d) => d.value * 10,
+                });
+
+                setColumnLayer(layer);
             }
 
             dispatch(setLoading(false));
@@ -286,6 +305,7 @@ const Compare3d = () => {
                     onViewStateChange={({ viewState }) =>
                         setViewState(viewState)
                     }
+                    layers={[columnLayer]}
                 >
                     <Map
                         ref={mapRef}
