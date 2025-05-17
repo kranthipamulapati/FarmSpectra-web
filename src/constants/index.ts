@@ -1,10 +1,4 @@
-import {
-    Plus,
-    Trees,
-    Settings,
-    LayoutDashboard,
-    SlidersHorizontal,
-} from "lucide-react";
+import { Plus, Trees, LayoutDashboard, SlidersHorizontal } from "lucide-react";
 
 const hyderabadGeoCenter = {
     lat: 17.4065,
@@ -33,11 +27,6 @@ const userSideBarItems = [
         icon: Plus,
     },
     {
-        title: "Settings",
-        url: "/home/settings",
-        icon: Settings,
-    },
-    {
         title: "2D Compare",
         url: "/home/comparemap",
         icon: SlidersHorizontal,
@@ -64,11 +53,6 @@ const adminSideBarItems = [
         title: "AddFarm",
         url: "/admin/home/addfarm",
         icon: Plus,
-    },
-    {
-        title: "Settings",
-        url: "/admin/home/settings",
-        icon: Settings,
     },
 ];
 
