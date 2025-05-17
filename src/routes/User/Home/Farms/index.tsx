@@ -34,6 +34,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 import FarmInfoCard from "@/components/custom/Farm/Card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
@@ -237,7 +238,7 @@ const Farms = () => {
     );
 
     return (
-        <div className="min-h-screen w-full grid grid-cols-4 grid-rows-3">
+        <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
             <div className="col-span-3 row-span-2">
                 <Map
                     defaultZoom={13}
@@ -253,7 +254,7 @@ const Farms = () => {
                 ></Map>
             </div>
 
-            <div className="col-span-1 row-span-3">
+            <ScrollArea className="col-span-1 row-span-3">
                 <div className="flex flex-row justify-center mt-5">
                     <FarmSelect />
 
@@ -287,7 +288,7 @@ const Farms = () => {
                 <div className="flex justify-center m-5">
                     {farm && <FarmInfoCard farm={farm} />}
                 </div>
-            </div>
+            </ScrollArea>
 
             <div className="col-span-3 row-span-2 m-5 flex flex-row">
                 {weatherData && <CurrentWeather weatherData={weatherData} />}
