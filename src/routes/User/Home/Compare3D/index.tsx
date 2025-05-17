@@ -129,7 +129,7 @@ const Compare3d = () => {
                     radius: 5, // or 10 (based on ~10m spatial resolution)
                     extruded: true,
                     pickable: true,
-                    elevationScale: 10,
+                    elevationScale: 25,
                     getPosition: (d) => d.position,
                     getFillColor: (d) => {
                         return getColorFromMatrix(
@@ -331,7 +331,7 @@ const Compare3d = () => {
                 >
                     <Map
                         ref={mapRef}
-                        mapStyle="mapbox://styles/mapbox/satellite-v9"
+                        mapStyle="mapbox://styles/mapbox/dark-v11"
                         mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
                     />
                 </DeckGL>

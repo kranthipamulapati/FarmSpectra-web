@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 import store, { type RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
+const backgroundImage = {
+    backgroundImage: "url(./images/background.jpg)",
+};
+
 const UserLogin = () => {
     const navigate = useNavigate();
     const { loading } = useSelector((state: RootState) => state.global);
@@ -57,11 +61,14 @@ const UserLogin = () => {
     );
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+        <div
+            style={backgroundImage}
+            className="min-h-screen flex flex-col items-center justify-center bg-white px-4"
+        >
             {/* Main Content */}
             <div className="w-full max-w-[400px] space-y-8">
                 <div className="text-center space-y-4">
-                    <h1 className="text-4xl font-bold tracking-tight">
+                    <h1 className="text-4xl font-bold tracking-tight text-white">
                         FarmSpectra
                     </h1>
                 </div>
@@ -75,12 +82,12 @@ const UserLogin = () => {
                         className="w-full h-12 text-base font-normal"
                     >
                         <img
-                            width={20}
-                            height={20}
+                            width={30}
+                            height={30}
                             alt="Google"
-                            className="mr-3"
-                            src="/placeholder.svg"
+                            src="./icons/logo_google_icon.svg"
                         />
+
                         {loading ? "Logging in..." : "Sign In With Google"}
                     </Button>
                 </div>
@@ -91,6 +98,7 @@ const UserLogin = () => {
                 <Link to="#" className="hover:underline">
                     Privacy & Terms
                 </Link>
+
                 <Link to="#" className="hover:underline">
                     Contact Us
                 </Link>
