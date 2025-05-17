@@ -63,7 +63,7 @@ const UserLogin = () => {
     return (
         <div
             style={backgroundImage}
-            className="min-h-screen flex flex-col items-center justify-center bg-white px-4"
+            className="min-h-screen flex flex-col items-center justify-center bg-white px-4 bg-no-repeat bg-cover"
         >
             {/* Main Content */}
             <div className="w-full max-w-[400px] space-y-8">

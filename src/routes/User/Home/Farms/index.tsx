@@ -32,6 +32,7 @@ import {
     SelectContent,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import SoilCard from "@/components/custom/Farm/SoilCard";
 import FarmSelect from "@/components/custom/Farm/Select";
 import FarmInfoCard from "@/components/custom/Farm/Card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -287,6 +288,10 @@ const Farms = () => {
 
                 <div className="flex justify-center m-5">
                     {farm && <FarmInfoCard farm={farm} />}
+                </div>
+
+                <div className="flex justify-center m-5">
+                    {soilData && <SoilCard data={soilData} />}
                 </div>
             </ScrollArea>
 
