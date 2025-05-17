@@ -44,7 +44,7 @@ const UserLogin = () => {
                     });
 
                 if (auth) {
-                    navigate("/home/dashboard");
+                    navigate("/home/farms");
                 }
             } catch (error: unknown) {
                 if (error instanceof Error) {
