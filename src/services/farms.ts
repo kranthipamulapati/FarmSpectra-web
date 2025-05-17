@@ -48,6 +48,19 @@ type FarmCalender = {
     active: boolean;
 };
 
+type FarmCalenderInfo = {
+    id: string;
+    crop_name: string;
+    sowing_date: Date;
+    harvesting_date: Date;
+    growth_stage_description: string;
+    irrigation_method_description: string;
+    tillage_type_description: string;
+    season_name: string;
+    target_yield_in_kgha: number;
+    estimated_yield_in_kgha: number;
+};
+
 type FarmForm = Pick<Farm, "name" | "area_in_sqm" | "coordinates">;
 
 type FarmCalenderForm = Pick<
@@ -391,6 +404,7 @@ export type {
     WeatherData,
     FarmCalender,
     FarmCalenderForm,
+    FarmCalenderInfo,
 };
 export {
     getFarmWeather,

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
+import FarmInfoCard from "@/components/custom/Farm/Card";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
@@ -272,6 +273,10 @@ const Farms = () => {
                         disabled={disabledMatcher}
                         modifiersClassNames={modifiersClassNames}
                     />
+                </div>
+
+                <div className="flex justify-center m-5">
+                    {farm && <FarmInfoCard farm={farm} />}
                 </div>
             </div>
 
