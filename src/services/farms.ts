@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+import { fetchWeatherApi } from "openmeteo";
 import { ClientResponseError, type RecordModel } from "pocketbase";
 
 import { pocketbase, type Coordinate } from ".";
@@ -190,6 +191,19 @@ type WeatherData = {
     hourly: HourlyForecast[];
     daily: DailyForecast[];
     alerts?: WeatherAlert[];
+};
+
+type SoilData = {
+    time: string;
+    soilTemperature0cm: number;
+    soilTemperature6cm: number;
+    soilTemperature18cm: number;
+    soilTemperature54cm: number;
+    soilMoisture0To1cm: number;
+    soilMoisture1To3cm: number;
+    soilMoisture3To9cm: number;
+    soilMoisture9To27cm: number;
+    soilMoisture27To81cm: number;
 };
 
 const addFarm = async ({
@@ -397,9 +411,97 @@ const getFarmWeather = async ({
     return data;
 };
 
+function getLatestSoilSnapshot(weatherData: any): SoilData {
+    const hourly = weatherData.hourly;
+    const lastIndex = hourly.time.length - 1;
+    const idx = lastIndex.toString(); // Use string keys
+
+    return {
+        time: hourly.time[lastIndex],
+        soilTemperature0cm: hourly.soilTemperature0cm[idx],
+        soilTemperature6cm: hourly.soilTemperature6cm[idx],
+        soilTemperature18cm: hourly.soilTemperature18cm[idx],
+        soilTemperature54cm: hourly.soilTemperature54cm[idx],
+        soilMoisture0To1cm: hourly.soilMoisture0To1cm[idx],
+        soilMoisture1To3cm: hourly.soilMoisture1To3cm[idx],
+        soilMoisture3To9cm: hourly.soilMoisture3To9cm[idx],
+        soilMoisture9To27cm: hourly.soilMoisture9To27cm[idx],
+        soilMoisture27To81cm: hourly.soilMoisture27To81cm[idx],
+    };
+}
+
+const getFarmSoilData = async ({
+    lat,
+    lon,
+}: {
+    lat: number;
+    lon: number;
+}): Promise<SoilData> => {
+    const today = new Date().toISOString().split("T")[0]; // "2025-05-17"
+
+    const params = {
+        latitude: [lat],
+        longitude: [lon],
+        start_date: today,
+        end_date: today,
+        hourly: [
+            "soil_temperature_0cm",
+            "soil_temperature_6cm",
+            "soil_temperature_18cm",
+            "soil_temperature_54cm",
+            "soil_moisture_0_to_1cm",
+            "soil_moisture_1_to_3cm",
+            "soil_moisture_3_to_9cm",
+            "soil_moisture_9_to_27cm",
+            "soil_moisture_27_to_81cm",
+        ],
+        timezone: "UTC",
+    };
+
+    const url = "https://api.open-meteo.com/v1/forecast";
+    const responses = await fetchWeatherApi(url, params);
+
+    const response = responses[0];
+    const hourly = response.hourly()!;
+    const utcOffsetSeconds = response.utcOffsetSeconds();
+
+    const weatherData = {
+        hourly: {
+            time: [
+                ...Array(
+                    (Number(hourly.timeEnd()) - Number(hourly.time())) /
+                        hourly.interval()
+                ),
+            ].map(
+                (_, i) =>
+                    new Date(
+                        (Number(hourly.time()) +
+                            i * hourly.interval() +
+                            utcOffsetSeconds) *
+                            1000
+                    )
+            ),
+            soilTemperature0cm: hourly.variables(0)!.valuesArray()!,
+            soilTemperature6cm: hourly.variables(1)!.valuesArray()!,
+            soilTemperature18cm: hourly.variables(2)!.valuesArray()!,
+            soilTemperature54cm: hourly.variables(3)!.valuesArray()!,
+            soilMoisture0To1cm: hourly.variables(4)!.valuesArray()!,
+            soilMoisture1To3cm: hourly.variables(5)!.valuesArray()!,
+            soilMoisture3To9cm: hourly.variables(6)!.valuesArray()!,
+            soilMoisture9To27cm: hourly.variables(7)!.valuesArray()!,
+            soilMoisture27To81cm: hourly.variables(8)!.valuesArray()!,
+        },
+    };
+
+    const latest = getLatestSoilSnapshot(weatherData);
+
+    return latest;
+};
+
 export type {
     Farm,
     FarmForm,
+    SoilData,
     IndexImage,
     WeatherData,
     FarmCalender,
@@ -408,6 +510,7 @@ export type {
 };
 export {
     getFarmWeather,
+    getFarmSoilData,
     handleFarmFormSubmit,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,

@@ -6,9 +6,11 @@ import { Map, useMap } from "@vis.gl/react-google-maps";
 import { GoogleMapsOverlay } from "@deck.gl/google-maps";
 
 import {
-    getFarmWeather,
+    type SoilData,
     type IndexImage,
     type WeatherData,
+    getFarmWeather,
+    getFarmSoilData,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
 } from "@/services/farms";
@@ -46,6 +48,7 @@ const Farms = () => {
     const dispatch = useDispatch();
     const { farm, loading } = useSelector((state: RootState) => state.global);
 
+    const [soilData, setSoilData] = useState<SoilData>();
     const [weatherData, setWeatherData] = useState<WeatherData>();
 
     const [index, setIndex] = useState("");
@@ -205,6 +208,12 @@ const Farms = () => {
             });
             const Dates = data.map((item) => new Date(item.date));
 
+            const SoilData = await getFarmSoilData({
+                lat: farm.coordinates[0].lat,
+                lon: farm.coordinates[0].lng,
+            });
+
+            setSoilData(SoilData);
             setWeatherData(weatherData);
 
             setHighlightedDates(Dates);
