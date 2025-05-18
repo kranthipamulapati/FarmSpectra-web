@@ -279,7 +279,7 @@ const Farms = () => {
                 <div className="flex justify-center border m-5">
                     <Calendar
                         mode="multiple"
-                        numberOfMonths={1}
+                        numberOfMonths={2}
                         modifiers={modifiers}
                         selected={selectedDates}
                         onSelect={onSelectDates}
