@@ -23,17 +23,17 @@ const userSideBarItems = [
     },
     {
         title: "AddFarm",
-        url: "/home/addfarm",
+        url: "/home/addFarm",
         icon: Plus,
     },
     {
         title: "2D Compare",
-        url: "/home/comparemap",
+        url: "/home/compare2D",
         icon: SlidersHorizontal,
     },
     {
         title: "3D Compare",
-        url: "/home/compare3d",
+        url: "/home/compare3D",
         icon: SlidersHorizontal,
     },
 ];
