@@ -2,8 +2,8 @@ import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
+import { ColumnLayer } from "@deck.gl/layers";
 import Map, { MapRef } from "react-map-gl/mapbox";
-import { ScatterplotLayer } from "@deck.gl/layers";
 import DeckGL, { DeckGLRef } from "@deck.gl/react";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -114,21 +114,27 @@ const TimeSeries = () => {
         [highlightedDates]
     );
 
-    const scatterLayer = useMemo(() => {
+    const columnLayer = useMemo(() => {
         if (!scatterData || scatterData.length === 0) return null;
 
         const current = scatterData[timeIndex];
 
-        return new ScatterplotLayer({
-            id: "ndvi-scatter",
+        return new ColumnLayer({
+            id: "ndvi-column",
             data: current.data.columns,
+            diskResolution: 50,
+            radius: 5,
+            extruded: true,
             pickable: true,
-            radiusScale: 5,
-            radiusMinPixels: 2,
+            elevationScale: 25,
             getPosition: (d) => d.position,
-            getRadius: () => 1,
             getFillColor: (d) =>
                 getColorFromMatrix(d.value, current.data.color_matrix),
+            getElevation: (d) => d.value * 10,
+            transitions: {
+                getElevation: 500,
+                getFillColor: 500,
+            },
         });
     }, [timeIndex, scatterData]);
 
@@ -397,7 +403,7 @@ const TimeSeries = () => {
                     viewState={viewState}
                     initialViewState={INITIAL_VIEW_STATE}
                     onViewStateChange={handleViewStateChange}
-                    layers={[scatterLayer].filter(Boolean)} // <== add the layer here
+                    layers={[columnLayer].filter(Boolean)} // <== add the layer here
                 >
                     <Map
                         ref={mapRef}
