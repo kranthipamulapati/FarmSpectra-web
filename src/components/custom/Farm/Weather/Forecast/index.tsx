@@ -107,7 +107,7 @@ function WeatherForecast({ weatherData }: Props) {
     })();
 
     return (
-        <div className="w-[55%] max-w-[55%] p-4 shadow-sm ml-4 rounded-2xl flex flex-col">
+        <div className="w-[50%] max-w-[50%] p-4 shadow-sm ml-4 rounded-2xl flex flex-col">
             <div className="flex flex-row items-center justify-between">
                 <p className="text-base font-medium">Weather Forecast</p>
 

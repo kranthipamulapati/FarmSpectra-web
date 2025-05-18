@@ -66,7 +66,7 @@ const CurrentWeather = ({ weatherData }: { weatherData: WeatherData }) => {
     });
 
     return (
-        <div className="w-[45%] max-w-[45%] p-4 shadow-sm rounded-2xl flex flex-col justify-between">
+        <div className="w-[50%] max-w-[50%] p-4 shadow-sm rounded-2xl flex flex-col justify-between">
             <div className="flex flex-row items-center justify-between">
                 <p className="text-base font-medium">Current Weather</p>
 

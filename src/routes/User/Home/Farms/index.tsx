@@ -241,8 +241,8 @@ const Farms = () => {
     );
 
     return (
-        <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
-            <div className="col-span-3 row-span-2">
+        <div className="min-h-screen h-screen w-full grid grid-cols-10 grid-rows-3">
+            <div className="col-span-7 row-span-2">
                 <Map
                     defaultZoom={13}
                     mapTypeId={mapType}
@@ -257,7 +257,7 @@ const Farms = () => {
                 ></Map>
             </div>
 
-            <ScrollArea className="col-span-1 row-span-3">
+            <ScrollArea className="col-span-3 row-span-3">
                 <div className="flex flex-row justify-center mt-5">
                     <FarmSelect />
 
@@ -301,7 +301,7 @@ const Farms = () => {
                 </div>
             </ScrollArea>
 
-            <div className="col-span-3 row-span-2 m-5 flex flex-row">
+            <div className="col-span-7 row-span-2 m-5 flex flex-row">
                 {weatherData && <CurrentWeather weatherData={weatherData} />}
 
                 {weatherData && <WeatherForecast weatherData={weatherData} />}
