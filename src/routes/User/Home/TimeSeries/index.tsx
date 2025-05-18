@@ -10,7 +10,16 @@ import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+import {
+    type IndexImage,
+    getSatelliteVisitDatesByFarm,
+    getFarmSatelliteIndexImageData,
+    getFarmSatelliteIndicesByDateRange,
+} from "@/services/farms";
+
 import useAsyncEffect from "@/hooks/useAsyncEffect";
+
+import { getColorFromMatrix } from "@/helpers/farms";
 
 import { americanFarmsGeoCenter } from "@/constants";
 
@@ -32,15 +41,6 @@ import FarmSelect from "@/components/custom/Farm/Select";
 
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
-
-import {
-    type IndexImage,
-    getSatelliteVisitDatesByFarm,
-    getFarmSatelliteIndexImageData,
-    getFarmSatelliteIndicesByDateRange,
-} from "@/services/farms";
-
-import { getColorFromMatrix } from "@/helpers/farms";
 
 const TimeSeries = () => {
     const mapRef = useRef<MapRef | null>(null);
@@ -117,7 +117,7 @@ const TimeSeries = () => {
     const scatterLayer = useMemo(() => {
         if (!scatterData || scatterData.length === 0) return null;
 
-        const current = scatterData[timeIndex]; // 👈 use selected timeIndex
+        const current = scatterData[timeIndex];
 
         return new ScatterplotLayer({
             id: "ndvi-scatter",
