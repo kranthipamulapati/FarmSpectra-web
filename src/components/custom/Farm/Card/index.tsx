@@ -102,83 +102,88 @@ function FarmInfoCard(props: Props) {
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:divide-x">
-                <div className="space-y-3 pr-4">
-                    <InfoRow
-                        label="Area"
-                        value={farm.area_in_sqm}
-                        icon={<Ruler size={16} />}
-                    />
-                    <InfoRow
-                        label="Sowing"
-                        color="text-blue-600"
-                        icon={<Calendar size={16} />}
-                        value={new Date(
-                            calendar.sowing_date
-                        ).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                        })}
-                    />
-                    <InfoRow
-                        label="Growth Stage"
-                        color="text-emerald-600"
-                        icon={<Sprout size={16} />}
-                        value={calendar.growth_stage_description}
-                    />
-                    <InfoRow
-                        label="Season"
-                        color="text-orange-500"
-                        icon={<Sun size={16} />}
-                        value={calendar.season_name}
-                    />
-                    <InfoRow
-                        color="text-lime-600"
-                        label="Estimated Yield"
-                        icon={<BarChart3 size={16} />}
-                        value={calendar.estimated_yield_in_kgha}
-                    />
-                </div>
+            <CardContent className="grid grid-cols-1 gap-4 text-sm">
+                <InfoRow
+                    label="Area"
+                    value={farm.area_in_sqm}
+                    icon={<Ruler size={16} />}
+                />
 
-                <div className="space-y-3 pl-4">
-                    <InfoRow
-                        label="Crop"
-                        color="text-green-600"
-                        value={calendar.crop_name}
-                        icon={<Leaf size={16} />}
-                    />
-                    <InfoRow
-                        label="Harvesting"
-                        color="text-yellow-600"
-                        icon={<Calendar size={16} />}
-                        value={new Date(
-                            calendar.harvesting_date
-                        ).toLocaleDateString(undefined, {
+                <InfoRow
+                    label="Sowing"
+                    color="text-blue-600"
+                    icon={<Calendar size={16} />}
+                    value={new Date(calendar.sowing_date).toLocaleDateString(
+                        undefined,
+                        {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                        })}
-                    />
-                    <InfoRow
-                        label="Irrigation"
-                        color="text-cyan-600"
-                        icon={<Droplet size={16} />}
-                        value={calendar.irrigation_method_description}
-                    />
-                    <InfoRow
-                        label="Tillage"
-                        color="text-red-500"
-                        icon={<Tractor size={16} />}
-                        value={calendar.tillage_type_description}
-                    />
-                    <InfoRow
-                        label="Target Yield"
-                        color="text-indigo-600"
-                        icon={<Goal size={16} />}
-                        value={calendar.target_yield_in_kgha}
-                    />
-                </div>
+                        }
+                    )}
+                />
+
+                <InfoRow
+                    label="Growth Stage"
+                    color="text-emerald-600"
+                    icon={<Sprout size={16} />}
+                    value={calendar.growth_stage_description}
+                />
+
+                <InfoRow
+                    label="Season"
+                    color="text-orange-500"
+                    icon={<Sun size={16} />}
+                    value={calendar.season_name}
+                />
+
+                <InfoRow
+                    color="text-lime-600"
+                    label="Estimated Yield"
+                    icon={<BarChart3 size={16} />}
+                    value={calendar.estimated_yield_in_kgha}
+                />
+
+                <InfoRow
+                    label="Crop"
+                    color="text-green-600"
+                    value={calendar.crop_name}
+                    icon={<Leaf size={16} />}
+                />
+
+                <InfoRow
+                    label="Harvesting"
+                    color="text-yellow-600"
+                    icon={<Calendar size={16} />}
+                    value={new Date(
+                        calendar.harvesting_date
+                    ).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    })}
+                />
+
+                <InfoRow
+                    label="Irrigation"
+                    color="text-cyan-600"
+                    icon={<Droplet size={16} />}
+                    value={calendar.irrigation_method_description}
+                />
+
+                <InfoRow
+                    label="Tillage"
+                    color="text-red-500"
+                    icon={<Tractor size={16} />}
+                    value={calendar.tillage_type_description}
+                />
+
+                <InfoRow
+                    label="Target Yield"
+                    color="text-indigo-600"
+                    icon={<Goal size={16} />}
+                    value={calendar.target_yield_in_kgha}
+                />
             </CardContent>
         </Card>
     );

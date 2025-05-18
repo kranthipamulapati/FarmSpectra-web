@@ -36,10 +36,9 @@ import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
 import FarmInfoCard from "@/components/custom/Farm/Card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import SoilCard from "@/components/custom/Farm/SoilCard";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
-import SoilMoistureCard from "@/components/custom/Farm/SoilCard/MoistureCard";
-import SoilTemperatureCard from "@/components/custom/Farm/SoilCard/TemperatureCard";
 
 const controlsPosition = {
     position: google.maps.ControlPosition.BOTTOM_RIGHT,
@@ -241,8 +240,8 @@ const Farms = () => {
     );
 
     return (
-        <div className="min-h-screen h-screen w-full grid grid-cols-10 grid-rows-3">
-            <div className="col-span-7 row-span-2">
+        <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
+            <div className="col-span-3 row-span-2">
                 <Map
                     defaultZoom={13}
                     mapTypeId={mapType}
@@ -257,7 +256,7 @@ const Farms = () => {
                 ></Map>
             </div>
 
-            <ScrollArea className="col-span-3 row-span-3">
+            <ScrollArea className="col-span-1 row-span-3">
                 <div className="flex flex-row justify-center mt-5">
                     <FarmSelect />
 
@@ -279,7 +278,7 @@ const Farms = () => {
                 <div className="flex justify-center border m-5">
                     <Calendar
                         mode="multiple"
-                        numberOfMonths={2}
+                        numberOfMonths={1}
                         modifiers={modifiers}
                         selected={selectedDates}
                         onSelect={onSelectDates}
@@ -293,15 +292,11 @@ const Farms = () => {
                 </div>
 
                 <div className="flex justify-center m-5">
-                    {soilData && <SoilMoistureCard data={soilData} />}
-                </div>
-
-                <div className="flex justify-center m-5">
-                    {soilData && <SoilTemperatureCard data={soilData} />}
+                    {soilData && <SoilCard data={soilData} />}
                 </div>
             </ScrollArea>
 
-            <div className="col-span-7 row-span-2 m-5 flex flex-row">
+            <div className="col-span-3 row-span-2 m-5 flex flex-row">
                 {weatherData && <CurrentWeather weatherData={weatherData} />}
 
                 {weatherData && <WeatherForecast weatherData={weatherData} />}
