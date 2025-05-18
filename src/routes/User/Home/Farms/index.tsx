@@ -174,7 +174,7 @@ const Farms = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex(Indices[0] || "");
+                setIndex("NDVI (s2)");
             }
 
             dispatch(setLoading(false));
