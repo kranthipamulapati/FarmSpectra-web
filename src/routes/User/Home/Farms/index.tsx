@@ -32,12 +32,14 @@ import {
     SelectContent,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import SoilCard from "@/components/custom/Farm/SoilCard";
+
 import FarmSelect from "@/components/custom/Farm/Select";
 import FarmInfoCard from "@/components/custom/Farm/Card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
+import SoilMoistureCard from "@/components/custom/Farm/SoilCard/MoistureCard";
+import SoilTemperatureCard from "@/components/custom/Farm/SoilCard/TemperatureCard";
 
 const controlsPosition = {
     position: google.maps.ControlPosition.BOTTOM_RIGHT,
@@ -291,7 +293,11 @@ const Farms = () => {
                 </div>
 
                 <div className="flex justify-center m-5">
-                    {soilData && <SoilCard data={soilData} />}
+                    {soilData && <SoilMoistureCard data={soilData} />}
+                </div>
+
+                <div className="flex justify-center m-5">
+                    {soilData && <SoilTemperatureCard data={soilData} />}
                 </div>
             </ScrollArea>
 
