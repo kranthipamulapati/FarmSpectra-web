@@ -2,8 +2,8 @@ import { memo, useRef, useMemo, useState, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { ColumnLayer } from "@deck.gl/layers";
 import Map, { MapRef } from "react-map-gl/mapbox";
+import { ScatterplotLayer } from "@deck.gl/layers";
 import DeckGL, { DeckGLRef } from "@deck.gl/react";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -39,20 +39,22 @@ import {
     getFarmSatelliteIndexImageData,
     getFarmSatelliteIndicesByDateRange,
 } from "@/services/farms";
+
 import { getColorFromMatrix } from "@/helpers/farms";
 
-const Compare3d = () => {
+const TimeSeries = () => {
     const mapRef = useRef<MapRef | null>(null);
     const deckRef = useRef<DeckGLRef | null>(null);
 
     const [index, setIndex] = useState("");
-
-    const [columnLayer, setColumnLayer] = useState<any>(null);
     const [indices, setIndices] = useState<Array<string>>([]);
     const [images, setImages] = useState<Array<IndexImage>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
     const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
+    const [scatterData, setScatterData] = useState<
+        Array<{ value: number; position: [number, number] }>
+    >([]);
 
     const dispatch = useDispatch();
     const { farm } = useSelector((state: RootState) => state.global);
@@ -60,9 +62,25 @@ const Compare3d = () => {
     const onIndexSelect = useCallback(
         (value: string) => {
             const item = indices.find((a) => a === value);
-            setIndex(item || "");
+            setIndex(item || "NDVI (s2)");
         },
         [indices]
+    );
+
+    const handleViewStateChange = useCallback(
+        ({ viewState }) => setViewState(viewState),
+        []
+    );
+
+    const handleDateRangeSelect = useCallback(
+        (dates: Array<Date> | undefined) => {
+            const sorted = [...(dates || [])].sort(
+                (a, b) => a.getTime() - b.getTime()
+            );
+
+            setSelectedDates(sorted);
+        },
+        []
     );
 
     const modifiers = useMemo(
@@ -83,6 +101,29 @@ const Compare3d = () => {
         [highlightedDates]
     );
 
+    const scatterLayer = useMemo(() => {
+        if (!scatterData || scatterData.length === 0) return null;
+
+        return new ScatterplotLayer({
+            id: "ndvi-scatter",
+            data: scatterData[0].data.columns,
+            pickable: true,
+            radiusScale: 5,
+            radiusMinPixels: 2,
+            getPosition: (d) => d.position,
+            getRadius: () => 1,
+            getFillColor: (d) => {
+                return getColorFromMatrix(
+                    d.value,
+                    scatterData[0].data.color_matrix
+                );
+            },
+            updateTriggers: {
+                getFillColor: scatterData, // rerender when data changes
+            },
+        });
+    }, [scatterData]);
+
     useAsyncEffect(
         async (signal) => {
             if (!farm || !index) {
@@ -91,41 +132,28 @@ const Compare3d = () => {
 
             dispatch(setLoading(true));
 
-            const image = images.find(
+            const matchedImages = images.filter(
                 (item) =>
                     item.index_code + " (" + item.satellite_code + ")" === index
             );
 
-            if (image) {
-                const data = await getFarmSatelliteIndexImageData({
-                    image,
-                    signal,
-                });
+            try {
+                const results = await Promise.all(
+                    matchedImages.map((image) =>
+                        getFarmSatelliteIndexImageData({ image, signal })
+                    )
+                );
 
-                const layer = new ColumnLayer({
-                    id: "ndvi-columns",
-                    data: data.data.columns,
-                    diskResolution: 12,
-                    radius: 5, // or 10 (based on ~10m spatial resolution)
-                    extruded: true,
-                    pickable: true,
-                    elevationScale: 25,
-                    getPosition: (d) => d.position,
-                    getFillColor: (d) => {
-                        return getColorFromMatrix(
-                            d.value,
-                            data.data.color_matrix
-                        );
-                    },
-                    getElevation: (d) => d.value * 10,
-                });
-
-                setColumnLayer(layer);
+                if (results.length > 0) {
+                    setScatterData(results);
+                } else {
+                    setScatterData([]);
+                }
+            } finally {
+                dispatch(setLoading(false));
             }
-
-            dispatch(setLoading(false));
         },
-        [farm, index],
+        [farm, index, images],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -164,7 +192,11 @@ const Compare3d = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex("NDVI (s2)");
+                setIndex(
+                    Indices.includes("NDVI (s2)")
+                        ? "NDVI (s2)"
+                        : Indices[0] || ""
+                );
             }
 
             dispatch(setLoading(false));
@@ -216,6 +248,8 @@ const Compare3d = () => {
                     Dates[Dates.length - 2],
                     Dates[Dates.length - 1],
                 ]);
+            } else if (Dates.length === 1) {
+                setSelectedDates([Dates[0]]);
             }
 
             dispatch(setLoading(false));
@@ -250,11 +284,14 @@ const Compare3d = () => {
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
 
-                            {selectedDates.length === 2
+                            {selectedDates.length >= 2
                                 ? `${format(
                                       selectedDates[0],
                                       "PPP"
-                                  )} → ${format(selectedDates[1], "PPP")}`
+                                  )} → ${format(
+                                      selectedDates[selectedDates.length - 1],
+                                      "PPP"
+                                  )}`
                                 : selectedDates.length === 1
                                 ? `${format(
                                       selectedDates[0],
@@ -270,19 +307,18 @@ const Compare3d = () => {
                             modifiers={modifiers}
                             selected={selectedDates}
                             disabled={disabledMatcher}
+                            onSelect={handleDateRangeSelect}
                             modifiersClassNames={modifiersClassNames}
-                            onSelect={(dates) => {
-                                const sorted = [...(dates || [])].sort(
-                                    (a, b) => a.getTime() - b.getTime()
-                                );
-                                setSelectedDates(sorted.slice(0, 2));
-                            }}
                         />
                     </PopoverContent>
                 </Popover>
 
                 <div className="pl-2">
-                    <Select value={index} onValueChange={onIndexSelect}>
+                    <Select
+                        value={index}
+                        onValueChange={onIndexSelect}
+                        disabled={indices.length === 0}
+                    >
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue placeholder="Select Index" />
                         </SelectTrigger>
@@ -304,10 +340,8 @@ const Compare3d = () => {
                     controller={true}
                     viewState={viewState}
                     initialViewState={INITIAL_VIEW_STATE}
-                    onViewStateChange={({ viewState }) =>
-                        setViewState(viewState)
-                    }
-                    layers={[columnLayer]}
+                    onViewStateChange={handleViewStateChange}
+                    layers={[scatterLayer].filter(Boolean)} // <== add the layer here
                 >
                     <Map
                         ref={mapRef}
@@ -320,17 +354,17 @@ const Compare3d = () => {
     );
 };
 
+const INITIAL_VIEW_STATE = {
+    zoom: 16,
+    pitch: 60,
+    bearing: 0,
+    latitude: americanFarmsGeoCenter.lat,
+    longitude: americanFarmsGeoCenter.lng,
+};
+
 const modifiersClassNames = {
     highlight:
         "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
 };
 
-const INITIAL_VIEW_STATE = {
-    zoom: 16,
-    pitch: 60,
-    bearing: 0,
-    longitude: americanFarmsGeoCenter.lng,
-    latitude: americanFarmsGeoCenter.lat,
-};
-
-export default memo(Compare3d);
+export default memo(TimeSeries);

@@ -10,6 +10,7 @@ const UserAddFarm = lazy(() => import("@/routes/User/Home/AddFarm"));
 const UserDashboard = lazy(() => import("@/routes/User/Home/Dashboard"));
 const UserCompare2D = lazy(() => import("@/routes/User/Home/Compare2D"));
 const UserCompare3D = lazy(() => import("@/routes/User/Home/Compare3D"));
+const UserTimeSeries = lazy(() => import("@/routes/User/Home/TimeSeries"));
 
 const AdminLogin = lazy(() => import("@/routes/Admin/Login"));
 const AdminHome = lazy(() => import("@/routes/Admin/Home"));
@@ -49,6 +50,11 @@ function App() {
                             <Route
                                 path="/home/compare3D"
                                 element={<UserCompare3D />}
+                            />
+
+                            <Route
+                                path="/home/timeSeries"
+                                element={<UserTimeSeries />}
                             />
                         </Route>
                     </Route>

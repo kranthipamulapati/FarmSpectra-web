@@ -1,4 +1,10 @@
-import { Plus, Trees, LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import {
+    Plus,
+    Trees,
+    Timer,
+    LayoutDashboard,
+    SlidersHorizontal,
+} from "lucide-react";
 
 const hyderabadGeoCenter = {
     lat: 17.4065,
@@ -35,6 +41,12 @@ const userSideBarItems = [
         title: "3D Compare",
         url: "/home/compare3D",
         icon: SlidersHorizontal,
+    },
+
+    {
+        title: "Time Series",
+        url: "/home/timeSeries",
+        icon: Timer,
     },
 ];
 

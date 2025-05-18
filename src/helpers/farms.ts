@@ -115,4 +115,25 @@ const checkFarmFormData = (data: {
     return status;
 };
 
-export { checkFarmFormData, parseFarmFormData };
+function getColorFromMatrix(
+    value: number,
+    matrix: { min: number | null; max: number | null; hex: string }[]
+): [number, number, number] {
+    const entry = matrix.find(({ min, max }) => {
+        if (min === null) return value < max!;
+        if (max === null) return value >= min;
+        return value >= min && value < max;
+    });
+
+    if (!entry) return [128, 128, 128]; // fallback grey
+
+    // Convert hex to RGB
+    const hex = entry.hex.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    return [r, g, b];
+}
+
+export { checkFarmFormData, parseFarmFormData, getColorFromMatrix };
