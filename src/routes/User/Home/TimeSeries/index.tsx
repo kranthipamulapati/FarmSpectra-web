@@ -1,4 +1,4 @@
-import { memo, useRef, useMemo, useState, useCallback } from "react";
+import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -47,6 +47,8 @@ const TimeSeries = () => {
     const deckRef = useRef<DeckGLRef | null>(null);
 
     const [index, setIndex] = useState("");
+    const [playing, setPlaying] = useState(false);
+    const [timeIndex, setTimeIndex] = useState(0);
     const [indices, setIndices] = useState<Array<string>>([]);
     const [images, setImages] = useState<Array<IndexImage>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
@@ -73,14 +75,25 @@ const TimeSeries = () => {
     );
 
     const handleDateRangeSelect = useCallback(
-        (dates: Array<Date> | undefined) => {
-            const sorted = [...(dates || [])].sort(
-                (a, b) => a.getTime() - b.getTime()
-            );
+        (range: { from?: Date; to?: Date } | undefined) => {
+            if (!range?.from || !range?.to) return;
 
-            setSelectedDates(sorted);
+            const normalizeDate = (d: Date) =>
+                new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+            const fromTime = normalizeDate(range.from);
+            const toTime = normalizeDate(range.to);
+
+            const inRange = highlightedDates
+                .filter((d) => {
+                    const t = normalizeDate(d);
+                    return t >= fromTime && t <= toTime;
+                })
+                .sort((a, b) => normalizeDate(a) - normalizeDate(b));
+
+            setSelectedDates(inRange);
         },
-        []
+        [highlightedDates]
     );
 
     const modifiers = useMemo(
@@ -104,25 +117,40 @@ const TimeSeries = () => {
     const scatterLayer = useMemo(() => {
         if (!scatterData || scatterData.length === 0) return null;
 
+        const current = scatterData[timeIndex]; // 👈 use selected timeIndex
+
         return new ScatterplotLayer({
             id: "ndvi-scatter",
-            data: scatterData[0].data.columns,
+            data: current.data.columns,
             pickable: true,
             radiusScale: 5,
             radiusMinPixels: 2,
             getPosition: (d) => d.position,
             getRadius: () => 1,
-            getFillColor: (d) => {
-                return getColorFromMatrix(
-                    d.value,
-                    scatterData[0].data.color_matrix
-                );
-            },
-            updateTriggers: {
-                getFillColor: scatterData, // rerender when data changes
-            },
+            getFillColor: (d) =>
+                getColorFromMatrix(d.value, current.data.color_matrix),
         });
-    }, [scatterData]);
+    }, [timeIndex, scatterData]);
+
+    useEffect(() => {
+        if (!playing) return;
+
+        const interval = setInterval(() => {
+            setTimeIndex((i) => {
+                if (i + 1 >= scatterData.length) {
+                    clearInterval(interval);
+
+                    setPlaying(false);
+
+                    return i; // or return 0 to loop
+                }
+
+                return i + 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [playing, scatterData.length]);
 
     useAsyncEffect(
         async (signal) => {
@@ -175,7 +203,7 @@ const TimeSeries = () => {
             const Images = await getFarmSatelliteIndicesByDateRange({
                 signal,
                 id: farm.id,
-                end_date: selectedDates[1],
+                end_date: selectedDates[selectedDates.length - 1],
                 start_date: selectedDates[0],
             });
 
@@ -303,9 +331,12 @@ const TimeSeries = () => {
 
                     <PopoverContent className="w-auto p-0">
                         <Calendar
-                            mode="multiple"
+                            mode="range"
                             modifiers={modifiers}
-                            selected={selectedDates}
+                            selected={{
+                                from: selectedDates[0],
+                                to: selectedDates[selectedDates.length - 1],
+                            }}
                             disabled={disabledMatcher}
                             onSelect={handleDateRangeSelect}
                             modifiersClassNames={modifiersClassNames}
@@ -332,6 +363,31 @@ const TimeSeries = () => {
                         </SelectContent>
                     </Select>
                 </div>
+
+                {scatterData.length > 0 && (
+                    <div className="px-4 py-2">
+                        <input
+                            type="range"
+                            min={0}
+                            max={scatterData.length - 1}
+                            value={timeIndex}
+                            onChange={(e) =>
+                                setTimeIndex(Number(e.target.value))
+                            }
+                            className="w-full"
+                        />
+                        <div className="text-center text-sm text-muted-foreground">
+                            {format(selectedDates[timeIndex], "PPP")}
+                        </div>
+
+                        <Button
+                            onClick={() => setPlaying(!playing)}
+                            className="ml-4"
+                        >
+                            {playing ? "Pause" : "Play"}
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="row-span-8 relative">
