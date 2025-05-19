@@ -126,7 +126,7 @@ const TimeSeries = () => {
             id: "ndvi-column",
             data: current.data.columns,
             diskResolution: 12,
-            radius: 1.5,
+            radius: index.includes("s2") ? 5 : 1.5,
             extruded: true,
             pickable: true,
             elevationScale: 25,
@@ -139,7 +139,7 @@ const TimeSeries = () => {
                 getFillColor: 500,
             },
         });
-    }, [timeIndex, scatterData]);
+    }, [index, timeIndex, scatterData]);
 
     useEffect(() => {
         if (!playing) return;
@@ -348,6 +348,8 @@ const TimeSeries = () => {
                             }}
                             disabled={disabledMatcher}
                             onSelect={handleDateRangeSelect}
+                            month={highlightedDates[0]}
+                            defaultMonth={highlightedDates[0]}
                             modifiersClassNames={modifiersClassNames}
                         />
                     </PopoverContent>

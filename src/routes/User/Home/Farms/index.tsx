@@ -290,6 +290,8 @@ const Farms = () => {
                         selected={selectedDates}
                         onSelect={onSelectDates}
                         disabled={disabledMatcher}
+                        month={highlightedDates[0]}
+                        defaultMonth={highlightedDates[0]}
                         modifiersClassNames={modifiersClassNames}
                     />
                 </div>

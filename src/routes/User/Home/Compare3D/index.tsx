@@ -109,7 +109,7 @@ const Compare3d = () => {
                     id: "ndvi-columns",
                     data: data.data.columns,
                     diskResolution: 12,
-                    radius: 1.5, // or 10 (based on ~10m spatial resolution)
+                    radius: image.satellite_code === "s2" ? 5 : 1.5, // or 10 (based on ~10m spatial resolution)
                     extruded: true,
                     pickable: true,
                     elevationScale: 25,
@@ -273,6 +273,8 @@ const Compare3d = () => {
                             modifiers={modifiers}
                             selected={selectedDates}
                             disabled={disabledMatcher}
+                            month={highlightedDates[0]}
+                            defaultMonth={highlightedDates[0]}
                             modifiersClassNames={modifiersClassNames}
                             onSelect={(dates) => {
                                 const sorted = [...(dates || [])].sort(

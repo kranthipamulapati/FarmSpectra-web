@@ -310,6 +310,8 @@ const Compare2D = () => {
                             modifiers={modifiers}
                             selected={selectedDates}
                             disabled={disabledMatcher}
+                            month={highlightedDates[0]}
+                            defaultMonth={highlightedDates[0]}
                             modifiersClassNames={modifiersClassNames}
                             onSelect={(dates) => {
                                 const sorted = [...(dates || [])].sort(
