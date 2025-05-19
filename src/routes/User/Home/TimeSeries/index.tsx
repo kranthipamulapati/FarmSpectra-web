@@ -64,7 +64,10 @@ const TimeSeries = () => {
     const onIndexSelect = useCallback(
         (value: string) => {
             const item = indices.find((a) => a === value);
-            setIndex(item || "NDVI (s2)");
+
+            if (item) {
+                setIndex(item);
+            }
         },
         [indices]
     );
@@ -122,8 +125,8 @@ const TimeSeries = () => {
         return new ColumnLayer({
             id: "ndvi-column",
             data: current.data.columns,
-            diskResolution: 50,
-            radius: 5,
+            diskResolution: 12,
+            radius: 1.5,
             extruded: true,
             pickable: true,
             elevationScale: 25,
@@ -226,11 +229,11 @@ const TimeSeries = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex(
-                    Indices.includes("NDVI (s2)")
-                        ? "NDVI (s2)"
-                        : Indices[0] || ""
+                const matchedIndex = Indices.find((index) =>
+                    /^NDVI\b/.test(index)
                 );
+
+                setIndex(matchedIndex || Indices[0]);
             }
 
             dispatch(setLoading(false));

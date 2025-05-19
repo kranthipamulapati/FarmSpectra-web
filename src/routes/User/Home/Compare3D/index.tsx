@@ -60,7 +60,10 @@ const Compare3d = () => {
     const onIndexSelect = useCallback(
         (value: string) => {
             const item = indices.find((a) => a === value);
-            setIndex(item || "");
+
+            if (item) {
+                setIndex(item);
+            }
         },
         [indices]
     );
@@ -106,17 +109,13 @@ const Compare3d = () => {
                     id: "ndvi-columns",
                     data: data.data.columns,
                     diskResolution: 12,
-                    radius: 5, // or 10 (based on ~10m spatial resolution)
+                    radius: 1.5, // or 10 (based on ~10m spatial resolution)
                     extruded: true,
                     pickable: true,
                     elevationScale: 25,
                     getPosition: (d) => d.position,
-                    getFillColor: (d) => {
-                        return getColorFromMatrix(
-                            d.value,
-                            data.data.color_matrix
-                        );
-                    },
+                    getFillColor: (d) =>
+                        getColorFromMatrix(d.value, data.data.color_matrix),
                     getElevation: (d) => d.value * 10,
                 });
 
@@ -164,7 +163,11 @@ const Compare3d = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex("NDVI (s2)");
+                const matchedIndex = Indices.find((index) =>
+                    /^NDVI\b/.test(index)
+                );
+
+                setIndex(matchedIndex || Indices[0]);
             }
 
             dispatch(setLoading(false));

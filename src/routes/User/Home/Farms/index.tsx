@@ -67,7 +67,10 @@ const Farms = () => {
     const onIndexSelect = useCallback(
         (value: string) => {
             const item = indices.find((a) => a === value);
-            setIndex(item || "");
+
+            if (item) {
+                setIndex(item);
+            }
         },
         [indices]
     );
@@ -174,7 +177,11 @@ const Farms = () => {
             setIndices(Indices);
 
             if (index === "" || Indices.indexOf(index) === -1) {
-                setIndex("NDVI (s2)");
+                const matchedIndex = Indices.find((index) =>
+                    /^NDVI\b/.test(index)
+                );
+
+                setIndex(matchedIndex || Indices[0]);
             }
 
             dispatch(setLoading(false));
