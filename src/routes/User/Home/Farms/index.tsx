@@ -129,74 +129,88 @@ const Farms = () => {
         [highlightedDates]
     );
 
+    // renders twice as when farm changes image also changes
+    useEffect(() => {
+        if (!map || !farm || !image || mapType === "3D") {
+            return;
+        }
+
+        const { bbox } = farm;
+        if (!bbox || bbox.length !== 4) return;
+
+        const bounds = new google.maps.LatLngBounds(
+            { lat: bbox[1], lng: bbox[0] },
+            { lat: bbox[3], lng: bbox[2] }
+        );
+
+        map.fitBounds(bounds);
+        const imageLayer = getBitmapLayer({
+            id: "1",
+            opacity: 1,
+            link: image.image_url,
+            bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+        });
+
+        const polygonLayer = getPolygonLayer({
+            id: "2",
+            coordinates: farm.coordinates,
+        });
+
+        if (!overlayRef.current) {
+            overlayRef.current = new GoogleMapsOverlay({});
+            overlayRef.current.setMap(map);
+        }
+
+        overlayRef.current.setProps({
+            layers: [imageLayer, polygonLayer],
+        });
+
+        return () => {
+            overlayRef.current?.setProps({});
+        };
+    }, [map, farm, image, mapType]);
+
     // pan the map to farm location
     // add bitmap layer to show image
     useAsyncEffect(
         async (signal) => {
-            if (!farm || !image) return;
+            if (!image || mapType === "2D") {
+                setLayers([]);
 
-            if (mapType === "2D") {
-                if (!map) {
-                    return;
-                }
-
-                const { bbox } = farm;
-                if (!bbox || bbox.length !== 4) return;
-
-                const bounds = new google.maps.LatLngBounds(
-                    { lat: bbox[1], lng: bbox[0] },
-                    { lat: bbox[3], lng: bbox[2] }
-                );
-
-                map.fitBounds(bounds);
-                const imageLayer = getBitmapLayer({
-                    id: "1",
-                    opacity: 1,
-                    link: image.image_url,
-                    bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
-                });
-
-                const polygonLayer = getPolygonLayer({
-                    id: "2",
-                    coordinates: farm.coordinates,
-                });
-
-                if (!overlayRef.current) {
-                    overlayRef.current = new GoogleMapsOverlay({ layers: [] });
-                    overlayRef.current.setMap(map);
-                }
-
-                overlayRef.current.setProps({
-                    layers: [imageLayer, polygonLayer],
-                });
-            } else {
-                const data = await getFarmSatelliteIndexImageData({
-                    image,
-                    signal,
-                });
-
-                const layer = new ColumnLayer({
-                    id: "ndvi-columns",
-                    data: data.data.columns,
-                    diskResolution: 12,
-                    radius: image.satellite_code === "s2" ? 5 : 1.5,
-                    extruded: true,
-                    pickable: true,
-                    elevationScale: 25,
-                    getPosition: (d) => d.position,
-                    getFillColor: (d) =>
-                        getColorFromMatrix(d.value, data.data.color_matrix),
-                    getElevation: (d) => d.value * 10,
-                });
-
-                setLayers([layer]);
+                return;
             }
 
-            return () => {
-                overlayRef.current?.setProps({ layers: [] });
-            };
+            const data = await getFarmSatelliteIndexImageData({
+                image,
+                signal,
+            });
+
+            const layer = new ColumnLayer({
+                id: "ndvi-columns",
+                data: data.data.columns,
+                diskResolution: 12,
+                radius: image.satellite_code === "s2" ? 5 : 1.5,
+                extruded: true,
+                pickable: true,
+                elevationScale: 25,
+                getPosition: (d) => d.position,
+                getFillColor: (d) =>
+                    getColorFromMatrix(d.value, data.data.color_matrix),
+                getElevation: (d) => d.value * 10,
+            });
+
+            setLayers([layer]);
         },
-        [map, farm, image, mapType]
+        [image, mapType],
+        (error) => {
+            setLayers([]);
+
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
     );
 
     // get satellite images when a date is selected
@@ -331,37 +345,43 @@ const Farms = () => {
 
     return (
         <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
-            <div className="col-span-3 row-span-2 relative">
-                {mapType === "2D" ? (
-                    <Map
-                        defaultZoom={13}
-                        zoomControl={false}
-                        cameraControl={false}
-                        mapTypeControl={false}
-                        fullscreenControl={true}
-                        streetViewControl={false}
-                        gestureHandling="greedy"
-                        defaultCenter={americanFarmsGeoCenter}
-                        fullscreenControlOptions={controlsPosition}
-                        mapTypeId={google.maps.MapTypeId.SATELLITE}
+            <div
+                className={`col-span-3 row-span-2 ${
+                    mapType === "2D" ? "block" : "hidden"
+                }`}
+            >
+                <Map
+                    defaultZoom={13}
+                    zoomControl={false}
+                    cameraControl={false}
+                    mapTypeControl={false}
+                    fullscreenControl={true}
+                    streetViewControl={false}
+                    gestureHandling="greedy"
+                    defaultCenter={americanFarmsGeoCenter}
+                    fullscreenControlOptions={controlsPosition}
+                    mapTypeId={google.maps.MapTypeId.SATELLITE}
+                />
+            </div>
+
+            <div
+                className={`col-span-3 row-span-2 relative ${
+                    mapType === "3D" ? "block" : "hidden"
+                }`}
+            >
+                <DeckGL
+                    ref={deckRef}
+                    layers={layers}
+                    controller={true}
+                    viewState={viewState}
+                    onViewStateChange={handleViewStateChange}
+                >
+                    <MapBox
+                        ref={mapboxRef}
+                        mapStyle="mapbox://styles/mapbox/light-v11"
+                        mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
                     />
-                ) : (
-                    <DeckGL
-                        ref={deckRef}
-                        layers={layers}
-                        controller={true}
-                        viewState={viewState}
-                        onViewStateChange={handleViewStateChange}
-                    >
-                        <MapBox
-                            ref={mapboxRef}
-                            mapStyle="mapbox://styles/mapbox/light-v11"
-                            mapboxAccessToken={
-                                import.meta.env.VITE_MAPBOX_TOKEN
-                            }
-                        />
-                    </DeckGL>
-                )}
+                </DeckGL>
             </div>
 
             <ScrollArea className="col-span-1 row-span-3">
