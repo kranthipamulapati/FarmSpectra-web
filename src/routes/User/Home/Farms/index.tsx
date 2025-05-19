@@ -64,13 +64,15 @@ const Farms = () => {
     const [index, setIndex] = useState("");
     const [indices, setIndices] = useState<Array<string>>([]);
 
+    const [image, setImage] = useState<IndexImage>();
     const [images, setImages] = useState<Array<IndexImage>>([]);
 
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
 
     const [mapType, setMapType] = useState<"2D" | "3D">("3D");
-    const [columnLayer, setColumnLayer] = useState<any>(null);
+
+    const [layers, setLayers] = useState<Array<any>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
 
     const handleViewStateChange = useCallback(
@@ -83,10 +85,16 @@ const Farms = () => {
             const item = indices.find((a) => a === value);
 
             if (item) {
+                const matchedImage = images.find(
+                    (img) =>
+                        `${img.index_code} (${img.satellite_code})` === item
+                );
+
                 setIndex(item);
+                setImage(matchedImage);
             }
         },
-        [indices]
+        [images, indices]
     );
 
     // Calendar highlight dates
@@ -122,43 +130,36 @@ const Farms = () => {
 
     useAsyncEffect(
         async (signal) => {
-            if (!farm || !index) {
+            if (!farm || !image) {
                 return;
             }
 
             dispatch(setLoading(true));
 
-            const image = images.find(
-                (item) =>
-                    item.index_code + " (" + item.satellite_code + ")" === index
-            );
+            const data = await getFarmSatelliteIndexImageData({
+                image,
+                signal,
+            });
 
-            if (image) {
-                const data = await getFarmSatelliteIndexImageData({
-                    image,
-                    signal,
-                });
+            const layer = new ColumnLayer({
+                id: "ndvi-columns",
+                data: data.data.columns,
+                diskResolution: 12,
+                radius: image.satellite_code === "s2" ? 5 : 1.5,
+                extruded: true,
+                pickable: true,
+                elevationScale: 25,
+                getPosition: (d) => d.position,
+                getFillColor: (d) =>
+                    getColorFromMatrix(d.value, data.data.color_matrix),
+                getElevation: (d) => d.value * 10,
+            });
 
-                const layer = new ColumnLayer({
-                    id: "ndvi-columns",
-                    data: data.data.columns,
-                    diskResolution: 12,
-                    radius: image.satellite_code === "s2" ? 5 : 1.5,
-                    extruded: true,
-                    pickable: true,
-                    elevationScale: 25,
-                    getPosition: (d) => d.position,
-                    getFillColor: (d) =>
-                        getColorFromMatrix(d.value, data.data.color_matrix),
-                    getElevation: (d) => d.value * 10,
-                });
-
-                setColumnLayer(layer);
-            }
+            setLayers([layer]);
 
             dispatch(setLoading(false));
         },
-        [farm, index, images],
+        [farm, image],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -171,7 +172,7 @@ const Farms = () => {
     // pan the map to farm location
     // add bitmap layer to show image
     useEffect(() => {
-        if (!map || !farm || !index) return;
+        if (!map || !farm || !image) return;
 
         const { bbox } = farm;
         if (!bbox || bbox.length !== 4) return;
@@ -183,17 +184,11 @@ const Farms = () => {
 
         map.fitBounds(bounds);
 
-        const imageData = images.find(
-            (item) => `${item.index_code} (${item.satellite_code})` === index
-        );
-
-        if (!imageData) return;
-
         if (mapType === "2D") {
             const imageLayer = getBitmapLayer({
                 id: "1",
                 opacity: 1,
-                link: imageData.image_url,
+                link: image.image_url,
                 bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
             });
 
@@ -215,7 +210,7 @@ const Farms = () => {
         return () => {
             overlayRef.current?.setProps({ layers: [] });
         };
-    }, [map, farm, index, images, mapType]);
+    }, [map, farm, image, mapType]);
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -224,6 +219,7 @@ const Farms = () => {
                 setIndex("");
                 setImages([]);
                 setIndices([]);
+                setImage(undefined);
 
                 return;
             }
@@ -240,16 +236,23 @@ const Farms = () => {
                 (item) => item.index_code + " (" + item.satellite_code + ")"
             );
 
+            let selectedIndex = index;
+
+            if (selectedIndex === "" || !Indices.includes(selectedIndex)) {
+                selectedIndex =
+                    Indices.find((idx) => /^NDVI\b/.test(idx)) || Indices[0];
+            }
+
+            const matchedImage = Images.find(
+                (img) =>
+                    `${img.index_code} (${img.satellite_code})` ===
+                    selectedIndex
+            );
+
             setImages(Images);
             setIndices(Indices);
-
-            if (index === "" || Indices.indexOf(index) === -1) {
-                const matchedIndex = Indices.find((index) =>
-                    /^NDVI\b/.test(index)
-                );
-
-                setIndex(matchedIndex || Indices[0]);
-            }
+            setImage(matchedImage);
+            setIndex(selectedIndex);
 
             dispatch(setLoading(false));
         },
@@ -258,6 +261,7 @@ const Farms = () => {
             setIndex("");
             setImages([]);
             setIndices([]);
+            setImage(undefined);
 
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -357,10 +361,9 @@ const Farms = () => {
                 ) : (
                     <DeckGL
                         ref={deckRef}
+                        layers={layers}
                         controller={true}
                         viewState={viewState}
-                        layers={[columnLayer]}
-                        initialViewState={INITIAL_VIEW_STATE}
                         onViewStateChange={handleViewStateChange}
                     >
                         <MapBox
@@ -386,7 +389,9 @@ const Farms = () => {
 
                             <SelectContent>
                                 {indices.map((item) => (
-                                    <SelectItem value={item}>{item}</SelectItem>
+                                    <SelectItem key={item} value={item}>
+                                        {item}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
