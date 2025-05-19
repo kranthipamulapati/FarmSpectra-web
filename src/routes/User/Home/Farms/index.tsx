@@ -378,7 +378,7 @@ const Farms = () => {
                 >
                     <MapBox
                         ref={mapboxRef}
-                        mapStyle="mapbox://styles/mapbox/light-v11"
+                        mapStyle="mapbox://styles/mapbox/satellite-v9"
                         mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
                     />
                 </DeckGL>
