@@ -109,48 +109,47 @@ const Farms = () => {
     // pan the map to farm location
     // add bitmap layer to show image
     useEffect(() => {
-        if (!map || !farm || !index) {
-            return;
-        }
-
-        overlayRef.current?.setMap(null);
+        if (!map || !farm || !index) return;
 
         const { bbox } = farm;
+        if (!bbox || bbox.length !== 4) return;
 
         const bounds = new google.maps.LatLngBounds(
-            { lat: bbox[1], lng: bbox[0] }, // southwest corner
-            { lat: bbox[3], lng: bbox[2] } // northeast corner
+            { lat: bbox[1], lng: bbox[0] },
+            { lat: bbox[3], lng: bbox[2] }
         );
 
         map.fitBounds(bounds);
 
-        const Image = images.find(
-            (item) =>
-                item.index_code + " (" + item.satellite_code + ")" === index
+        const imageData = images.find(
+            (item) => `${item.index_code} (${item.satellite_code})` === index
         );
 
-        if (Image) {
-            const imageLayer = getBitmapLayer({
-                id: "1",
-                opacity: 1,
-                link: Image.image_url,
-                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
-            });
+        if (!imageData) return;
 
-            const polygonLayer = getPolygonLayer({
-                id: "2",
-                coordinates: farm.coordinates,
-            });
+        const imageLayer = getBitmapLayer({
+            id: "1",
+            opacity: 1,
+            link: imageData.image_url,
+            bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+        });
 
-            overlayRef.current = new GoogleMapsOverlay({
-                layers: [imageLayer, polygonLayer],
-            });
+        const polygonLayer = getPolygonLayer({
+            id: "2",
+            coordinates: farm.coordinates,
+        });
 
+        if (!overlayRef.current) {
+            overlayRef.current = new GoogleMapsOverlay({ layers: [] });
             overlayRef.current.setMap(map);
         }
 
+        overlayRef.current.setProps({
+            layers: [imageLayer, polygonLayer],
+        });
+
         return () => {
-            overlayRef.current?.setMap(null);
+            overlayRef.current?.setProps({ layers: [] });
         };
     }, [map, farm, index, images]);
 
@@ -158,6 +157,10 @@ const Farms = () => {
     useAsyncEffect(
         async (signal) => {
             if (!farm?.id || !selectedDate) {
+                setIndex("");
+                setImages([]);
+                setIndices([]);
+
                 return;
             }
 
@@ -188,6 +191,10 @@ const Farms = () => {
         },
         [farm?.id, selectedDate],
         (error) => {
+            setIndex("");
+            setImages([]);
+            setIndices([]);
+
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
             } else {
