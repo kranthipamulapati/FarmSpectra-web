@@ -397,13 +397,16 @@ const getFarmSatelliteIndexImageData = async ({
 
 const getFarmWeather = async ({
     lat,
-    lon,
+    lng,
+    signal,
 }: {
     lat: number;
-    lon: number;
+    lng: number;
+    signal: AbortSignal;
 }): Promise<WeatherData> => {
     const response = await fetch(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude={minutely}&units=metric&appid=${openWeatherMapApiKey}`
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lng}&exclude={minutely}&units=metric&appid=${openWeatherMapApiKey}`,
+        { signal }
     );
 
     const data = await response.json();
@@ -432,16 +435,18 @@ function getLatestSoilSnapshot(weatherData: any): SoilData {
 
 const getFarmSoilData = async ({
     lat,
-    lon,
+    lng,
+    signal,
 }: {
     lat: number;
-    lon: number;
+    lng: number;
+    signal: AbortSignal;
 }): Promise<SoilData> => {
     const today = new Date().toISOString().split("T")[0]; // "2025-05-17"
 
     const params = {
         latitude: [lat],
-        longitude: [lon],
+        longitude: [lng],
         start_date: today,
         end_date: today,
         hourly: [
@@ -459,7 +464,14 @@ const getFarmSoilData = async ({
     };
 
     const url = "https://api.open-meteo.com/v1/forecast";
-    const responses = await fetchWeatherApi(url, params);
+    const responses = await fetchWeatherApi(
+        url,
+        params,
+        undefined,
+        undefined,
+        undefined,
+        { signal }
+    );
 
     const response = responses[0];
     const hourly = response.hourly()!;

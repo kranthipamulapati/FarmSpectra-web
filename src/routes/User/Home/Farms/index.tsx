@@ -59,7 +59,7 @@ const Farms = () => {
 
     const [images, setImages] = useState<Array<IndexImage>>([]);
 
-    const [selectedDates, setSelectedDates] = useState<Array<Date>>([]);
+    const [selectedDate, setSelectedDate] = useState<Date>();
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
 
     const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
@@ -88,7 +88,7 @@ const Farms = () => {
 
     const onSelectDates = useCallback(
         (_: Array<Date> | undefined, day: Date) => {
-            setSelectedDates([day]);
+            setSelectedDate(day);
         },
         []
     );
@@ -157,7 +157,7 @@ const Farms = () => {
     // get satellite images when a date is selected
     useAsyncEffect(
         async (signal) => {
-            if (!farm?.id || selectedDates.length === 0) {
+            if (!farm?.id || !selectedDate) {
                 return;
             }
 
@@ -166,7 +166,7 @@ const Farms = () => {
             const Images = await getFarmSatelliteImagesByDate({
                 signal,
                 id: farm.id,
-                date: selectedDates[0],
+                date: selectedDate,
             });
 
             const Indices = Images.map(
@@ -186,7 +186,7 @@ const Farms = () => {
 
             dispatch(setLoading(false));
         },
-        [farm?.id, selectedDates],
+        [farm?.id, selectedDate],
         (error) => {
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -196,47 +196,56 @@ const Farms = () => {
         }
     );
 
-    // get visit dates when a farm is selected
+    // get soil, weather, visit dates when a farm is selected
     useAsyncEffect(
         async (signal) => {
             if (!farm?.id) {
-                setSelectedDates([]);
+                setSoilData(undefined);
+                setWeatherData(undefined);
                 setHighlightedDates([]);
+                setSelectedDate(undefined);
+
                 return;
             }
 
             dispatch(setLoading(true));
 
-            const weatherData = await getFarmWeather({
-                lat: farm.coordinates[0].lat,
-                lon: farm.coordinates[0].lng,
-            });
+            const { lat, lng } = farm.coordinates[0];
 
-            const data = await getSatelliteVisitDatesByFarm({
-                signal,
-                id: farm.id,
-            });
-            const Dates = data.map((item) => new Date(item.date));
+            const [WeatherData, SoilData, VisitData] = await Promise.all([
+                getFarmWeather({
+                    lat,
+                    lng,
+                    signal,
+                }),
+                getFarmSoilData({
+                    lat,
+                    lng,
+                    signal,
+                }),
+                getSatelliteVisitDatesByFarm({
+                    signal,
+                    id: farm.id,
+                }),
+            ]);
 
-            const SoilData = await getFarmSoilData({
-                lat: farm.coordinates[0].lat,
-                lon: farm.coordinates[0].lng,
-            });
+            const Dates = VisitData.map((item) => new Date(item.date));
 
             setSoilData(SoilData);
-            setWeatherData(weatherData);
-
+            setWeatherData(WeatherData);
             setHighlightedDates(Dates);
             if (Dates.length) {
-                setSelectedDates([Dates[Dates.length - 1]]);
+                setSelectedDate(Dates[Dates.length - 1]);
             }
 
             dispatch(setLoading(false));
         },
         [farm?.id],
         (error) => {
-            setSelectedDates([]);
+            setSoilData(undefined);
+            setWeatherData(undefined);
             setHighlightedDates([]);
+            setSelectedDate(undefined);
 
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
@@ -256,7 +265,7 @@ const Farms = () => {
                     cameraControl={false}
                     mapTypeControl={false}
                     fullscreenControl={true}
-                    streetViewControl={true}
+                    streetViewControl={false}
                     gestureHandling="greedy"
                     defaultCenter={americanFarmsGeoCenter}
                     fullscreenControlOptions={controlsPosition}
@@ -284,13 +293,13 @@ const Farms = () => {
 
                 <div className="flex justify-center border m-5">
                     <Calendar
-                        mode="multiple"
+                        mode="single"
                         numberOfMonths={1}
                         modifiers={modifiers}
-                        selected={selectedDates}
+                        selected={selectedDate}
                         onSelect={onSelectDates}
                         disabled={disabledMatcher}
-                        month={highlightedDates[0]}
+                        //month={highlightedDates[0]}
                         defaultMonth={highlightedDates[0]}
                         modifiersClassNames={modifiersClassNames}
                     />
