@@ -243,7 +243,7 @@ const Farms = () => {
 
             dispatch(setLoading(false));
         },
-        [farm?.id, selectedDate],
+        [selectedDate],
         (error) => {
             setIndex("");
             setImages([]);
