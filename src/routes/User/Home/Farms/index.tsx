@@ -1,6 +1,9 @@
 import { memo, useRef, useMemo, useState, useEffect, useCallback } from "react";
 
 import { toast } from "react-toastify";
+import { ColumnLayer } from "@deck.gl/layers";
+import DeckGL, { DeckGLRef } from "@deck.gl/react";
+import MapBox, { MapRef } from "react-map-gl/mapbox";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { GoogleMapsOverlay } from "@deck.gl/google-maps";
@@ -13,6 +16,7 @@ import {
     getFarmSoilData,
     getSatelliteVisitDatesByFarm,
     getFarmSatelliteImagesByDate,
+    getFarmSatelliteIndexImageData,
 } from "@/services/farms";
 
 import useAsyncEffect from "@/hooks/useAsyncEffect";
@@ -22,6 +26,7 @@ import { americanFarmsGeoCenter } from "@/constants";
 import type { RootState } from "@/store";
 import { setLoading } from "@/store/reducers/GlobalSlice";
 
+import { getColorFromMatrix } from "@/helpers/farms";
 import { getBitmapLayer, getPolygonLayer } from "@/helpers/maps";
 
 import {
@@ -46,6 +51,8 @@ const controlsPosition = {
 
 const Farms = () => {
     const map = useMap();
+    const mapboxRef = useRef<MapRef | null>(null);
+    const deckRef = useRef<DeckGLRef | null>(null);
     const overlayRef = useRef<GoogleMapsOverlay | null>(null);
 
     const dispatch = useDispatch();
@@ -62,7 +69,14 @@ const Farms = () => {
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
 
-    const [mapType, setMapType] = useState(google.maps.MapTypeId.SATELLITE);
+    const [mapType, setMapType] = useState<"2D" | "3D">("3D");
+    const [columnLayer, setColumnLayer] = useState<any>(null);
+    const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+
+    const handleViewStateChange = useCallback(
+        ({ viewState }) => setViewState(viewState),
+        []
+    );
 
     const onIndexSelect = useCallback(
         (value: string) => {
@@ -106,6 +120,54 @@ const Farms = () => {
         [highlightedDates]
     );
 
+    useAsyncEffect(
+        async (signal) => {
+            if (!farm || !index) {
+                return;
+            }
+
+            dispatch(setLoading(true));
+
+            const image = images.find(
+                (item) =>
+                    item.index_code + " (" + item.satellite_code + ")" === index
+            );
+
+            if (image) {
+                const data = await getFarmSatelliteIndexImageData({
+                    image,
+                    signal,
+                });
+
+                const layer = new ColumnLayer({
+                    id: "ndvi-columns",
+                    data: data.data.columns,
+                    diskResolution: 12,
+                    radius: image.satellite_code === "s2" ? 5 : 1.5,
+                    extruded: true,
+                    pickable: true,
+                    elevationScale: 25,
+                    getPosition: (d) => d.position,
+                    getFillColor: (d) =>
+                        getColorFromMatrix(d.value, data.data.color_matrix),
+                    getElevation: (d) => d.value * 10,
+                });
+
+                setColumnLayer(layer);
+            }
+
+            dispatch(setLoading(false));
+        },
+        [farm, index, images],
+        (error) => {
+            if (error instanceof Error && error.name !== "AbortError") {
+                toast(error.message, { type: "error" });
+            } else {
+                toast("An unknown error occurred.", { type: "error" });
+            }
+        }
+    );
+
     // pan the map to farm location
     // add bitmap layer to show image
     useEffect(() => {
@@ -127,31 +189,33 @@ const Farms = () => {
 
         if (!imageData) return;
 
-        const imageLayer = getBitmapLayer({
-            id: "1",
-            opacity: 1,
-            link: imageData.image_url,
-            bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
-        });
+        if (mapType === "2D") {
+            const imageLayer = getBitmapLayer({
+                id: "1",
+                opacity: 1,
+                link: imageData.image_url,
+                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+            });
 
-        const polygonLayer = getPolygonLayer({
-            id: "2",
-            coordinates: farm.coordinates,
-        });
+            const polygonLayer = getPolygonLayer({
+                id: "2",
+                coordinates: farm.coordinates,
+            });
 
-        if (!overlayRef.current) {
-            overlayRef.current = new GoogleMapsOverlay({ layers: [] });
-            overlayRef.current.setMap(map);
+            if (!overlayRef.current) {
+                overlayRef.current = new GoogleMapsOverlay({ layers: [] });
+                overlayRef.current.setMap(map);
+            }
+
+            overlayRef.current.setProps({
+                layers: [imageLayer, polygonLayer],
+            });
         }
-
-        overlayRef.current.setProps({
-            layers: [imageLayer, polygonLayer],
-        });
 
         return () => {
             overlayRef.current?.setProps({ layers: [] });
         };
-    }, [map, farm, index, images]);
+    }, [map, farm, index, images, mapType]);
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -238,9 +302,21 @@ const Farms = () => {
 
             const Dates = VisitData.map((item) => new Date(item.date));
 
+            const { bbox } = farm;
+            const center = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
+
             setSoilData(SoilData);
-            setWeatherData(WeatherData);
             setHighlightedDates(Dates);
+            setWeatherData(WeatherData);
+            setViewState((prev) => ({
+                ...prev,
+                zoom: 16,
+                pitch: 60,
+                bearing: 0,
+                latitude: center[1],
+                longitude: center[0],
+                transitionDuration: 1000,
+            }));
             if (Dates.length) {
                 setSelectedDate(Dates[Dates.length - 1]);
             }
@@ -264,19 +340,38 @@ const Farms = () => {
 
     return (
         <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
-            <div className="col-span-3 row-span-2">
-                <Map
-                    defaultZoom={13}
-                    mapTypeId={mapType}
-                    zoomControl={false}
-                    cameraControl={false}
-                    mapTypeControl={false}
-                    fullscreenControl={true}
-                    streetViewControl={false}
-                    gestureHandling="greedy"
-                    defaultCenter={americanFarmsGeoCenter}
-                    fullscreenControlOptions={controlsPosition}
-                ></Map>
+            <div className="col-span-3 row-span-2 relative">
+                {mapType === "2D" ? (
+                    <Map
+                        defaultZoom={13}
+                        zoomControl={false}
+                        cameraControl={false}
+                        mapTypeControl={false}
+                        fullscreenControl={true}
+                        streetViewControl={false}
+                        gestureHandling="greedy"
+                        defaultCenter={americanFarmsGeoCenter}
+                        fullscreenControlOptions={controlsPosition}
+                        mapTypeId={google.maps.MapTypeId.SATELLITE}
+                    />
+                ) : (
+                    <DeckGL
+                        ref={deckRef}
+                        controller={true}
+                        viewState={viewState}
+                        layers={[columnLayer]}
+                        initialViewState={INITIAL_VIEW_STATE}
+                        onViewStateChange={handleViewStateChange}
+                    >
+                        <MapBox
+                            ref={mapboxRef}
+                            mapStyle="mapbox://styles/mapbox/light-v11"
+                            mapboxAccessToken={
+                                import.meta.env.VITE_MAPBOX_TOKEN
+                            }
+                        />
+                    </DeckGL>
+                )}
             </div>
 
             <ScrollArea className="col-span-1 row-span-3">
@@ -333,6 +428,14 @@ const Farms = () => {
 const modifiersClassNames = {
     highlight:
         "bg-green-100 text-green-800 font-medium border border-green-300 rounded-full",
+};
+
+const INITIAL_VIEW_STATE = {
+    zoom: 16,
+    pitch: 60,
+    bearing: 0,
+    latitude: americanFarmsGeoCenter.lat,
+    longitude: americanFarmsGeoCenter.lng,
 };
 
 export default memo(Farms);
