@@ -38,12 +38,6 @@ const userSideBarItems = [
         icon: SlidersHorizontal,
     },
     {
-        title: "3D Compare",
-        url: "/home/compare3D",
-        icon: SlidersHorizontal,
-    },
-
-    {
         title: "Time Series",
         url: "/home/timeSeries",
         icon: Timer,
