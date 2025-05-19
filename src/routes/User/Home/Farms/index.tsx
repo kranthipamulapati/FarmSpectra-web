@@ -36,6 +36,7 @@ import {
     SelectTrigger,
     SelectContent,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 
 import FarmSelect from "@/components/custom/Farm/Select";
@@ -70,7 +71,7 @@ const Farms = () => {
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [highlightedDates, setHighlightedDates] = useState<Array<Date>>([]);
 
-    const [mapType, setMapType] = useState<"2D" | "3D">("3D");
+    const [mapType, setMapType] = useState<"2D" | "3D">("2D");
 
     const [layers, setLayers] = useState<Array<any>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
@@ -128,89 +129,75 @@ const Farms = () => {
         [highlightedDates]
     );
 
-    useAsyncEffect(
-        async (signal) => {
-            if (!farm || !image) {
-                return;
-            }
-
-            dispatch(setLoading(true));
-
-            const data = await getFarmSatelliteIndexImageData({
-                image,
-                signal,
-            });
-
-            const layer = new ColumnLayer({
-                id: "ndvi-columns",
-                data: data.data.columns,
-                diskResolution: 12,
-                radius: image.satellite_code === "s2" ? 5 : 1.5,
-                extruded: true,
-                pickable: true,
-                elevationScale: 25,
-                getPosition: (d) => d.position,
-                getFillColor: (d) =>
-                    getColorFromMatrix(d.value, data.data.color_matrix),
-                getElevation: (d) => d.value * 10,
-            });
-
-            setLayers([layer]);
-
-            dispatch(setLoading(false));
-        },
-        [farm, image],
-        (error) => {
-            if (error instanceof Error && error.name !== "AbortError") {
-                toast(error.message, { type: "error" });
-            } else {
-                toast("An unknown error occurred.", { type: "error" });
-            }
-        }
-    );
-
     // pan the map to farm location
     // add bitmap layer to show image
-    useEffect(() => {
-        if (!map || !farm || !image) return;
+    useAsyncEffect(
+        async (signal) => {
+            if (!farm || !image) return;
 
-        const { bbox } = farm;
-        if (!bbox || bbox.length !== 4) return;
+            if (mapType === "2D") {
+                if (!map) {
+                    return;
+                }
 
-        const bounds = new google.maps.LatLngBounds(
-            { lat: bbox[1], lng: bbox[0] },
-            { lat: bbox[3], lng: bbox[2] }
-        );
+                const { bbox } = farm;
+                if (!bbox || bbox.length !== 4) return;
 
-        map.fitBounds(bounds);
+                const bounds = new google.maps.LatLngBounds(
+                    { lat: bbox[1], lng: bbox[0] },
+                    { lat: bbox[3], lng: bbox[2] }
+                );
 
-        if (mapType === "2D") {
-            const imageLayer = getBitmapLayer({
-                id: "1",
-                opacity: 1,
-                link: image.image_url,
-                bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
-            });
+                map.fitBounds(bounds);
+                const imageLayer = getBitmapLayer({
+                    id: "1",
+                    opacity: 1,
+                    link: image.image_url,
+                    bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+                });
 
-            const polygonLayer = getPolygonLayer({
-                id: "2",
-                coordinates: farm.coordinates,
-            });
+                const polygonLayer = getPolygonLayer({
+                    id: "2",
+                    coordinates: farm.coordinates,
+                });
 
-            if (!overlayRef.current) {
-                overlayRef.current = new GoogleMapsOverlay({ layers: [] });
-                overlayRef.current.setMap(map);
+                if (!overlayRef.current) {
+                    overlayRef.current = new GoogleMapsOverlay({ layers: [] });
+                    overlayRef.current.setMap(map);
+                }
+
+                overlayRef.current.setProps({
+                    layers: [imageLayer, polygonLayer],
+                });
+            } else {
+                const data = await getFarmSatelliteIndexImageData({
+                    image,
+                    signal,
+                });
+
+                const layer = new ColumnLayer({
+                    id: "ndvi-columns",
+                    data: data.data.columns,
+                    diskResolution: 12,
+                    radius: image.satellite_code === "s2" ? 5 : 1.5,
+                    extruded: true,
+                    pickable: true,
+                    elevationScale: 25,
+                    getPosition: (d) => d.position,
+                    getFillColor: (d) =>
+                        getColorFromMatrix(d.value, data.data.color_matrix),
+                    getElevation: (d) => d.value * 10,
+                });
+
+                setLayers([layer]);
             }
 
-            overlayRef.current.setProps({
-                layers: [imageLayer, polygonLayer],
-            });
-        }
-
-        return () => {
-            overlayRef.current?.setProps({ layers: [] });
-        };
-    }, [map, farm, image, mapType]);
+            return () => {
+                overlayRef.current?.setProps({ layers: [] });
+            };
+        },
+        [map, farm, image, mapType]
+    );
 
     // get satellite images when a date is selected
     useAsyncEffect(
@@ -396,6 +383,23 @@ const Farms = () => {
                             </SelectContent>
                         </Select>
                     </div>
+                </div>
+
+                <div className="flex flex-row justify-center mt-5">
+                    <Button
+                        onClick={() => setMapType("2D")}
+                        variant={mapType === "2D" ? "default" : "outline"}
+                    >
+                        2D
+                    </Button>
+
+                    <Button
+                        className="ml-2"
+                        onClick={() => setMapType("3D")}
+                        variant={mapType === "3D" ? "default" : "outline"}
+                    >
+                        3D
+                    </Button>
                 </div>
 
                 <div className="flex justify-center border m-5">
