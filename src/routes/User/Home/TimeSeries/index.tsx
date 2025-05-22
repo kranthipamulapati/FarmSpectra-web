@@ -106,6 +106,14 @@ const TimeSeries = () => {
         [highlightedDates]
     );
 
+    const selected = useMemo(
+        () => ({
+            from: selectedDates[0],
+            to: selectedDates[selectedDates.length - 1],
+        }),
+        [selectedDates]
+    );
+
     const disabledMatcher = useCallback(
         (date: Date) =>
             !highlightedDates.some(
@@ -347,11 +355,8 @@ const TimeSeries = () => {
                     <PopoverContent className="w-auto p-0">
                         <Calendar
                             mode="range"
+                            selected={selected}
                             modifiers={modifiers}
-                            selected={{
-                                from: selectedDates[0],
-                                to: selectedDates[selectedDates.length - 1],
-                            }}
                             disabled={disabledMatcher}
                             onSelect={handleDateRangeSelect}
                             month={highlightedDates[0]}
@@ -384,22 +389,22 @@ const TimeSeries = () => {
                 {scatterData.length > 0 && (
                     <div className="px-4 py-2">
                         <input
-                            type="range"
                             min={0}
-                            max={scatterData.length - 1}
+                            type="range"
+                            className="w-full"
                             value={timeIndex}
+                            max={scatterData.length - 1}
                             onChange={(e) =>
                                 setTimeIndex(Number(e.target.value))
                             }
-                            className="w-full"
                         />
                         <div className="text-center text-sm text-muted-foreground">
                             {format(selectedDates[timeIndex], "PPP")}
                         </div>
 
                         <Button
-                            onClick={() => setPlaying(!playing)}
                             className="ml-4"
+                            onClick={() => setPlaying(!playing)}
                         >
                             {playing ? "Pause" : "Play"}
                         </Button>
