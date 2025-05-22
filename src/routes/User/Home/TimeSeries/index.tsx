@@ -359,7 +359,6 @@ const TimeSeries = () => {
                             modifiers={modifiers}
                             disabled={disabledMatcher}
                             onSelect={handleDateRangeSelect}
-                            month={highlightedDates[0]}
                             defaultMonth={highlightedDates[0]}
                             modifiersClassNames={modifiersClassNames}
                         />
@@ -398,6 +397,7 @@ const TimeSeries = () => {
                                 setTimeIndex(Number(e.target.value))
                             }
                         />
+
                         <div className="text-center text-sm text-muted-foreground">
                             {format(selectedDates[timeIndex], "PPP")}
                         </div>
