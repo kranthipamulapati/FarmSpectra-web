@@ -163,7 +163,9 @@ const TimeSeries = () => {
 
     useAsyncEffect(
         async (signal) => {
-            if (!farm || !index) {
+            if (!index) {
+                setScatterData([]);
+
                 return;
             }
 
@@ -174,24 +176,20 @@ const TimeSeries = () => {
                     item.index_code + " (" + item.satellite_code + ")" === index
             );
 
-            try {
-                const results = await Promise.all(
-                    matchedImages.map((image) =>
-                        getFarmSatelliteIndexImageData({ image, signal })
-                    )
-                );
+            const results = await Promise.all(
+                matchedImages.map((image) =>
+                    getFarmSatelliteIndexImageData({ image, signal })
+                )
+            );
 
-                if (results.length > 0) {
-                    setScatterData(results);
-                } else {
-                    setScatterData([]);
-                }
-            } finally {
-                dispatch(setLoading(false));
-            }
+            setScatterData(results);
+
+            dispatch(setLoading(false));
         },
-        [farm, index, images],
+        [index],
         (error) => {
+            setScatterData([]);
+
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
             } else {
@@ -204,6 +202,10 @@ const TimeSeries = () => {
     useAsyncEffect(
         async (signal) => {
             if (!farm?.id || selectedDates.length < 2) {
+                setIndex("");
+                setImages([]);
+                setIndices([]);
+
                 return;
             }
 
@@ -225,21 +227,25 @@ const TimeSeries = () => {
                 )
             );
 
+            let selectedIndex = index;
+
+            if (selectedIndex === "" || !Indices.includes(selectedIndex)) {
+                selectedIndex =
+                    Indices.find((idx) => /^NDVI\b/.test(idx)) || Indices[0];
+            }
+
             setImages(Images);
             setIndices(Indices);
-
-            if (index === "" || Indices.indexOf(index) === -1) {
-                const matchedIndex = Indices.find((index) =>
-                    /^NDVI\b/.test(index)
-                );
-
-                setIndex(matchedIndex || Indices[0]);
-            }
+            setIndex(selectedIndex);
 
             dispatch(setLoading(false));
         },
-        [farm?.id, selectedDates],
+        [selectedDates],
         (error) => {
+            setIndex("");
+            setImages([]);
+            setIndices([]);
+
             if (error instanceof Error && error.name !== "AbortError") {
                 toast(error.message, { type: "error" });
             } else {
@@ -263,7 +269,7 @@ const TimeSeries = () => {
 
             setViewState((prev) => ({
                 ...prev,
-                zoom: 16,
+                zoom: 15,
                 pitch: 60,
                 bearing: 0,
                 latitude: center[1],
@@ -285,8 +291,8 @@ const TimeSeries = () => {
                     Dates[Dates.length - 2],
                     Dates[Dates.length - 1],
                 ]);
-            } else if (Dates.length === 1) {
-                setSelectedDates([Dates[0]]);
+            } else {
+                setSelectedDates([]);
             }
 
             dispatch(setLoading(false));
