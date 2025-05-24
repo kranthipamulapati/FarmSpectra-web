@@ -131,17 +131,19 @@ const TimeSeries = () => {
 
         const current = scatterData[timeIndex];
 
+        const diskResolution = 10 + Math.floor(Math.random() * 3); // Random integer 10, 11, or 12
+
         return new ColumnLayer({
-            id: "ndvi-column",
+            id: `ndvi-column`,
             data: current.data.columns,
             extruded: true,
             pickable: true,
             elevationScale: 25,
             transitions: {
-                getElevation: 500,
-                getFillColor: 500,
+                getElevation: 1000,
+                getFillColor: 1000,
             },
-            diskResolution: 10,
+            diskResolution,
             radius: index.includes("s2") ? 5 : 1.5,
             getPosition: (d) => d.position,
             getElevation: (d) => d.value * 10,
