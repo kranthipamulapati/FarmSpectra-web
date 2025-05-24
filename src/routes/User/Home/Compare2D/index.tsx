@@ -6,6 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { GoogleMapsOverlay } from "@deck.gl/google-maps";
+import { OrbitProgress } from "react-loading-indicators";
 
 import { cn } from "@/lib/utils";
 
@@ -275,6 +276,17 @@ const Compare2D = () => {
 
     return (
         <div className="min-h-screen w-full grid grid-rows-10">
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <OrbitProgress
+                        color="#32cd32"
+                        size="medium"
+                        text=""
+                        textColor=""
+                    />
+                </div>
+            )}
+
             <div className="row-span-1 flex items-center justify-center">
                 <FarmSelect />
 

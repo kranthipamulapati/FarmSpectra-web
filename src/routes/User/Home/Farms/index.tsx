@@ -7,6 +7,7 @@ import MapBox, { MapRef } from "react-map-gl/mapbox";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { GoogleMapsOverlay } from "@deck.gl/google-maps";
+import { OrbitProgress } from "react-loading-indicators";
 
 import {
     type SoilData,
@@ -345,6 +346,17 @@ const Farms = () => {
 
     return (
         <div className="min-h-screen h-screen w-full grid grid-cols-4 grid-rows-3">
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <OrbitProgress
+                        color="#32cd32"
+                        size="medium"
+                        text=""
+                        textColor=""
+                    />
+                </div>
+            )}
+
             <div
                 className={`col-span-3 row-span-2 ${
                     mapType === "2D" ? "block" : "hidden"

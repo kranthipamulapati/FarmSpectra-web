@@ -7,6 +7,7 @@ import Map, { MapRef } from "react-map-gl/mapbox";
 import DeckGL, { DeckGLRef } from "@deck.gl/react";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { OrbitProgress } from "react-loading-indicators";
 
 import { cn } from "@/lib/utils";
 
@@ -59,7 +60,7 @@ const TimeSeries = () => {
     >([]);
 
     const dispatch = useDispatch();
-    const { farm } = useSelector((state: RootState) => state.global);
+    const { farm, loading } = useSelector((state: RootState) => state.global);
 
     const onIndexSelect = useCallback(
         (value: string) => {
@@ -320,6 +321,17 @@ const TimeSeries = () => {
 
     return (
         <div className="min-h-screen w-full grid grid-rows-10">
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <OrbitProgress
+                        color="#32cd32"
+                        size="medium"
+                        text=""
+                        textColor=""
+                    />
+                </div>
+            )}
+
             <div className="row-span-1 flex items-center justify-center">
                 <FarmSelect />
 

@@ -105,8 +105,8 @@ function FarmInfoCard(props: Props) {
             <CardContent className="grid grid-cols-1 gap-4 text-sm">
                 <InfoRow
                     label="Area"
-                    value={farm.area_in_sqm}
                     icon={<Ruler size={16} />}
+                    value={(farm.area_in_sqm / 10000).toFixed(2) + " HA"}
                 />
 
                 <InfoRow

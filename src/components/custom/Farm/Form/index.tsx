@@ -131,7 +131,9 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="farm[area_in_sqm]">Area</Label>
+                                <Label htmlFor="farm[area_in_sqm]">
+                                    Area (HA)
+                                </Label>
 
                                 <Input
                                     min="1"
@@ -140,9 +142,10 @@ const FarmForm = ({ coordinates, clearPolygon }: Props) => {
                                     name="farm[area_in_sqm]"
                                     required={true}
                                     placeholder="Auto filled"
-                                    value={Math.round(
-                                        getAreaOfPolygon(coordinates) || 0
-                                    )}
+                                    value={(
+                                        (getAreaOfPolygon(coordinates) || 0) /
+                                        10000
+                                    ).toFixed(2)}
                                 />
                             </div>
                         </div>
