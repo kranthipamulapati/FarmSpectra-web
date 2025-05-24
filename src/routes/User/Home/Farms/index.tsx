@@ -41,9 +41,10 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 
 import FarmSelect from "@/components/custom/Farm/Select";
-import FarmInfoCard from "@/components/custom/Farm/Card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
 import SoilCard from "@/components/custom/Farm/SoilCard";
+import FarmInfoCard from "@/components/custom/Farm/Card";
 import CurrentWeather from "@/components/custom/Farm/Weather/Current";
 import WeatherForecast from "@/components/custom/Farm/Weather/Forecast";
 
@@ -434,18 +435,20 @@ const Farms = () => {
                     </Button>
                 </div>
 
-                <div className="flex justify-center border m-5">
-                    <Calendar
-                        mode="single"
-                        numberOfMonths={1}
-                        modifiers={modifiers}
-                        selected={selectedDate}
-                        onSelect={onSelectDates}
-                        disabled={disabledMatcher}
-                        defaultMonth={highlightedDates[0]}
-                        modifiersClassNames={modifiersClassNames}
-                    />
-                </div>
+                <Card className="flex border items-center justify-center m-5 p-2">
+                    <CardContent>
+                        <Calendar
+                            mode="single"
+                            numberOfMonths={1}
+                            modifiers={modifiers}
+                            selected={selectedDate}
+                            onSelect={onSelectDates}
+                            disabled={disabledMatcher}
+                            defaultMonth={highlightedDates[0]}
+                            modifiersClassNames={modifiersClassNames}
+                        />
+                    </CardContent>
+                </Card>
 
                 <div className="flex justify-center m-5">
                     {farm && <FarmInfoCard farm={farm} />}
