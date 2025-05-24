@@ -36,6 +36,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import FarmSelect from "@/components/custom/Farm/Select";
@@ -322,7 +323,7 @@ const TimeSeries = () => {
     );
 
     return (
-        <div className="min-h-screen w-full grid grid-rows-10">
+        <div className="min-h-screen w-full grid grid-rows-7">
             {loading && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <OrbitProgress
@@ -334,96 +335,104 @@ const TimeSeries = () => {
                 </div>
             )}
 
-            <div className="row-span-1 flex items-center justify-center">
-                <FarmSelect />
+            <div className="row-span-1 flex flex-col items-center justify-evenly">
+                <div className="flex">
+                    <FarmSelect />
 
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "w-[280px] justify-start text-left font-normal ml-2",
-                                selectedDates.length === 0 &&
-                                    "text-muted-foreground"
-                            )}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    "w-[280px] justify-start text-left font-normal ml-2",
+                                    selectedDates.length === 0 &&
+                                        "text-muted-foreground"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+
+                                {selectedDates.length >= 2
+                                    ? `${format(
+                                          selectedDates[0],
+                                          "PP"
+                                      )} → ${format(
+                                          selectedDates[
+                                              selectedDates.length - 1
+                                          ],
+                                          "PP"
+                                      )}`
+                                    : selectedDates.length === 1
+                                    ? `${format(
+                                          selectedDates[0],
+                                          "PP"
+                                      )} → Pick end date`
+                                    : "Pick two dates"}
+                            </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="range"
+                                selected={selected}
+                                modifiers={modifiers}
+                                disabled={disabledMatcher}
+                                onSelect={handleDateRangeSelect}
+                                defaultMonth={selectedDates[0]}
+                                modifiersClassNames={modifiersClassNames}
+                            />
+                        </PopoverContent>
+                    </Popover>
+
+                    <div className="pl-2">
+                        <Select
+                            value={index}
+                            onValueChange={onIndexSelect}
+                            disabled={indices.length === 0}
                         >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Select Index" />
+                            </SelectTrigger>
 
-                            {selectedDates.length >= 2
-                                ? `${format(selectedDates[0], "PP")} → ${format(
-                                      selectedDates[selectedDates.length - 1],
-                                      "PP"
-                                  )}`
-                                : selectedDates.length === 1
-                                ? `${format(
-                                      selectedDates[0],
-                                      "PP"
-                                  )} → Pick end date`
-                                : "Pick two dates"}
-                        </Button>
-                    </PopoverTrigger>
-
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                            mode="range"
-                            selected={selected}
-                            modifiers={modifiers}
-                            disabled={disabledMatcher}
-                            onSelect={handleDateRangeSelect}
-                            defaultMonth={selectedDates[0]}
-                            modifiersClassNames={modifiersClassNames}
-                        />
-                    </PopoverContent>
-                </Popover>
-
-                <div className="pl-2">
-                    <Select
-                        value={index}
-                        onValueChange={onIndexSelect}
-                        disabled={indices.length === 0}
-                    >
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Select Index" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                            {indices.map((item) => (
-                                <SelectItem key={item} value={item}>
-                                    {item}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                            <SelectContent>
+                                {indices.map((item) => (
+                                    <SelectItem key={item} value={item}>
+                                        {item}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
-                {scatterData.length > 0 && (
-                    <div className="px-4 py-2">
-                        <input
-                            min={0}
-                            type="range"
-                            className="w-full"
-                            value={timeIndex}
-                            max={scatterData.length - 1}
-                            onChange={(e) =>
-                                setTimeIndex(Number(e.target.value))
-                            }
-                        />
+                <div className="flex flex-column items-center justify-center">
+                    {scatterData.length > 0 && (
+                        <>
+                            <div className="text-center text-sm text-muted-foreground">
+                                {format(selectedDates[timeIndex], "PPP")}
+                            </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            {format(selectedDates[timeIndex], "PPP")}
-                        </div>
+                            <Slider
+                                min={0}
+                                step={1}
+                                value={[timeIndex]}
+                                className="w-[300px] ml-4"
+                                max={scatterData.length - 1}
+                                onValueChange={(val) => setTimeIndex(val[0])}
+                                disabled={loading || scatterData.length === 0}
+                            />
 
-                        <Button
-                            className="ml-4"
-                            onClick={() => setPlaying(!playing)}
-                        >
-                            {playing ? "Pause" : "Play"}
-                        </Button>
-                    </div>
-                )}
+                            <Button
+                                className="ml-4"
+                                onClick={() => setPlaying(!playing)}
+                            >
+                                {playing ? "Pause" : "Play"}
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
 
-            <div className="row-span-8 relative">
+            <div className="row-span-6 relative">
                 <DeckGL
                     ref={deckRef}
                     controller={true}
