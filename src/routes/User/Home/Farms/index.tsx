@@ -78,6 +78,8 @@ const Farms = () => {
     const [layers, setLayers] = useState<Array<any>>([]);
     const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
 
+    const [selectedPoint, setSelectedPoint] = useState(null);
+
     const handleViewStateChange = useCallback(
         ({ viewState }) => setViewState(viewState),
         []
@@ -196,14 +198,26 @@ const Farms = () => {
                 pickable: true,
                 elevationScale: 25,
                 getPosition: (d) => d.position,
-                getFillColor: (d) =>
-                    getColorFromMatrix(d.value, data.data.color_matrix),
+                getFillColor: (d) => {
+                    if (
+                        selectedPoint &&
+                        d.position[0] === selectedPoint.position[0] &&
+                        d.position[1] === selectedPoint.position[1]
+                    ) {
+                        return [255, 0, 0, 255]; // Red for selected
+                    }
+
+                    return getColorFromMatrix(d.value, data.data.color_matrix);
+                },
                 getElevation: (d) => d.value * 10,
+                onClick: (pickingInfo) => {
+                    setSelectedPoint(pickingInfo.object);
+                },
             });
 
             setLayers([layer]);
         },
-        [image, mapType],
+        [image, mapType, selectedPoint],
         (error) => {
             setLayers([]);
 
