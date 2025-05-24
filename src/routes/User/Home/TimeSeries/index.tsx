@@ -435,7 +435,7 @@ const TimeSeries = () => {
                 >
                     <Map
                         ref={mapRef}
-                        mapStyle="mapbox://styles/mapbox/dark-v11"
+                        mapStyle="mapbox://styles/mapbox/light-v11"
                         mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
                     />
                 </DeckGL>
