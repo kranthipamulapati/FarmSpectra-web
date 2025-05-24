@@ -134,19 +134,19 @@ const TimeSeries = () => {
         return new ColumnLayer({
             id: "ndvi-column",
             data: current.data.columns,
-            diskResolution: 12,
-            radius: index.includes("s2") ? 5 : 1.5,
             extruded: true,
             pickable: true,
             elevationScale: 25,
-            getPosition: (d) => d.position,
-            getFillColor: (d) =>
-                getColorFromMatrix(d.value, current.data.color_matrix),
-            getElevation: (d) => d.value * 10,
             transitions: {
                 getElevation: 500,
                 getFillColor: 500,
             },
+            diskResolution: 10,
+            radius: index.includes("s2") ? 5 : 1.5,
+            getPosition: (d) => d.position,
+            getElevation: (d) => d.value * 10,
+            getFillColor: (d) =>
+                getColorFromMatrix(d.value, current.data.color_matrix),
         });
     }, [index, timeIndex, scatterData]);
 
@@ -168,7 +168,7 @@ const TimeSeries = () => {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [playing, scatterData.length]);
+    }, [playing, scatterData]);
 
     useAsyncEffect(
         async (signal) => {
@@ -348,17 +348,14 @@ const TimeSeries = () => {
                             <CalendarIcon className="mr-2 h-4 w-4" />
 
                             {selectedDates.length >= 2
-                                ? `${format(
-                                      selectedDates[0],
-                                      "PPP"
-                                  )} → ${format(
+                                ? `${format(selectedDates[0], "PP")} → ${format(
                                       selectedDates[selectedDates.length - 1],
-                                      "PPP"
+                                      "PP"
                                   )}`
                                 : selectedDates.length === 1
                                 ? `${format(
                                       selectedDates[0],
-                                      "PPP"
+                                      "PP"
                                   )} → Pick end date`
                                 : "Pick two dates"}
                         </Button>
