@@ -195,7 +195,7 @@ const TimeSeries = () => {
 
             dispatch(setLoading(false));
         },
-        [index],
+        [index, images],
         (error) => {
             setScatterData([]);
 
@@ -368,7 +368,7 @@ const TimeSeries = () => {
                             modifiers={modifiers}
                             disabled={disabledMatcher}
                             onSelect={handleDateRangeSelect}
-                            defaultMonth={highlightedDates[0]}
+                            defaultMonth={selectedDates[0]}
                             modifiersClassNames={modifiersClassNames}
                         />
                     </PopoverContent>
