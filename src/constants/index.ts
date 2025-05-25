@@ -1,9 +1,9 @@
 import {
-    Plus,
+    Play,
     Trees,
-    Timer,
+    CirclePlus,
+    ArrowLeftRight,
     LayoutDashboard,
-    SlidersHorizontal,
 } from "lucide-react";
 
 const hyderabadGeoCenter = {
@@ -28,19 +28,19 @@ const userSideBarItems = [
         icon: Trees,
     },
     {
-        title: "AddFarm",
+        title: "Add Farm",
         url: "/home/addFarm",
-        icon: Plus,
+        icon: CirclePlus,
     },
     {
         title: "2D Compare",
         url: "/home/compare2D",
-        icon: SlidersHorizontal,
+        icon: ArrowLeftRight,
     },
     {
         title: "Time Series",
         url: "/home/timeSeries",
-        icon: Timer,
+        icon: Play,
     },
 ];
 
@@ -56,9 +56,9 @@ const adminSideBarItems = [
         icon: Trees,
     },
     {
-        title: "AddFarm",
-        url: "/admin/home/addfarm",
-        icon: Plus,
+        title: "Add Farm",
+        url: "/admin/home/addFarm",
+        icon: CirclePlus,
     },
 ];
 
